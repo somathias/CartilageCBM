@@ -23,28 +23,28 @@ class TestScalingMeshBasedCartilageSheets : public AbstractCellBasedTestSuite
 public:
   void TestMeshBasedCartilageSheet() throw(Exception)
   {
-    HoneycombMeshGenerator generator(6, 4);    // Parameters are: cells across, cells up, number of ghost cell layers
+    HoneycombMeshGenerator generator(6, 4, 4);    // Parameters are: cells across, cells up, number of ghost cell layers
     MutableMesh<2,2>* p_mesh = generator.GetMesh();
-    //std::vector<unsigned> location_indices = generator.GetCellLocationIndices(); //necessary when using ghost nodes
+    std::vector<unsigned> location_indices = generator.GetCellLocationIndices(); //necessary when using ghost nodes
     
     std::vector<CellPtr> cells;
-    MAKE_PTR(StemCellProliferativeType, p_stem_type); // the type influences the average length of the G1 phase, ie. the time between cell divisions
+    MAKE_PTR(TransitCellProliferativeType, p_transit_type); // the type influences the average length of the G1 phase, ie. the time between cell divisions
     CellsGenerator<StochasticDurationCellCycleModel, 2> cells_generator;
-    cells_generator.GenerateBasicRandom(cells, p_mesh->GetNumNodes(), p_stem_type); 
-    //cells_generator.GenerateBasicRandom(cells, location_indices.size(), p_stem_type); //necessary when using ghost nodes
+    //cells_generator.GenerateBasicRandom(cells, p_mesh->GetNumNodes(), p_stem_type); 
+    cells_generator.GenerateBasicRandom(cells, location_indices.size(), p_transit_type); //necessary when using ghost nodes
     
-    MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
-    //MeshBasedCellPopulationWithGhostNodes<2> cell_population(*p_mesh, cells, location_indices); //necessary when using ghost nodes
+    //MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
+    MeshBasedCellPopulationWithGhostNodes<2> cell_population(*p_mesh, cells, location_indices); //necessary when using ghost nodes
     
     cell_population.AddPopulationWriter<VoronoiDataWriter>();
 
     OffLatticeSimulation<2> simulator(cell_population);
-    simulator.SetOutputDirectory("MeshBasedCartilageSheetSolidBottomBoundaryWithoutGhostsForceCutOff");
-    simulator.SetEndTime(100.0); // what unit is this???
+    simulator.SetOutputDirectory("MeshBasedCartilageSheetSolidBottomBoundary");
+    simulator.SetEndTime(25.0); // what unit is this???
     simulator.SetSamplingTimestepMultiple(12);
 
     MAKE_PTR(GeneralisedLinearSpringForce<2>, p_force);
-    p_force->SetCutOffLength(1.5);
+    //p_force->SetCutOffLength(1.5);
     simulator.AddForce(p_force);
     
     c_vector<double,2> point = zero_vector<double>(2);
