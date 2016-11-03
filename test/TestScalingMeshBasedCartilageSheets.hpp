@@ -35,12 +35,15 @@ public:
     
     //MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
     MeshBasedCellPopulationWithGhostNodes<2> cell_population(*p_mesh, cells, location_indices); //necessary when using ghost nodes
+    cell_population.SetCellAncestorsToLocationIndices();
     
     cell_population.AddPopulationWriter<VoronoiDataWriter>();
+    cell_population.AddCellWriter<CellAncestorWriter>();
+
 
     OffLatticeSimulation<2> simulator(cell_population);
     simulator.SetOutputDirectory("MeshBasedCartilageSheetSolidBottomBoundary");
-    simulator.SetEndTime(25.0); // what unit is this???
+    simulator.SetEndTime(25.0); // what unit is this??? Seems to be hours.
     simulator.SetSamplingTimestepMultiple(12);
 
     MAKE_PTR(GeneralisedLinearSpringForce<2>, p_force);
