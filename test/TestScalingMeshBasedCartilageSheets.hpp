@@ -12,6 +12,7 @@
 #include "GeneralisedLinearSpringForce.hpp"
 #include "PlaneBoundaryCondition.hpp"
 #include "VoronoiDataWriter.hpp"
+#include "CellAncestorWriter.hpp"
 #include "FakePetscSetup.hpp"
 
 /**
