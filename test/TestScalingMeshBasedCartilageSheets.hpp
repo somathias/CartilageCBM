@@ -14,7 +14,7 @@
 #include "VoronoiDataWriter.hpp"
 #include "CellAncestorWriter.hpp"
 #include "FakePetscSetup.hpp"
-
+#include "OffLatticeSimulation2dDirectedDivision.hpp"
 /**
  * First try to build a model for the cartilage sheet based on a center-based model using a Voronoi tesselation.
  */
@@ -24,26 +24,24 @@ class TestScalingMeshBasedCartilageSheets : public AbstractCellBasedTestSuite
 public:
   void TestMeshBasedCartilageSheet() throw(Exception)
   {
-    HoneycombMeshGenerator generator(6, 1, 4);    // Parameters are: cells across, cells up, number of ghost cell layers
+    HoneycombMeshGenerator generator(6, 1, 4);    //cells across, up, layers of ghosts
     MutableMesh<2,2>* p_mesh = generator.GetMesh();
-    std::vector<unsigned> location_indices = generator.GetCellLocationIndices(); //necessary when using ghost nodes
+    std::vector<unsigned> location_indices = generator.GetCellLocationIndices(); 
     
     std::vector<CellPtr> cells;
-    MAKE_PTR(TransitCellProliferativeType, p_transit_type); // the type influences the average length of the G1 phase, ie. the time between cell divisions
+    MAKE_PTR(TransitCellProliferativeType, p_transit_type); 
     CellsGenerator<StochasticDurationCellCycleModel, 2> cells_generator;
-    //cells_generator.GenerateBasicRandom(cells, p_mesh->GetNumNodes(), p_stem_type); 
-    cells_generator.GenerateBasicRandom(cells, location_indices.size(), p_transit_type); //necessary when using ghost nodes
-    
-    //MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
-    MeshBasedCellPopulationWithGhostNodes<2> cell_population(*p_mesh, cells, location_indices); //necessary when using ghost nodes
-    cell_population.SetCellAncestorsToLocationIndices();
-    
+    cells_generator.GenerateBasicRandom(cells, location_indices.size(), p_transit_type); 
+
+    MeshBasedCellPopulationWithGhostNodes<2> cell_population(*p_mesh, cells, location_indices); 
+    cell_population.SetCellAncestorsToLocationIndices();    
     cell_population.AddPopulationWriter<VoronoiDataWriter>();
     cell_population.AddCellWriter<CellAncestorWriter>();
 
 
-    OffLatticeSimulation<2> simulator(cell_population);
-    simulator.SetOutputDirectory("MeshBasedCartilageSheetSolidBottomBoundary");
+    //OffLatticeSimulation<2> simulator(cell_population);
+    OffLatticeSimulation2dDirectedDivision simulator(cell_population);
+    simulator.SetOutputDirectory("MeshBasedCartilageSheetDirectedDivision");
     simulator.SetEndTime(50.0); // what unit is this??? Seems to be hours.
     simulator.SetSamplingTimestepMultiple(12);
 
@@ -58,8 +56,5 @@ public:
     simulator.AddCellPopulationBoundaryCondition(p_bc);
 
     simulator.Solve();
-
-    //TS_ASSERT_EQUALS(cell_population.GetNumRealCells(), 8u);
-    //TS_ASSERT_DELTA(SimulationTime::Instance()->GetTime(), 20.0, 1e-10);
   }
 };
