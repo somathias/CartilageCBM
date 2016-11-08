@@ -24,7 +24,7 @@ class TestScalingMeshBasedCartilageSheets : public AbstractCellBasedTestSuite
 public:
   void TestMeshBasedCartilageSheet() throw(Exception)
   {
-    HoneycombMeshGenerator generator(6, 4, 4);    // Parameters are: cells across, cells up, number of ghost cell layers
+    HoneycombMeshGenerator generator(6, 1, 4);    // Parameters are: cells across, cells up, number of ghost cell layers
     MutableMesh<2,2>* p_mesh = generator.GetMesh();
     std::vector<unsigned> location_indices = generator.GetCellLocationIndices(); //necessary when using ghost nodes
     
@@ -44,11 +44,11 @@ public:
 
     OffLatticeSimulation<2> simulator(cell_population);
     simulator.SetOutputDirectory("MeshBasedCartilageSheetSolidBottomBoundary");
-    simulator.SetEndTime(25.0); // what unit is this??? Seems to be hours.
+    simulator.SetEndTime(50.0); // what unit is this??? Seems to be hours.
     simulator.SetSamplingTimestepMultiple(12);
 
     MAKE_PTR(GeneralisedLinearSpringForce<2>, p_force);
-    //p_force->SetCutOffLength(1.5);
+    p_force->SetCutOffLength(1.5);
     simulator.AddForce(p_force);
     
     c_vector<double,2> point = zero_vector<double>(2);
