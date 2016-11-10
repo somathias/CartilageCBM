@@ -24,7 +24,7 @@ class TestScalingMeshBasedCartilageSheets : public AbstractCellBasedTestSuite
 public:
   void TestMeshBasedCartilageSheet() throw(Exception)
   {
-    HoneycombMeshGenerator generator(6, 1, 4);    //cells across, up, layers of ghosts
+    HoneycombMeshGenerator generator(20, 1, 4);    //cells across, up, layers of ghosts
     MutableMesh<2,2>* p_mesh = generator.GetMesh();
     std::vector<unsigned> location_indices = generator.GetCellLocationIndices(); 
     
@@ -41,7 +41,7 @@ public:
 
     //OffLatticeSimulation<2> simulator(cell_population);
     OffLatticeSimulation2dDirectedDivision simulator(cell_population);
-    simulator.SetOutputDirectory("MeshBasedCartilageSheetDirectedDivision");
+    simulator.SetOutputDirectory("MeshBasedCartilageSheetDirectedDivision50");
     simulator.SetEndTime(50.0); // what unit is this??? Seems to be hours.
     simulator.SetSamplingTimestepMultiple(12);
 
