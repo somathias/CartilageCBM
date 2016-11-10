@@ -6,6 +6,7 @@
 #include "TransitCellProliferativeType.hpp"
 #include "StochasticDurationCellCycleModel.hpp"
 #include "HoneycombMeshGenerator.hpp"
+#include "CylindricalHoneycombMeshGenerator.hpp"
 #include "OffLatticeSimulation.hpp"
 #include "MeshBasedCellPopulation.hpp"
 #include "MeshBasedCellPopulationWithGhostNodes.hpp"
@@ -24,8 +25,10 @@ class TestScalingMeshBasedCartilageSheets : public AbstractCellBasedTestSuite
 public:
   void TestMeshBasedCartilageSheet() throw(Exception)
   {
-    HoneycombMeshGenerator generator(20, 1, 4);    //cells across, up, layers of ghosts
-    MutableMesh<2,2>* p_mesh = generator.GetMesh();
+    CylindricalHoneycombMeshGenerator generator(6, 1, 4); 
+    Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
+//     HoneycombMeshGenerator generator(6, 1, 4);    //cells across, up, layers of ghosts
+//     MutableMesh<2,2>* p_mesh = generator.GetMesh();
     std::vector<unsigned> location_indices = generator.GetCellLocationIndices(); 
     
     std::vector<CellPtr> cells;
@@ -41,8 +44,8 @@ public:
 
     //OffLatticeSimulation<2> simulator(cell_population);
     OffLatticeSimulation2dDirectedDivision simulator(cell_population);
-    simulator.SetOutputDirectory("MeshBasedCartilageSheetDirectedDivision50");
-    simulator.SetEndTime(50.0); // what unit is this??? Seems to be hours.
+    simulator.SetOutputDirectory("MeshBasedCartilageSheetDirectedDivisionPeriodicBC");
+    simulator.SetEndTime(25.0); // what unit is this??? Seems to be hours
     simulator.SetSamplingTimestepMultiple(12);
 
     MAKE_PTR(GeneralisedLinearSpringForce<2>, p_force);
