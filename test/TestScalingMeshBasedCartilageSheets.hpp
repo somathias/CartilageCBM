@@ -4,7 +4,7 @@
 #include "SmartPointers.hpp"
 #include "CellsGenerator.hpp"
 #include "TransitCellProliferativeType.hpp"
-#include "StochasticDurationCellCycleModel.hpp"
+#include "StochasticDurationGenerationBasedCellCycleModel.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "CylindricalHoneycombMeshGenerator.hpp"
 #include "OffLatticeSimulation.hpp"
@@ -14,6 +14,7 @@
 #include "PlaneBoundaryCondition.hpp"
 #include "VoronoiDataWriter.hpp"
 #include "CellAncestorWriter.hpp"
+#include "CellAgesWriter.hpp"
 #include "FakePetscSetup.hpp"
 #include "OffLatticeSimulation2dDirectedDivision.hpp"
 /**
@@ -25,26 +26,27 @@ class TestScalingMeshBasedCartilageSheets : public AbstractCellBasedTestSuite
 public:
   void TestMeshBasedCartilageSheet() throw(Exception)
   {
-    CylindricalHoneycombMeshGenerator generator(20, 1, 2); 
+    CylindricalHoneycombMeshGenerator generator(20, 2, 2); 
     Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
 //     HoneycombMeshGenerator generator(20, 1, 4);    //cells across, up, layers of ghosts
 //     MutableMesh<2,2>* p_mesh = generator.GetMesh();
     std::vector<unsigned> location_indices = generator.GetCellLocationIndices(); 
     
     std::vector<CellPtr> cells;
-    MAKE_PTR(TransitCellProliferativeType, p_transit_type); 
-    CellsGenerator<StochasticDurationCellCycleModel, 2> cells_generator;
-    cells_generator.GenerateBasicRandom(cells, location_indices.size(), p_transit_type); 
+    MAKE_PTR(StemCellProliferativeType, p_stem_type); 
+    CellsGenerator<StochasticDurationGenerationBasedCellCycleModel, 2> cells_generator;
+    cells_generator.GenerateBasicRandom(cells, location_indices.size(), p_stem_type); 
 
     MeshBasedCellPopulationWithGhostNodes<2> cell_population(*p_mesh, cells, location_indices); 
     cell_population.SetCellAncestorsToLocationIndices();    
     cell_population.AddPopulationWriter<VoronoiDataWriter>();
     cell_population.AddCellWriter<CellAncestorWriter>();
+    cell_population.AddCellWriter<CellAgesWriter>();
 
 
     //OffLatticeSimulation<2> simulator(cell_population);
     OffLatticeSimulation2dDirectedDivision simulator(cell_population);
-    simulator.SetOutputDirectory("MeshBasedCartilageSheetPeriodicBC");
+    simulator.SetOutputDirectory("MeshBasedCartilageSheetMaturation2Layers");
     simulator.SetEndTime(50.0); // what unit is this??? Seems to be hours
     simulator.SetSamplingTimestepMultiple(12);
 
