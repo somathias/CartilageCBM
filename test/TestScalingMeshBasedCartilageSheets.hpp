@@ -2,13 +2,15 @@
 #include "AbstractCellBasedTestSuite.hpp"
 #include "CheckpointArchiveTypes.hpp"
 #include "SmartPointers.hpp"
-#include "CellsGenerator.hpp"
-#include "TransitCellProliferativeType.hpp"
+//#include "CellsGenerator.hpp"
+#include "StemCellProliferativeType.hpp"
+#include "DifferentiatedCellProliferativeType.hpp"
+#include "WildTypeCellMutationState.hpp"
 #include "StochasticDurationGenerationBasedCellCycleModel.hpp"
 #include "HoneycombMeshGenerator.hpp"
-#include "CylindricalHoneycombMeshGenerator.hpp"
-#include "OffLatticeSimulation.hpp"
-#include "MeshBasedCellPopulation.hpp"
+//#include "CylindricalHoneycombMeshGenerator.hpp"
+//#include "OffLatticeSimulation.hpp"
+//#include "MeshBasedCellPopulation.hpp"
 #include "MeshBasedCellPopulationWithGhostNodes.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
 #include "PlaneBoundaryCondition.hpp"
@@ -34,8 +36,21 @@ public:
     
     std::vector<CellPtr> cells;
     MAKE_PTR(StemCellProliferativeType, p_stem_type); 
-    CellsGenerator<StochasticDurationGenerationBasedCellCycleModel, 2> cells_generator;
-    cells_generator.GenerateBasicRandom(cells, location_indices.size(), p_stem_type); 
+    MAKE_PTR(DifferentiatedCellProliferativeType, p_diff_type); 
+    MAKE_PTR(WildTypeCellMutationState, p_state); 
+    for (unsigned i=0; i<location_indices.size(); i++)
+    {
+      StochasticDurationGenerationBasedCellCycleModel* p_cell_cycle_model = new  StochasticDurationGenerationBasedCellCycleModel;
+      // we could set maxTransitGenerations here.
+      CellPtr p_cell(new Cell(p_state, p_cell_cycle_model));
+      p_cell->SetCellProliferativeType(p_diff_type);
+      p_cell->InitialiseCellCycleModel();
+      cells.push_back(p_cell);
+    }
+//     CellsGenerator<StochasticDurationGenerationBasedCellCycleModel, 2> cells_generator;
+//     cells_generator.GenerateBasicRandom(cells, location_indices.size(), p_stem_type); 
+    
+
 
     MeshBasedCellPopulationWithGhostNodes<2> cell_population(*p_mesh, cells, location_indices); 
     cell_population.SetCellAncestorsToLocationIndices();    
@@ -46,7 +61,7 @@ public:
 
     //OffLatticeSimulation<2> simulator(cell_population);
     OffLatticeSimulation2dDirectedDivision simulator(cell_population);
-    simulator.SetOutputDirectory("MeshBasedCartilageSheetMaturationNoPeriodic40CellsLessGhosts");
+    simulator.SetOutputDirectory("MeshBasedCartilageSheetMaturationManualInitConfig");
     simulator.SetEndTime(50.0); // what unit is this??? Seems to be hours
     simulator.SetSamplingTimestepMultiple(12);
 
