@@ -2,7 +2,8 @@
 #include "AbstractCellBasedTestSuite.hpp"
 #include "CheckpointArchiveTypes.hpp"
 #include "SmartPointers.hpp"
-//#include "CellsGenerator.hpp"
+#include "CellsGenerator.hpp"
+#include "RandomNumberGenerator.hpp"
 #include "StemCellProliferativeType.hpp"
 #include "DifferentiatedCellProliferativeType.hpp"
 #include "WildTypeCellMutationState.hpp"
@@ -30,7 +31,9 @@ public:
   {
 //     CylindricalHoneycombMeshGenerator generator(20, 1, 2); 
 //     Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
-    HoneycombMeshGenerator generator(40, 1, 1);    //cells across, up, layers of ghosts
+    unsigned n_layers = 6;
+    
+    HoneycombMeshGenerator generator(15, n_layers, 1);    //cells across, up, layers of ghosts
     MutableMesh<2,2>* p_mesh = generator.GetMesh();
     std::vector<unsigned> location_indices = generator.GetCellLocationIndices(); 
     
@@ -38,18 +41,43 @@ public:
     MAKE_PTR(StemCellProliferativeType, p_stem_type); 
     MAKE_PTR(DifferentiatedCellProliferativeType, p_diff_type); 
     MAKE_PTR(WildTypeCellMutationState, p_state); 
-    for (unsigned i=0; i<location_indices.size(); i++)
+    CellsGenerator<StochasticDurationGenerationBasedCellCycleModel, 2> cells_generator;
+    
+    unsigned n_cells = location_indices.size();
+    unsigned n_cells_per_layer = n_cells/n_layers;
+  
+    //two bottom layers of differentiated cells
+    std::vector<CellPtr> cells_current_layer;
+    cells_generator.GenerateBasicRandom(cells_current_layer, 2*n_cells_per_layer, p_diff_type); 
+    cells.insert(cells.end(),cells_current_layer.begin(),cells_current_layer.end());
+    
+    //layer of differentiated and stem cells
+    for (unsigned i=0; i<n_cells_per_layer; i++)
     {
       StochasticDurationGenerationBasedCellCycleModel* p_cell_cycle_model = new  StochasticDurationGenerationBasedCellCycleModel;
+      p_cell_cycle_model->SetMaxTransitGenerations(4);
       // we could set maxTransitGenerations here.
       CellPtr p_cell(new Cell(p_state, p_cell_cycle_model));
-      p_cell->SetCellProliferativeType(p_diff_type);
-      p_cell->InitialiseCellCycleModel();
+      if(i<5 || i>=n_cells_per_layer-5)
+      {
+	p_cell->SetCellProliferativeType(p_diff_type);
+      }
+      else
+      {
+	p_cell->SetCellProliferativeType(p_stem_type);
+	double birth_time = -p_cell_cycle_model->GetAverageStemCellCycleTime()*RandomNumberGenerator::Instance()->ranf();
+	p_cell->SetBirthTime(birth_time);
+      }
+      //p_cell->InitialiseCellCycleModel();
       cells.push_back(p_cell);
     }
-//     CellsGenerator<StochasticDurationGenerationBasedCellCycleModel, 2> cells_generator;
-//     cells_generator.GenerateBasicRandom(cells, location_indices.size(), p_stem_type); 
     
+    // three more layers of differentiated cells
+    cells_generator.GenerateBasicRandom(cells_current_layer, 3*n_cells_per_layer, p_diff_type); 
+    cells.insert(cells.end(),cells_current_layer.begin(),cells_current_layer.end());
+    
+    //check if we initialised the correct number of cells
+    TS_ASSERT_EQUALS(cells.size(), n_cells);
 
 
     MeshBasedCellPopulationWithGhostNodes<2> cell_population(*p_mesh, cells, location_indices); 
@@ -61,7 +89,7 @@ public:
 
     //OffLatticeSimulation<2> simulator(cell_population);
     OffLatticeSimulation2dDirectedDivision simulator(cell_population);
-    simulator.SetOutputDirectory("MeshBasedCartilageSheetMaturationManualInitConfig");
+    simulator.SetOutputDirectory("MeshBasedCartilageSheetMaturationManualInitConfigRandomBirthTimes");
     simulator.SetEndTime(50.0); // what unit is this??? Seems to be hours
     simulator.SetSamplingTimestepMultiple(12);
 
