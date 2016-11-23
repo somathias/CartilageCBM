@@ -1,3 +1,6 @@
+#include <ctime>
+#include <string>
+#include <sstream>
 #include <cxxtest/TestSuite.h>
 #include "AbstractCellBasedTestSuite.hpp"
 #include "CheckpointArchiveTypes.hpp"
@@ -29,11 +32,17 @@ class TestScalingMeshBasedCartilageSheets : public AbstractCellBasedTestSuite
 public:
   void TestMeshBasedCartilageSheet() throw(Exception)
   {
+    // Reseed the number generator so that different runs will actually produce different results
+    unsigned seed = time(NULL);
+    std::stringstream ss;
+    ss << seed;
+    std::string seed_str = ss.str();
+    RandomNumberGenerator::Instance()->Reseed(seed); 
 //     CylindricalHoneycombMeshGenerator generator(20, 1, 2); 
 //     Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
     unsigned n_layers = 6;
     
-    HoneycombMeshGenerator generator(15, n_layers, 1);    //cells across, up, layers of ghosts
+    HoneycombMeshGenerator generator(15, n_layers);    //cells across, up, layers of ghosts
     MutableMesh<2,2>* p_mesh = generator.GetMesh();
     std::vector<unsigned> location_indices = generator.GetCellLocationIndices(); 
     
@@ -80,7 +89,8 @@ public:
     TS_ASSERT_EQUALS(cells.size(), n_cells);
 
 
-    MeshBasedCellPopulationWithGhostNodes<2> cell_population(*p_mesh, cells, location_indices); 
+    //MeshBasedCellPopulationWithGhostNodes<2> cell_population(*p_mesh, cells, location_indices); 
+    MeshBasedCellPopulation<2> cell_population(*p_mesh, cells, location_indices); 
     cell_population.SetCellAncestorsToLocationIndices();    
     cell_population.AddPopulationWriter<VoronoiDataWriter>();
     cell_population.AddCellWriter<CellAncestorWriter>();
@@ -89,7 +99,7 @@ public:
 
     //OffLatticeSimulation<2> simulator(cell_population);
     OffLatticeSimulation2dDirectedDivision simulator(cell_population);
-    simulator.SetOutputDirectory("MeshBasedCartilageSheetMaturationManualInitConfigRandomBirthTimes");
+    simulator.SetOutputDirectory("MeshBasedCartilageSheetNoGhostNodes/"+seed_str);
     simulator.SetEndTime(50.0); // what unit is this??? Seems to be hours
     simulator.SetSamplingTimestepMultiple(12);
 
@@ -101,6 +111,7 @@ public:
     c_vector<double,2> normal = zero_vector<double>(2);
     normal(1) = -1.0;
     MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc, (&cell_population, point, normal));
+    p_bc->SetUseJiggledNodesOnPlane(true);
     simulator.AddCellPopulationBoundaryCondition(p_bc);
 
     simulator.Solve();
