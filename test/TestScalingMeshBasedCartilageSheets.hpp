@@ -40,7 +40,7 @@ public:
     RandomNumberGenerator::Instance()->Reseed(seed); 
 //     CylindricalHoneycombMeshGenerator generator(20, 1, 2); 
 //     Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
-    unsigned n_layers = 6;
+    unsigned n_layers = 7;
     
     HoneycombMeshGenerator generator(15, n_layers);    //cells across, up, layers of ghosts
     MutableMesh<2,2>* p_mesh = generator.GetMesh();
@@ -64,7 +64,7 @@ public:
     for (unsigned i=0; i<n_cells_per_layer; i++)
     {
       StochasticDurationGenerationBasedCellCycleModel* p_cell_cycle_model = new  StochasticDurationGenerationBasedCellCycleModel;
-      p_cell_cycle_model->SetMaxTransitGenerations(4);
+      //p_cell_cycle_model->SetMaxTransitGenerations(4);
       // we could set maxTransitGenerations here.
       CellPtr p_cell(new Cell(p_state, p_cell_cycle_model));
       if(i<5 || i>=n_cells_per_layer-5)
@@ -81,8 +81,8 @@ public:
       cells.push_back(p_cell);
     }
     
-    // three more layers of differentiated cells
-    cells_generator.GenerateBasicRandom(cells_current_layer, 3*n_cells_per_layer, p_diff_type); 
+    // four more layers of differentiated cells
+    cells_generator.GenerateBasicRandom(cells_current_layer, 4*n_cells_per_layer, p_diff_type); 
     cells.insert(cells.end(),cells_current_layer.begin(),cells_current_layer.end());
     
     //check if we initialised the correct number of cells
@@ -99,20 +99,29 @@ public:
 
     //OffLatticeSimulation<2> simulator(cell_population);
     OffLatticeSimulation2dDirectedDivision simulator(cell_population);
-    simulator.SetOutputDirectory("MeshBasedCartilageSheetNoGhostNodes/"+seed_str);
-    simulator.SetEndTime(50.0); // what unit is this??? Seems to be hours
+    simulator.SetOutputDirectory("MeshBasedCartilageSheetUpperPlaneFull/"+seed_str);
+    simulator.SetEndTime(150.0); // what unit is this??? Seems to be hours
     simulator.SetSamplingTimestepMultiple(12);
 
     MAKE_PTR(GeneralisedLinearSpringForce<2>, p_force);
     p_force->SetCutOffLength(1.5);
     simulator.AddForce(p_force);
     
+    
+    //bottom plane
     c_vector<double,2> point = zero_vector<double>(2);
     c_vector<double,2> normal = zero_vector<double>(2);
     normal(1) = -1.0;
     MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc, (&cell_population, point, normal));
     p_bc->SetUseJiggledNodesOnPlane(true);
     simulator.AddCellPopulationBoundaryCondition(p_bc);
+    
+    //upper plane
+    point(1) = 5.0;
+    normal(1) = 1.0;
+    MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc_up, (&cell_population, point, normal));
+    p_bc_up->SetUseJiggledNodesOnPlane(true);
+    simulator.AddCellPopulationBoundaryCondition(p_bc_up);
 
     simulator.Solve();
   }
