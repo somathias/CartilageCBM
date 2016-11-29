@@ -5,6 +5,7 @@
 #include "AbstractCellBasedTestSuite.hpp"
 #include "CheckpointArchiveTypes.hpp"
 #include "SmartPointers.hpp"
+#include "CellBasedEventHandler.hpp"
 #include "CellsGenerator.hpp"
 #include "RandomNumberGenerator.hpp"
 #include "StemCellProliferativeType.hpp"
@@ -32,6 +33,8 @@ class TestScalingMeshBasedCartilageSheets : public AbstractCellBasedTestSuite
 public:
   void TestMeshBasedCartilageSheet() throw(Exception)
   {
+    CellBasedEventHandler::Enable();
+    
     // Reseed the number generator so that different runs will actually produce different results
     unsigned seed = time(NULL);
     std::stringstream ss;
@@ -55,10 +58,10 @@ public:
     unsigned n_cells = location_indices.size();
     unsigned n_cells_per_layer = n_cells/n_layers;
   
-    //two bottom layers of differentiated cells
+    //no bottom layers of differentiated cells
     std::vector<CellPtr> cells_current_layer;
-    cells_generator.GenerateBasicRandom(cells_current_layer, 2*n_cells_per_layer, p_diff_type); 
-    cells.insert(cells.end(),cells_current_layer.begin(),cells_current_layer.end());
+//     cells_generator.GenerateBasicRandom(cells_current_layer, 2*n_cells_per_layer, p_diff_type); 
+//     cells.insert(cells.end(),cells_current_layer.begin(),cells_current_layer.end());
     
     //layer of differentiated and stem cells
     for (unsigned i=0; i<n_cells_per_layer; i++)
@@ -81,8 +84,8 @@ public:
       cells.push_back(p_cell);
     }
     
-    // four more layers of differentiated cells
-    cells_generator.GenerateBasicRandom(cells_current_layer, 4*n_cells_per_layer, p_diff_type); 
+    // six more layers of differentiated cells
+    cells_generator.GenerateBasicRandom(cells_current_layer, 6*n_cells_per_layer, p_diff_type); 
     cells.insert(cells.end(),cells_current_layer.begin(),cells_current_layer.end());
     
     //check if we initialised the correct number of cells
@@ -100,7 +103,7 @@ public:
     //OffLatticeSimulation<2> simulator(cell_population);
     OffLatticeSimulation2dDirectedDivision simulator(cell_population);
     simulator.SetOutputDirectory("MeshBasedCartilageSheetUpperPlaneFull/"+seed_str);
-    simulator.SetEndTime(150.0); // what unit is this??? Seems to be hours
+    simulator.SetEndTime(100.0); // what unit is this??? Seems to be hours
     simulator.SetSamplingTimestepMultiple(12);
 
     MAKE_PTR(GeneralisedLinearSpringForce<2>, p_force);
@@ -124,5 +127,8 @@ public:
     simulator.AddCellPopulationBoundaryCondition(p_bc_up);
 
     simulator.Solve();
+    
+    CellBasedEventHandler::Headings();
+    CellBasedEventHandler::Report();
   }
 };
