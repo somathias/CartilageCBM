@@ -43,9 +43,9 @@ public:
     RandomNumberGenerator::Instance()->Reseed(seed); 
 //     CylindricalHoneycombMeshGenerator generator(20, 1, 2); 
 //     Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
-    unsigned n_layers = 7;
+    unsigned n_layers = 6;
     
-    HoneycombMeshGenerator generator(15, n_layers);    //cells across, up, layers of ghosts
+    HoneycombMeshGenerator generator(15, n_layers, 1);    //cells across, up, layers of ghosts
     MutableMesh<2,2>* p_mesh = generator.GetMesh();
     std::vector<unsigned> location_indices = generator.GetCellLocationIndices(); 
     
@@ -70,7 +70,7 @@ public:
       //p_cell_cycle_model->SetMaxTransitGenerations(4);
       // we could set maxTransitGenerations here.
       CellPtr p_cell(new Cell(p_state, p_cell_cycle_model));
-      if(i<5 || i>=n_cells_per_layer-5)
+      if(i<7 || i>=n_cells_per_layer-7)
       {
 	p_cell->SetCellProliferativeType(p_diff_type);
       }
@@ -79,22 +79,24 @@ public:
 	p_cell->SetCellProliferativeType(p_stem_type);
 	double birth_time = -p_cell_cycle_model->GetAverageStemCellCycleTime()*RandomNumberGenerator::Instance()->ranf();
 	p_cell->SetBirthTime(birth_time);
+	MAKE_PTR_ARGS(CellAncestor, p_cell_ancestor, (i));
+        p_cell->SetAncestor(p_cell_ancestor);
       }
       //p_cell->InitialiseCellCycleModel();
       cells.push_back(p_cell);
     }
     
-    // six more layers of differentiated cells
-    cells_generator.GenerateBasicRandom(cells_current_layer, 6*n_cells_per_layer, p_diff_type); 
+    // five more layers of differentiated cells
+    cells_generator.GenerateBasicRandom(cells_current_layer, 5*n_cells_per_layer, p_diff_type); 
     cells.insert(cells.end(),cells_current_layer.begin(),cells_current_layer.end());
     
     //check if we initialised the correct number of cells
     TS_ASSERT_EQUALS(cells.size(), n_cells);
 
 
-    //MeshBasedCellPopulationWithGhostNodes<2> cell_population(*p_mesh, cells, location_indices); 
-    MeshBasedCellPopulation<2> cell_population(*p_mesh, cells, location_indices); 
-    cell_population.SetCellAncestorsToLocationIndices();    
+    MeshBasedCellPopulationWithGhostNodes<2> cell_population(*p_mesh, cells, location_indices); 
+    //MeshBasedCellPopulation<2> cell_population(*p_mesh, cells, location_indices); 
+    //cell_population.SetCellAncestorsToLocationIndices();    
     cell_population.AddPopulationWriter<VoronoiDataWriter>();
     cell_population.AddCellWriter<CellAncestorWriter>();
     cell_population.AddCellWriter<CellAgesWriter>();
@@ -102,12 +104,12 @@ public:
 
     //OffLatticeSimulation<2> simulator(cell_population);
     OffLatticeSimulation2dDirectedDivision simulator(cell_population);
-    simulator.SetOutputDirectory("MeshBasedCartilageSheetUpperPlaneFull/"+seed_str);
+    simulator.SetOutputDirectory("MeshBasedCartilageSheetSingleStemCell/"+seed_str);
     simulator.SetEndTime(100.0); // what unit is this??? Seems to be hours
     simulator.SetSamplingTimestepMultiple(12);
 
     MAKE_PTR(GeneralisedLinearSpringForce<2>, p_force);
-    p_force->SetCutOffLength(1.5);
+    //p_force->SetCutOffLength(1.5);
     simulator.AddForce(p_force);
     
     
@@ -120,7 +122,7 @@ public:
     simulator.AddCellPopulationBoundaryCondition(p_bc);
     
     //upper plane
-    point(1) = 5.0;
+    point(1) = 4.0;
     normal(1) = 1.0;
     MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc_up, (&cell_population, point, normal));
     p_bc_up->SetUseJiggledNodesOnPlane(true);
