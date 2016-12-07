@@ -1,2 +1,3 @@
 TestScalingMeshBasedCartilageSheets.hpp
+TestScalingNodeBasedCartilageSheets.hpp
 TestOffLatticeSimulation2dDirectedDivision.hpp
