@@ -38,15 +38,18 @@ public:
     
     // Reseed the number generator so that different runs will actually produce different results
     unsigned seed = time(NULL);
-    std::stringstream ss;
-    ss << seed;
-    std::string seed_str = ss.str();
     RandomNumberGenerator::Instance()->Reseed(seed); 
 //     CylindricalHoneycombMeshGenerator generator(20, 1, 2); 
 //     Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
-    unsigned n_layers = 6;
+    unsigned n_layers = 1;
+    unsigned n_cells_per_layer = 5;
     
-    HoneycombMeshGenerator generator(15, n_layers);    //cells across, up, layers of ghosts
+    std::stringstream ss;
+    ss << n_cells_per_layer << "/"; 
+    ss << seed;
+    std::string filenameaddon_str = ss.str();
+    
+    HoneycombMeshGenerator generator(n_cells_per_layer, n_layers);    //cells across, up, layers of ghosts
     MutableMesh<2,2>* p_generating_mesh = generator.GetMesh();
     std::vector<unsigned> location_indices = generator.GetCellLocationIndices(); 
     
@@ -60,7 +63,7 @@ public:
     CellsGenerator<StochasticDurationGenerationBasedCellCycleModel, 2> cells_generator;
     
     unsigned n_cells = location_indices.size();
-    unsigned n_cells_per_layer = n_cells/n_layers;
+    
   
     //no bottom layers of differentiated cells
     std::vector<CellPtr> cells_current_layer;
@@ -74,7 +77,7 @@ public:
       //p_cell_cycle_model->SetMaxTransitGenerations(4);
       // we could set maxTransitGenerations here.
       CellPtr p_cell(new Cell(p_state, p_cell_cycle_model));
-      if(i<5 || i>=n_cells_per_layer-5)
+      if(i<0 || i>=n_cells_per_layer)
       {
 	p_cell->SetCellProliferativeType(p_diff_type);
       }
@@ -90,9 +93,9 @@ public:
       cells.push_back(p_cell);
     }
     
-    // five more layers of differentiated cells
-    cells_generator.GenerateBasicRandom(cells_current_layer, 5*n_cells_per_layer, p_diff_type); 
-    cells.insert(cells.end(),cells_current_layer.begin(),cells_current_layer.end());
+//     // five more layers of differentiated cells
+//     cells_generator.GenerateBasicRandom(cells_current_layer, 5*n_cells_per_layer, p_diff_type); 
+//     cells.insert(cells.end(),cells_current_layer.begin(),cells_current_layer.end());
     
     //check if we initialised the correct number of cells
     TS_ASSERT_EQUALS(cells.size(), n_cells);
@@ -108,8 +111,8 @@ public:
 
     //OffLatticeSimulation<2> simulator(cell_population);
     OffLatticeSimulation2dDirectedDivision simulator(cell_population);
-    simulator.SetOutputDirectory("NodeBasedCartilageSheet/"+seed_str);
-    simulator.SetEndTime(100.0); // what unit is this??? Seems to be hours
+    simulator.SetOutputDirectory("NodeBasedCartilageSheet/"+filenameaddon_str);
+    simulator.SetEndTime(40.0); // what unit is this??? Seems to be hours
     simulator.SetSamplingTimestepMultiple(12);
 
     MAKE_PTR(GeneralisedLinearSpringForce<2>, p_force);
