@@ -32,24 +32,59 @@
 class TestScalingNodeBasedCartilageSheets : public AbstractCellBasedTestSuite
 {
 public:
+  
   void TestNodeBasedCartilageSheet() throw(Exception)
   {
-    CellBasedEventHandler::Enable();
-    
-    // Reseed the number generator so that different runs will actually produce different results
-    unsigned seed = time(NULL);
-    RandomNumberGenerator::Instance()->Reseed(seed); 
-//     CylindricalHoneycombMeshGenerator generator(20, 1, 2); 
-//     Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
+
+    bool random_seed = true;
     unsigned n_layers = 1;
     unsigned n_cells_per_layer = 5;
+    unsigned n_differentiated_cells_on_side = 0;
+    bool random_birth_times = true;
     
+    double spring_stiffness = 1.0;
+    double upper_boundary_plane = 4.0;
+    double simulation_endtime = 40.0;
+    
+    std::string output_directory = "NodeBasedCartilageSheet/TestNewSetup/";
+    
+    SetupNodeBasedCartilageSheet(random_seed, 
+				 n_cells_per_layer,
+				 n_layers,
+				 n_differentiated_cells_on_side,
+				 random_birth_times,
+				 spring_stiffness,
+				 upper_boundary_plane,
+				 output_directory,
+				 simulation_endtime );
+    
+  }
+
+private:
+  void SetupNodeBasedCartilageSheet(bool random_seed, 
+				    unsigned n_cells_per_layer,
+				    unsigned n_layers,
+				    unsigned n_differentiated_cells_on_side,
+				    bool random_birth_times,
+				    double spring_stiffness,
+				    double upper_boundary_plane,
+				    std::string output_directory,
+				    double simulation_endtime ) throw(Exception)
+  {
+    CellBasedEventHandler::Enable();
     std::stringstream ss;
-    ss << n_cells_per_layer << "/"; 
-    ss << seed;
+    ss << n_cells_per_layer << "/";
+    
+    // Reseed the number generator so that different runs will actually produce different results
+    if (random_seed)
+    {
+      unsigned seed = time(NULL);
+      RandomNumberGenerator::Instance()->Reseed(seed); 
+      ss << seed;
+    }
     std::string filenameaddon_str = ss.str();
     
-    HoneycombMeshGenerator generator(n_cells_per_layer, n_layers);    //cells across, up, layers of ghosts
+    HoneycombMeshGenerator generator(n_cells_per_layer, n_layers); 
     MutableMesh<2,2>* p_generating_mesh = generator.GetMesh();
     std::vector<unsigned> location_indices = generator.GetCellLocationIndices(); 
     
@@ -63,61 +98,50 @@ public:
     CellsGenerator<StochasticDurationGenerationBasedCellCycleModel, 2> cells_generator;
     
     unsigned n_cells = location_indices.size();
-    
-  
-    //no bottom layers of differentiated cells
     std::vector<CellPtr> cells_current_layer;
-//     cells_generator.GenerateBasicRandom(cells_current_layer, 2*n_cells_per_layer, p_diff_type); 
-//     cells.insert(cells.end(),cells_current_layer.begin(),cells_current_layer.end());
-    
+
     //layer of differentiated and stem cells
     for (unsigned i=0; i<n_cells_per_layer; i++)
     {
-      StochasticDurationGenerationBasedCellCycleModel* p_cell_cycle_model = new  StochasticDurationGenerationBasedCellCycleModel;
-      //p_cell_cycle_model->SetMaxTransitGenerations(4);
+      StochasticDurationGenerationBasedCellCycleModel* p_cell_cycle_model = new StochasticDurationGenerationBasedCellCycleModel;
       // we could set maxTransitGenerations here.
+      //p_cell_cycle_model->SetMaxTransitGenerations(4);
       CellPtr p_cell(new Cell(p_state, p_cell_cycle_model));
-      if(i<0 || i>=n_cells_per_layer)
+      if(i<n_differentiated_cells_on_side || i>=n_cells_per_layer-n_differentiated_cells_on_side)
       {
 	p_cell->SetCellProliferativeType(p_diff_type);
       }
       else
       {
 	p_cell->SetCellProliferativeType(p_stem_type);
-	double birth_time = -p_cell_cycle_model->GetAverageStemCellCycleTime()*RandomNumberGenerator::Instance()->ranf();
-	p_cell->SetBirthTime(birth_time);
 	MAKE_PTR_ARGS(CellAncestor, p_cell_ancestor, (i));
         p_cell->SetAncestor(p_cell_ancestor);
+	if(random_birth_times)
+	{
+	  double birth_time = -p_cell_cycle_model->GetAverageStemCellCycleTime()*RandomNumberGenerator::Instance()->ranf();
+	  p_cell->SetBirthTime(birth_time);
+	}
+
       }
       //p_cell->InitialiseCellCycleModel();
       cells.push_back(p_cell);
     }
     
-//     // five more layers of differentiated cells
-//     cells_generator.GenerateBasicRandom(cells_current_layer, 5*n_cells_per_layer, p_diff_type); 
-//     cells.insert(cells.end(),cells_current_layer.begin(),cells_current_layer.end());
-    
-    //check if we initialised the correct number of cells
-    TS_ASSERT_EQUALS(cells.size(), n_cells);
-
+    // five more layers of differentiated cells
+    cells_generator.GenerateBasicRandom(cells_current_layer, (n_layers-1)*n_cells_per_layer, p_diff_type); 
+    cells.insert(cells.end(),cells_current_layer.begin(),cells_current_layer.end());
 
     NodeBasedCellPopulation<2> cell_population(mesh, cells); 
-    //MeshBasedCellPopulation<2> cell_population(*p_mesh, cells, location_indices); 
-    //cell_population.SetCellAncestorsToLocationIndices();    
-    //cell_population.AddPopulationWriter<VoronoiDataWriter>();
     cell_population.AddCellWriter<CellAncestorWriter>();
-    //cell_population.AddCellWriter<CellAgesWriter>();
 
-
-    //OffLatticeSimulation<2> simulator(cell_population);
     OffLatticeSimulation2dDirectedDivision simulator(cell_population);
-    simulator.SetOutputDirectory("NodeBasedCartilageSheet/TestingAdhesion/Low/"+filenameaddon_str);
-    simulator.SetEndTime(40.0); // what unit is this??? Seems to be hours
+    simulator.SetOutputDirectory(output_directory+filenameaddon_str);
+    simulator.SetEndTime(simulation_endtime); // what unit is this??? Seems to be hours
     simulator.SetSamplingTimestepMultiple(12);
 
     MAKE_PTR(GeneralisedLinearSpringForce<2>, p_force);
     //p_force->SetCutOffLength(1.5);
-    p_force->SetMeinekeSpringStiffness(1.0);
+    p_force->SetMeinekeSpringStiffness(spring_stiffness);
     simulator.AddForce(p_force);
     
     
@@ -130,15 +154,17 @@ public:
     simulator.AddCellPopulationBoundaryCondition(p_bc);
     
     //upper plane
-    point(1) = 4.0;
+    point(1) = upper_boundary_plane;
     normal(1) = 1.0;
     MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc_up, (&cell_population, point, normal));
     p_bc_up->SetUseJiggledNodesOnPlane(true);
     simulator.AddCellPopulationBoundaryCondition(p_bc_up);
 
+    CellBasedEventHandler::Reset();
     simulator.Solve();
     
     CellBasedEventHandler::Headings();
     CellBasedEventHandler::Report();
   }
+  
 };
