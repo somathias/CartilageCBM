@@ -111,12 +111,13 @@ public:
 
     //OffLatticeSimulation<2> simulator(cell_population);
     OffLatticeSimulation2dDirectedDivision simulator(cell_population);
-    simulator.SetOutputDirectory("NodeBasedCartilageSheet/"+filenameaddon_str);
+    simulator.SetOutputDirectory("NodeBasedCartilageSheet/TestingAdhesion/Low/"+filenameaddon_str);
     simulator.SetEndTime(40.0); // what unit is this??? Seems to be hours
     simulator.SetSamplingTimestepMultiple(12);
 
     MAKE_PTR(GeneralisedLinearSpringForce<2>, p_force);
     //p_force->SetCutOffLength(1.5);
+    p_force->SetMeinekeSpringStiffness(1.0);
     simulator.AddForce(p_force);
     
     
