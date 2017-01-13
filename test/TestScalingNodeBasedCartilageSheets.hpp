@@ -74,6 +74,9 @@ private:
     CellBasedEventHandler::Enable();
     std::stringstream ss;
     ss << n_cells_per_layer << "/";
+    ss << n_layers << "/";
+    ss << upper_boundary_plane << "/";
+
     
     // Reseed the number generator so that different runs will actually produce different results
     if (random_seed)
@@ -121,6 +124,12 @@ private:
 	  double birth_time = -p_cell_cycle_model->GetAverageStemCellCycleTime()*RandomNumberGenerator::Instance()->ranf();
 	  p_cell->SetBirthTime(birth_time);
 	}
+	else
+        {
+          p_cell->SetBirthTime(-20.0); //Average stem cell cycle time is 24.0 with default values 
+                                      //Now we don't have to wait forever for cell divisions to start
+        }
+
 
       }
       //p_cell->InitialiseCellCycleModel();
@@ -136,7 +145,7 @@ private:
 
     OffLatticeSimulation2dDirectedDivision simulator(cell_population);
     simulator.SetOutputDirectory(output_directory+filenameaddon_str);
-    simulator.SetEndTime(simulation_endtime); // what unit is this??? Seems to be hours
+    simulator.SetEndTime(simulation_endtime); //hours
     simulator.SetSamplingTimestepMultiple(12);
 
     MAKE_PTR(GeneralisedLinearSpringForce<2>, p_force);
