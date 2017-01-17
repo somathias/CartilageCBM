@@ -24,7 +24,7 @@
 #include "CellAncestorWriter.hpp"
 #include "CellAgesWriter.hpp"
 #include "FakePetscSetup.hpp"
-#include "OffLatticeSimulation2dDirectedDivision.hpp"
+#include "OffLatticeSimulation3dDirectedDivision.hpp"
 /**
  * Second try to build a model for the cartilage sheet based on a center-based model.
  */
@@ -146,7 +146,7 @@ private:
     NodeBasedCellPopulation<3> cell_population(mesh, cells); 
     cell_population.AddCellWriter<CellAncestorWriter>();
 
-    OffLatticeSimulation<3> simulator(cell_population);
+    OffLatticeSimulation3dDirectedDivision simulator(cell_population);
     simulator.SetOutputDirectory(output_directory+filenameaddon_str);
     simulator.SetEndTime(simulation_endtime); //hours
     simulator.SetSamplingTimestepMultiple(12);
