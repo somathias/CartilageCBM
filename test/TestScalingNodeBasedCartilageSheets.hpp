@@ -26,7 +26,7 @@
 #include "FakePetscSetup.hpp"
 #include "OffLatticeSimulation2dDirectedDivision.hpp"
 /**
- * First try to build a model for the cartilage sheet based on a center-based model using a Voronoi tesselation.
+ * Second try to build a model for the cartilage sheet based on a center-based model.
  */
 
 class TestScalingNodeBasedCartilageSheets : public AbstractCellBasedTestSuite
