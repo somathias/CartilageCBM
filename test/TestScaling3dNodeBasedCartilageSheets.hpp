@@ -101,7 +101,7 @@ private:
     MAKE_PTR(DifferentiatedCellProliferativeType, p_diff_type); 
     MAKE_PTR(WildTypeCellMutationState, p_state); 
     CellsGenerator<StochasticDurationGenerationBasedCellCycleModel, 3> cells_generator;
-    cells_generator.GenerateBasicRandom(cells, mesh.GetNumNodes(), p_transit_type);
+    cells_generator.GenerateBasicRandom(cells, mesh.GetNumNodes(), p_stem_type);
     
 //     unsigned n_cells = location_indices.size();
 //     std::vector<CellPtr> cells_current_layer;
