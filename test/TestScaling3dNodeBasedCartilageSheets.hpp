@@ -157,18 +157,18 @@ private:
     simulator.AddForce(p_force);
     
     
-//     //bottom plane
-//     c_vector<double,2> point = zero_vector<double>(2);
-//     c_vector<double,2> normal = zero_vector<double>(2);
-//     normal(1) = -1.0;
-//     MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc, (&cell_population, point, normal));
-//     p_bc->SetUseJiggledNodesOnPlane(true);
-//     simulator.AddCellPopulationBoundaryCondition(p_bc);
+    //bottom plane
+    c_vector<double,3> point = zero_vector<double>(3);
+    c_vector<double,3> normal = zero_vector<double>(3);
+    normal(2) = -1.0;
+    MAKE_PTR_ARGS(PlaneBoundaryCondition<3>, p_bc, (&cell_population, point, normal));
+    p_bc->SetUseJiggledNodesOnPlane(true);
+    simulator.AddCellPopulationBoundaryCondition(p_bc);
 //     
 //     //upper plane
-//     point(1) = upper_boundary_plane;
-//     normal(1) = 1.0;
-//     MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc_up, (&cell_population, point, normal));
+//     point(2) = upper_boundary_plane;
+//     normal(2) = 1.0;
+//     MAKE_PTR_ARGS(PlaneBoundaryCondition<3>, p_bc_up, (&cell_population, point, normal));
 //     p_bc_up->SetUseJiggledNodesOnPlane(true);
 //     simulator.AddCellPopulationBoundaryCondition(p_bc_up);
 
