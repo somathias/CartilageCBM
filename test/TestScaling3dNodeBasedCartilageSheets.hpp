@@ -40,8 +40,8 @@ public:
   {
 
     bool random_seed = true;
-    unsigned n_cells_wide = 3;
-    unsigned n_cells_deep = 2;
+    unsigned n_cells_wide = 10;
+    unsigned n_cells_deep = 10;
     unsigned n_cells_high = 1;
     unsigned n_differentiated_cells_width = 0;
     unsigned n_differentiated_cells_depth = 0;
@@ -118,7 +118,7 @@ private:
     ss << n_cells_high << "/";
     ss << upper_boundary_plane << "/";
     
-    unsigned n_cells_per_layer = n_cells_wide*n_cells_deep;
+    //unsigned n_cells_per_layer = n_cells_wide*n_cells_deep;
 
     
     // Reseed the number generator so that different runs will actually produce different results
@@ -140,20 +140,15 @@ private:
     MAKE_PTR(StemCellProliferativeType, p_stem_type); 
     MAKE_PTR(DifferentiatedCellProliferativeType, p_diff_type); 
     MAKE_PTR(WildTypeCellMutationState, p_state); 
-    //CellsGenerator<StochasticDurationGenerationBasedCellCycleModel, 3> cells_generator;
-    //cells_generator.GenerateBasicRandom(cells, mesh.GetNumNodes(), p_stem_type);
+    CellsGenerator<StochasticDurationGenerationBasedCellCycleModel, 3> cells_generator;
+    cells_generator.GenerateBasicRandom(cells, mesh.GetNumNodes(), p_stem_type);
      
 
-    StochasticDurationGenerationBasedCellCycleModel* p_cell_cycle_model = new StochasticDurationGenerationBasedCellCycleModel;
-    // we could set maxTransitGenerations here.
-    //p_cell_cycle_model->SetMaxTransitGenerations(4);
+//     StochasticDurationGenerationBasedCellCycleModel* p_cell_cycle_model = new StochasticDurationGenerationBasedCellCycleModel;
+//     p_cell_cycle_model->SetDimension(3);
+//     // we could set maxTransitGenerations here.
+//     //p_cell_cycle_model->SetMaxTransitGenerations(4);
     
-    for(unsigned k = 0; k<n_cells_per_layer; k++)
-    {
-      CellPtr p_cell(new Cell(p_state, p_cell_cycle_model));
-      p_cell->SetCellProliferativeType(p_diff_type);
-      cells.push_back(p_cell);
-    }
 //     
 //     //layer of differentiated and stem cells
 //     for (unsigned j=0; j<n_cells_deep; j++)
@@ -194,7 +189,9 @@ private:
 //     cells.insert(cells.end(),cells_extra_layers.begin(),cells_extra_layers.end());
 
     NodeBasedCellPopulation<3> cell_population(mesh, cells); 
+    cell_population.SetCellAncestorsToLocationIndices();
     cell_population.AddCellWriter<CellAncestorWriter>();
+    
 
     OffLatticeSimulation3dDirectedDivision simulator(cell_population);
     //OffLatticeSimulation<3> simulator(cell_population);
