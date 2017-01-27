@@ -40,8 +40,8 @@ public:
   {
 
     bool random_seed = true;
-    unsigned n_cells_wide = 10;
-    unsigned n_cells_deep = 10;
+    unsigned n_cells_wide = 7;
+    unsigned n_cells_deep = 7;
     unsigned n_cells_high = 1;
     unsigned n_differentiated_cells_width = 0;
     unsigned n_differentiated_cells_depth = 0;
@@ -51,7 +51,7 @@ public:
     double upper_boundary_plane = 4.0;
     double simulation_endtime = 40.0;
     
-    std::string output_directory = "3dNodeBasedCartilageSheet/TestGenerateNodesWithAncestors/";
+    std::string output_directory = "3dNodeBasedCartilageSheet/Test3dSheetForceCutoff1_5/";
     
     Setup3dNodeBasedCartilageSheet(random_seed, 
 				   n_cells_wide,
@@ -200,7 +200,7 @@ private:
     simulator.SetSamplingTimestepMultiple(12);
 
     MAKE_PTR(GeneralisedLinearSpringForce<3>, p_force);
-    //p_force->SetCutOffLength(1.5);
+    p_force->SetCutOffLength(1.5);
     p_force->SetMeinekeSpringStiffness(spring_stiffness);
     simulator.AddForce(p_force);
     
