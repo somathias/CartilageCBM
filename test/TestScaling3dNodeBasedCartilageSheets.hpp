@@ -40,18 +40,18 @@ public:
   {
 
     bool random_seed = true;
-    unsigned n_cells_wide = 7;
-    unsigned n_cells_deep = 7;
+    unsigned n_cells_wide = 6;
+    unsigned n_cells_deep = 6;
     unsigned n_cells_high = 1;
-    unsigned n_differentiated_cells_width = 0;
-    unsigned n_differentiated_cells_depth = 0;
+    unsigned n_differentiated_cells_width = 2;
+    unsigned n_differentiated_cells_depth = 2;
     bool random_birth_times = true;
     
     double spring_stiffness = 1.0;
     double upper_boundary_plane = 4.0;
     double simulation_endtime = 40.0;
     
-    std::string output_directory = "3dNodeBasedCartilageSheet/Test3dSheetForceCutoff1_5/";
+    std::string output_directory = "3dNodeBasedCartilageSheet/Test3dSheetStemCellConfiguration/";
     
     Setup3dNodeBasedCartilageSheet(random_seed, 
 				   n_cells_wide,
@@ -141,11 +141,12 @@ private:
     MAKE_PTR(DifferentiatedCellProliferativeType, p_diff_type); 
     MAKE_PTR(WildTypeCellMutationState, p_state); 
     CellsGenerator<StochasticDurationGenerationBasedCellCycleModel, 3> cells_generator;
-    cells_generator.GenerateBasicRandom(cells, mesh.GetNumNodes(), p_stem_type);
-     
+    cells_generator.GenerateBasicRandom(cells, mesh.GetNumNodes(), p_diff_type); 
 
-//     StochasticDurationGenerationBasedCellCycleModel* p_cell_cycle_model = new StochasticDurationGenerationBasedCellCycleModel;
-//     p_cell_cycle_model->SetDimension(3);
+    StochasticDurationGenerationBasedCellCycleModel* p_cell_cycle_model = new StochasticDurationGenerationBasedCellCycleModel;
+    p_cell_cycle_model->SetDimension(3);
+
+  
 //     // we could set maxTransitGenerations here.
 //     //p_cell_cycle_model->SetMaxTransitGenerations(4);
     
@@ -189,9 +190,38 @@ private:
 //     cells.insert(cells.end(),cells_extra_layers.begin(),cells_extra_layers.end());
 
     NodeBasedCellPopulation<3> cell_population(mesh, cells); 
-    cell_population.SetCellAncestorsToLocationIndices();
-    cell_population.AddCellWriter<CellAncestorWriter>();
+    //cell_population.SetCellAncestorsToLocationIndices();
     
+    unsigned lower_index = n_differentiated_cells_width + n_differentiated_cells_depth*n_cells_wide;
+    std::cout << lower_index << std::endl;
+    unsigned upper_index = n_cells_wide*n_cells_deep - n_differentiated_cells_depth*n_cells_wide - n_differentiated_cells_width;
+    std::cout << upper_index << std::endl;
+    for (AbstractCellPopulation<3>::Iterator cell_iter = cell_population.Begin();
+             cell_iter != cell_population.End();
+             ++cell_iter)
+    {
+      unsigned node_index = cell_population.GetLocationIndexUsingCell(*cell_iter);
+
+      std::cout << node_index << std::endl;
+      std::cout << node_index % n_cells_wide << std::endl;
+      if (node_index >= lower_index && node_index < upper_index && (node_index % n_cells_wide >= n_differentiated_cells_width) && (node_index % n_cells_wide < n_cells_wide - n_differentiated_cells_width) ) 
+      {
+	cell_iter->SetCellProliferativeType(p_stem_type);
+	MAKE_PTR_ARGS(CellAncestor, p_cell_ancestor, (node_index));
+	cell_iter->SetAncestor(p_cell_ancestor);
+	if(random_birth_times)
+	{
+	  double birth_time = -p_cell_cycle_model->GetAverageStemCellCycleTime()*RandomNumberGenerator::Instance()->ranf();
+	  cell_iter->SetBirthTime(birth_time);
+	}
+	else
+	{
+	  cell_iter->SetBirthTime(-20.0); //Average stem cell cycle time is 24.0 with default values 
+                                      //Now we don't have to wait forever for cell divisions to start
+	}
+      }
+    }
+    cell_population.AddCellWriter<CellAncestorWriter>();
 
     OffLatticeSimulation3dDirectedDivision simulator(cell_population);
     //OffLatticeSimulation<3> simulator(cell_population);
