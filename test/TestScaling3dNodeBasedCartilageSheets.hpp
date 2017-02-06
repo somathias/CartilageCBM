@@ -42,7 +42,7 @@ public:
     bool random_seed = true;
     unsigned n_cells_wide = 6;
     unsigned n_cells_deep = 6;
-    unsigned n_cells_high = 1;
+    unsigned n_cells_high = 3;
     unsigned n_differentiated_cells_width = 2;
     unsigned n_differentiated_cells_depth = 2;
     bool random_birth_times = true;
@@ -193,18 +193,25 @@ private:
     //cell_population.SetCellAncestorsToLocationIndices();
     
     unsigned lower_index = n_differentiated_cells_width + n_differentiated_cells_depth*n_cells_wide;
-    std::cout << lower_index << std::endl;
     unsigned upper_index = n_cells_wide*n_cells_deep - n_differentiated_cells_depth*n_cells_wide - n_differentiated_cells_width;
-    std::cout << upper_index << std::endl;
     for (AbstractCellPopulation<3>::Iterator cell_iter = cell_population.Begin();
              cell_iter != cell_population.End();
              ++cell_iter)
     {
+
       unsigned node_index = cell_population.GetLocationIndexUsingCell(*cell_iter);
 
-      std::cout << node_index << std::endl;
-      std::cout << node_index % n_cells_wide << std::endl;
-      if (node_index >= lower_index && node_index < upper_index && (node_index % n_cells_wide >= n_differentiated_cells_width) && (node_index % n_cells_wide < n_cells_wide - n_differentiated_cells_width) ) 
+      // the cell's node_index can be calculated from its coordinates i,j,k (row, column, layer) as
+      // node_index = i + j* n_cells_wide + k*n_cells_wide *n_cells_deep,
+      // hence reversely they can be obtained via
+      unsigned layer_local_index = node_index % (n_cells_wide*n_cells_deep); 	// i + j* n_cells_wide = node_index % (n_cells_wide *n_cells_deep)
+      unsigned row_index = layer_local_index % n_cells_wide;			// i = (i + j* n_cells_wide) % n_cells_wide
+      
+      // this gives us the following bounds on the index 
+      // (if we want stem cells only in the boundary layer and 
+      // with a padding of a fixed number of differentiated 
+      // cells in the x and y directions)
+      if (node_index >= lower_index && node_index < upper_index && (row_index >= n_differentiated_cells_width) && (row_index < n_cells_wide - n_differentiated_cells_width) ) 
       {
 	cell_iter->SetCellProliferativeType(p_stem_type);
 	MAKE_PTR_ARGS(CellAncestor, p_cell_ancestor, (node_index));
