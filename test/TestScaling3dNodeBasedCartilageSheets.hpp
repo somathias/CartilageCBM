@@ -43,15 +43,15 @@ public:
     unsigned n_cells_wide = 6;
     unsigned n_cells_deep = 6;
     unsigned n_cells_high = 3;
-    unsigned n_differentiated_cells_width = 2;
-    unsigned n_differentiated_cells_depth = 2;
+    unsigned n_differentiated_cells_width = 0;
+    unsigned n_differentiated_cells_depth = 0;
     bool random_birth_times = true;
     
     double spring_stiffness = 1.0;
     double upper_boundary_plane = 4.0;
     double simulation_endtime = 40.0;
     
-    std::string output_directory = "3dNodeBasedCartilageSheet/Test3dSheetStemCellConfiguration/";
+    std::string output_directory = "3dNodeBasedCartilageSheet/Test3dSheetOnlyStemCellsBL/";
     
     Setup3dNodeBasedCartilageSheet(random_seed, 
 				   n_cells_wide,
@@ -111,6 +111,12 @@ private:
     /** The next line is needed because this not designed to be run in parallel */
     EXIT_IF_PARALLEL;
     
+    // TODO change this to a warning and set the problematic input to 1 by default. 
+    if (n_cells_wide <1 || n_cells_deep < 1 || n_cells_high <1 )
+    {
+      EXCEPTION("The number of cells in x, y or z direction is smaller than 1.");
+    }
+    
     CellBasedEventHandler::Enable();
     std::stringstream ss;
     ss << n_cells_wide << "/";
@@ -145,49 +151,6 @@ private:
 
     StochasticDurationGenerationBasedCellCycleModel* p_cell_cycle_model = new StochasticDurationGenerationBasedCellCycleModel;
     p_cell_cycle_model->SetDimension(3);
-
-  
-//     // we could set maxTransitGenerations here.
-//     //p_cell_cycle_model->SetMaxTransitGenerations(4);
-    
-//     
-//     //layer of differentiated and stem cells
-//     for (unsigned j=0; j<n_cells_deep; j++)
-//     {
-//       for (unsigned i=0; i<n_cells_wide; i++)
-//       {
-// 	CellPtr p_cell(new Cell(p_state, p_cell_cycle_model));
-// 	
-// // 	// padding of differentiated cells
-// // 	if(i<n_differentiated_cells_width || i>=n_cells_wide-n_differentiated_cells_width || j<n_differentiated_cells_depth || i>=n_cells_deep-n_differentiated_cells_depth)
-// // 	{
-// // 	  p_cell->SetCellProliferativeType(p_diff_type);
-// // 	}
-// // 	else
-// // 	{
-// 	  p_cell->SetCellProliferativeType(p_stem_type);
-// 	  MAKE_PTR_ARGS(CellAncestor, p_cell_ancestor, (i+j*n_cells_wide));
-// 	  p_cell->SetAncestor(p_cell_ancestor);
-// 	  if(random_birth_times)
-// 	  {
-// 	    double birth_time = -p_cell_cycle_model->GetAverageStemCellCycleTime()*RandomNumberGenerator::Instance()->ranf();
-// 	    p_cell->SetBirthTime(birth_time);
-// 	  }
-// 	  else
-// 	  {
-// 	    p_cell->SetBirthTime(-20.0); //Average stem cell cycle time is 24.0 with default values 
-//                                       //Now we don't have to wait forever for cell divisions to start
-// 	  }
-// 	  
-// // 	}
-// 	cells.push_back(p_cell);
-//       }
-//     }
-    
-    // n_cells_high-1 more layers of differentiated cells
-//     std::vector<CellPtr> cells_extra_layers;
-//     cells_generator.GenerateBasicRandom(cells_extra_layers, (n_cells_high-1)*n_cells_per_layer, p_diff_type); 
-//     cells.insert(cells.end(),cells_extra_layers.begin(),cells_extra_layers.end());
 
     NodeBasedCellPopulation<3> cell_population(mesh, cells); 
     //cell_population.SetCellAncestorsToLocationIndices();
