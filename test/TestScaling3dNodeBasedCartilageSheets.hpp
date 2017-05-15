@@ -48,10 +48,9 @@ public:
     bool random_birth_times = true;
     
     double spring_stiffness = 1.0;
-    double upper_boundary_plane = 2.5;
     double simulation_endtime = 40.0;
     
-    std::string output_directory = "3dNodeBasedCartilageSheet/Test3dSheetUpperPlane/";
+    std::string output_directory = "3dNodeBasedCartilageSheet/Test3dSheetNoBoundaryPlanes/";
     
     Setup3dNodeBasedCartilageSheet(random_seed, 
 				   n_cells_wide,
@@ -61,7 +60,6 @@ public:
 				   n_differentiated_cells_depth,
 				   random_birth_times,
 				   spring_stiffness,
-				   upper_boundary_plane,
 				   output_directory,
 				   simulation_endtime );
     
@@ -104,7 +102,6 @@ private:
 				    unsigned n_differentiated_cells_depth,
 				    bool random_birth_times,
 				    double spring_stiffness,
-				    double upper_boundary_plane,
 				    std::string output_directory,
 				    double simulation_endtime ) throw(Exception)
   {
@@ -122,7 +119,6 @@ private:
     ss << n_cells_wide << "/";
     ss << n_cells_deep << "/";
     ss << n_cells_high << "/";
-    ss << upper_boundary_plane << "/";
     
     //unsigned n_cells_per_layer = n_cells_wide*n_cells_deep;
 
@@ -204,22 +200,6 @@ private:
     p_force->SetMeinekeSpringStiffness(spring_stiffness);
     simulator.AddForce(p_force);
     
-    
-    //bottom plane
-    c_vector<double,3> point = zero_vector<double>(3);
-    c_vector<double,3> normal = zero_vector<double>(3);
-    normal(2) = -1.0;
-    MAKE_PTR_ARGS(PlaneBoundaryCondition<3>, p_bc, (&cell_population, point, normal));
-    p_bc->SetUseJiggledNodesOnPlane(true);
-    simulator.AddCellPopulationBoundaryCondition(p_bc);
-    
-    //upper plane
-    point(2) = upper_boundary_plane;
-    normal(2) = 1.0;
-    MAKE_PTR_ARGS(PlaneBoundaryCondition<3>, p_bc_up, (&cell_population, point, normal));
-    p_bc_up->SetUseJiggledNodesOnPlane(true);
-    simulator.AddCellPopulationBoundaryCondition(p_bc_up);
-
     CellBasedEventHandler::Reset();
     simulator.Solve();
     
