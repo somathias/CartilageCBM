@@ -12,20 +12,24 @@
 #include "ChasteSerialization.hpp"
 #include <boost/serialization/base_object.hpp>
 
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM=ELEMENT_DIM>
-class DownwardsCellDivisionDirection: public AbstractCellDivisionDirection<ELEMENT_DIM, SPACE_DIM> {
+template<unsigned SPACE_DIM>
+class DownwardsCellDivisionDirection: public AbstractCellDivisionDirection<
+			SPACE_DIM> {
 
 private:
 	friend class boost::serialization::access;
 	template<class Archive>
 	void serialize(Archive & archive, const unsigned int version) {
-		archive	& boost::serialization::base_object<AbstractCellDivisionDirection<ELEMENT_DIM, SPACE_DIM> > (*this);
+		archive
+				& boost::serialization::base_object<
+						AbstractCellDivisionDirection<SPACE_DIM> >(*this);
 	}
 public:
 	DownwardsCellDivisionDirection();
 };
 
-
-
+// Serialization for Boost >= 1.36
+#include "SerializationExportWrapper.hpp"
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(DownwardsCellDivisionDirection)
 
 #endif /* DOWNWARDSCELLDIVISIONDIRECTION_HPP_ */

@@ -20,6 +20,7 @@
 #include "AbstractCellBasedTestSuite.hpp"
 #include "FakePetscSetup.hpp"
 
+
 class TestCellDivisionDirections: public AbstractCellBasedTestSuite {
 public:
 
@@ -79,7 +80,7 @@ public:
 
     }
 
-    void xTestArchiveUpwardsCellDivisionDirection() throw(Exception)
+    void TestArchiveUpwardsCellDivisionDirection() throw(Exception)
     {
         OutputFileHandler handler("archive", false);
         std::string archive_filename = handler.GetOutputDirectoryFullPath() + "UpwardsCellDivisionDirection.arch";
@@ -90,7 +91,7 @@ public:
             p_direction->IncrementCellCount();
 
             TS_ASSERT_EQUALS(p_direction->GetCellCount(), 1u);
-            TS_ASSERT_EQUALS(p_direction->GetColour(), 0u);
+            TS_ASSERT_EQUALS(p_direction->GetColour(), 17u);
 
             // Create an output archive
             std::ofstream ofs(archive_filename.c_str());
@@ -124,7 +125,7 @@ public:
         }
     }
 
-    void xTestArchiveDownwardsCellDivisionDirection() throw(Exception)
+    void TestArchiveDownwardsCellDivisionDirection() throw(Exception)
     {
         OutputFileHandler handler("archive", false);
         std::string archive_filename = handler.GetOutputDirectoryFullPath() + "DownwardsCellDivisionDirection.arch";
@@ -135,7 +136,7 @@ public:
             p_direction->IncrementCellCount();
 
             TS_ASSERT_EQUALS(p_direction->GetCellCount(), 1u);
-            TS_ASSERT_EQUALS(p_direction->GetColour(), 0u);
+            TS_ASSERT_EQUALS(p_direction->GetColour(), 18u);
 
             // Create an output archive
             std::ofstream ofs(archive_filename.c_str());

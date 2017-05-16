@@ -7,9 +7,9 @@
 
 #include "DownwardsCellDivisionDirection.hpp"
 
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM> DownwardsCellDivisionDirection<
-		ELEMENT_DIM, SPACE_DIM>::DownwardsCellDivisionDirection() :
-		AbstractCellDivisionDirection<ELEMENT_DIM, SPACE_DIM>(18,
+template<unsigned SPACE_DIM> DownwardsCellDivisionDirection<
+		SPACE_DIM>::DownwardsCellDivisionDirection() :
+		AbstractCellDivisionDirection<SPACE_DIM>(18,
 				zero_vector<double>(SPACE_DIM)) {
 //	c_vector<double, SPACE_DIM> main_direction = zero_vector<double>(SPACE_DIM);
 //	main_direction(SPACE_DIM - 1) = 1.0;          //upwards
@@ -19,13 +19,11 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM> DownwardsCellDivisionDirectio
 
 }
 
-template class DownwardsCellDivisionDirection<1,1>;
-template class DownwardsCellDivisionDirection<1,2>;
-template class DownwardsCellDivisionDirection<2,2>;
-template class DownwardsCellDivisionDirection<1,3>;
-template class DownwardsCellDivisionDirection<2,3>;
-template class DownwardsCellDivisionDirection<3,3>;
+template class DownwardsCellDivisionDirection<1>;
+template class DownwardsCellDivisionDirection<2>;
+template class DownwardsCellDivisionDirection<3>;
+
 
 // Serialization for Boost >= 1.36
-#include "SerializationExportWrapper.hpp"
-EXPORT_TEMPLATE_CLASS_ALL_DIMS(DownwardsCellDivisionDirection)
+#include "SerializationExportWrapperForCpp.hpp"
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(DownwardsCellDivisionDirection)

@@ -17,7 +17,7 @@
 #include "UblasVectorInclude.hpp" //needed for c_vector reference
 
 
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM=ELEMENT_DIM> class AbstractCellDivisionDirection: public AbstractCellProperty {
+template<unsigned SPACE_DIM> class AbstractCellDivisionDirection: public AbstractCellProperty {
 
 	// Allow tests to access private members to test private functions
 	friend class TestAbstractCellDivisionDirection;
