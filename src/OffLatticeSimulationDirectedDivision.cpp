@@ -182,12 +182,12 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM> void OffLatticeSimulationDire
 			rParamsFile);
 }
 
-template class OffLatticeSimulation<1, 1> ;
-template class OffLatticeSimulation<1, 2> ;
-template class OffLatticeSimulation<2, 2> ;
-template class OffLatticeSimulation<1, 3> ;
-template class OffLatticeSimulation<2, 3> ;
-template class OffLatticeSimulation<3, 3> ;
+template class OffLatticeSimulationDirectedDivision<1, 1> ;
+template class OffLatticeSimulationDirectedDivision<1, 2> ;
+template class OffLatticeSimulationDirectedDivision<2, 2> ;
+template class OffLatticeSimulationDirectedDivision<1, 3> ;
+template class OffLatticeSimulationDirectedDivision<2, 3> ;
+template class OffLatticeSimulationDirectedDivision<3, 3> ;
 
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"
