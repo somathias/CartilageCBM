@@ -28,5 +28,9 @@ public:
 	UpwardsCellDivisionDirection();
 };
 
+// Serialization for Boost >= 1.36
+#include "SerializationExportWrapper.hpp"
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(UpwardsCellDivisionDirection)
+
 #endif /* UPWARDSCELLDIVISIONDIRECTION_HPP_ */
 
