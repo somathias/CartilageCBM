@@ -8,7 +8,12 @@
 #ifndef ABSTRACTCELLTISSUETYPE_HPP_
 #define ABSTRACTCELLTISSUETYPE_HPP_
 
-class AbstractCellTissueType: public AbstractCellProperty {
+#include <boost/shared_ptr.hpp>
+#include "AbstractCellProperty.hpp"
+#include "ChasteSerialization.hpp"
+#include <boost/serialization/base_object.hpp>
+
+class AbstractCellTissueType : public AbstractCellProperty {
 
 private:
 	unsigned mColour;
@@ -16,8 +21,7 @@ private:
 	friend class boost::serialization::access;
 	template<class Archive>
 	void serialize(Archive & archive, const unsigned int version) {
-		archive
-				& boost::serialization::base_object<AbstractCellProperty>(
+		archive	& boost::serialization::base_object<AbstractCellProperty>(
 						*this);
 		archive & mColour;
 	}

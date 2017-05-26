@@ -3,3 +3,4 @@ TestScalingNodeBasedCartilageSheets.hpp
 TestScaling3dNodeBasedCartilageSheets.hpp
 TestOffLatticeSimulation2dDirectedDivision.hpp
 TestOffLatticeSimulation3dDirectedDivision.hpp
+TestCellTissueTypes.hpp
