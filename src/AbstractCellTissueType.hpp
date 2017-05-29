@@ -33,6 +33,8 @@ private:
 	AbstractCellTissueType();
 
 public:
+
+
 	/**
 	 * Constructor.
 	 *
