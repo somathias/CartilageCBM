@@ -195,6 +195,7 @@ private:
     simulator.SetEndTime(simulation_endtime); //hours
     simulator.SetSamplingTimestepMultiple(12);
 
+
     MAKE_PTR(GeneralisedLinearSpringForce<3>, p_force);
     p_force->SetCutOffLength(1.5);
     p_force->SetMeinekeSpringStiffness(spring_stiffness);
