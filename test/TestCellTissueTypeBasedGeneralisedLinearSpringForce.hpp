@@ -22,7 +22,7 @@
 class TestCellTissueTypeBasedGeneralisedLinearSpringForce: public AbstractCellBasedTestSuite {
 public:
 
-	void xTestCellTissueTypeBasedGeneralisedLinearSpringForceMethods()
+	void TestCellTissueTypeBasedGeneralisedLinearSpringForceMethods()
 			throw (Exception) {
 		EXIT_IF_PARALLEL;    // HoneycombMeshGenerator doesn't work in parallel.
 
@@ -95,15 +95,53 @@ public:
 			cell_population.GetNode(i)->ClearAppliedForce();
 		}
 
-		boost::shared_ptr<AbstractCellProperty> p_perichondrial(cell_population.GetCellPropertyRegistry()->Get<PerichondrialCellTissueType>());
-		cell_population.GetCellUsingLocationIndex(59)->AddCellProperty(p_perichondrial);
 		boost::shared_ptr<AbstractCellProperty> p_chondrocyte(cell_population.GetCellPropertyRegistry()->Get<ChondrocyteCellTissueType>());
-		cell_population.GetCellUsingLocationIndex(58)->AddCellProperty(p_chondrocyte);
-		cell_population.GetCellUsingLocationIndex(60)->AddCellProperty(p_chondrocyte);
+		for (AbstractCellPopulation<2>::Iterator cell_iter = cell_population.Begin();
+				cell_iter != cell_population.End();
+				++cell_iter)
+		{
+			cell_iter->AddCellProperty(p_chondrocyte);
+		}
+
+		boost::shared_ptr<AbstractCellProperty> p_perichondrial(cell_population.GetCellPropertyRegistry()->Get<PerichondrialCellTissueType>());
+		cell_population.GetCellUsingLocationIndex(59)->RemoveCellProperty<ChondrocyteCellTissueType>();
+		cell_population.GetCellUsingLocationIndex(59)->AddCellProperty(p_perichondrial);
+
+		TS_ASSERT_EQUALS(cell_population.GetCellUsingLocationIndex(59)->HasCellProperty<PerichondrialCellTissueType>(), true);
+		TS_ASSERT_EQUALS(cell_population.GetCellUsingLocationIndex(59)->HasCellProperty<ChondrocyteCellTissueType>(), false);
 
 		force.AddForceContribution(cell_population);
 
 		// ...for which the force magnitude should be increased by 4, our chosen multiplier for heterotypic interactions under attraction
+		TS_ASSERT_DELTA(cell_population.GetNode(58)->rGetAppliedForce()[0], 4.0*0.5*spring_stiffness, 1e-4);
+		TS_ASSERT_DELTA(cell_population.GetNode(58)->rGetAppliedForce()[1], 0.0, 1e-4);
+		TS_ASSERT_DELTA(cell_population.GetNode(59)->rGetAppliedForce()[0], -0.5*spring_stiffness+4.0*(4.0/sqrt(7.0)-2.5)*spring_stiffness, 1e-4);
+		TS_ASSERT_DELTA(cell_population.GetNode(59)->rGetAppliedForce()[1], 0.0, 1e-4);
+		TS_ASSERT_DELTA(cell_population.GetNode(60)->rGetAppliedForce()[0], 0.5*spring_stiffness, 1e-4);
+		TS_ASSERT_DELTA(cell_population.GetNode(60)->rGetAppliedForce()[1], 0.0, 1e-4);
+
+		// Next, test the case where node 59 is a chondrocyte but its neighbours are perichondrial...
+		for (unsigned i=0; i<cell_population.GetNumNodes(); i++)
+		{
+			cell_population.GetNode(i)->ClearAppliedForce();
+		}
+
+		for (AbstractCellPopulation<2>::Iterator cell_iter = cell_population.Begin();
+				cell_iter != cell_population.End();
+				++cell_iter)
+		{
+			cell_iter->AddCellProperty(p_perichondrial);
+		}
+
+		cell_population.GetCellUsingLocationIndex(59)->RemoveCellProperty<PerichondrialCellTissueType>();
+		cell_population.GetCellUsingLocationIndex(59)->AddCellProperty(p_chondrocyte);
+
+		TS_ASSERT_EQUALS(cell_population.GetCellUsingLocationIndex(59)->HasCellProperty<PerichondrialCellTissueType>(), false);
+		TS_ASSERT_EQUALS(cell_population.GetCellUsingLocationIndex(59)->HasCellProperty<ChondrocyteCellTissueType>(), true);
+
+		force.AddForceContribution(cell_population);
+
+		// ...for which the force magnitude should also be increased by 4, our chosen multiplier for heterotypic interactions under attraction
 		TS_ASSERT_DELTA(cell_population.GetNode(58)->rGetAppliedForce()[0], 4.0*0.5*spring_stiffness, 1e-4);
 		TS_ASSERT_DELTA(cell_population.GetNode(58)->rGetAppliedForce()[1], 0.0, 1e-4);
 		TS_ASSERT_DELTA(cell_population.GetNode(59)->rGetAppliedForce()[0], -0.5*spring_stiffness+4.0*(4.0/sqrt(7.0)-2.5)*spring_stiffness, 1e-4);
@@ -158,7 +196,7 @@ public:
 		TS_ASSERT_DELTA(cell_population.GetNode(60)->rGetAppliedForce()[1], 0.0, 1e-4);
 	}
 
-	void xTestCellTissueTypeBasedGeneralisedLinearSpringForceOutputParameters()
+	void TestCellTissueTypeBasedGeneralisedLinearSpringForceOutputParameters()
 	{
 		EXIT_IF_PARALLEL;
 		std::string output_directory = "TestForcesOutputParameters";
@@ -169,13 +207,13 @@ public:
 		linear_force.SetCutOffLength(1.5);
 		TS_ASSERT_EQUALS(linear_force.GetIdentifier(), "CellTissueTypeBasedGeneralisedLinearSpringForce-2-2");
 
-		out_stream linear_force_parameter_file = output_file_handler.OpenOutputFile("linear_results.parameters");
+		out_stream linear_force_parameter_file = output_file_handler.OpenOutputFile("tissue_type_based_results.parameters");
 		linear_force.OutputForceParameters(linear_force_parameter_file);
 		linear_force_parameter_file->close();
 
 		{
-			FileFinder generated_file = output_file_handler.FindFile("linear_results.parameters");
-			FileFinder reference_file("cell_based/test/data/TestForces/linear_results.parameters",
+			FileFinder generated_file = output_file_handler.FindFile("tissue_type_based_results.parameters");
+			FileFinder reference_file("projects/chaste_project/test/data/TestCellTissueTypeBasedGeneralisedLinearSpringForce/tissue_type_based_results.parameters",
 					RelativeTo::ChasteSourceRoot);
 			FileComparison comparer(generated_file,reference_file);
 			TS_ASSERT(comparer.CompareFiles());
