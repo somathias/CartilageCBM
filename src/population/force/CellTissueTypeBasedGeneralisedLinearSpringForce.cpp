@@ -34,12 +34,19 @@ double CellTissueTypeBasedGeneralisedLinearSpringForce<ELEMENT_DIM, SPACE_DIM>::
 		bool cell_A_is_chondrocyte = p_cell_A->template HasCellProperty<
 				ChondrocyteCellTissueType>();
 
+		//test that cell A is not both a perichondrial cell and a chondrocyte
+		assert(!(cell_A_is_perichondrial && cell_A_is_chondrocyte));
+
+
 		CellPtr p_cell_B = rCellPopulation.GetCellUsingLocationIndex(
 				nodeBGlobalIndex);
 		bool cell_B_is_perichondrial = p_cell_B->template HasCellProperty<
 				PerichondrialCellTissueType>();
 		bool cell_B_is_chondrocyte = p_cell_B->template HasCellProperty<
 				ChondrocyteCellTissueType>();
+
+		//test that cell B is not both a perichondrial cell and a chondrocyte
+		assert(!(cell_B_is_perichondrial && cell_B_is_chondrocyte));
 
 
 		if ((cell_A_is_perichondrial || cell_A_is_chondrocyte)

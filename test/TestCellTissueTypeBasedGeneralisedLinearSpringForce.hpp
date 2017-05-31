@@ -101,6 +101,8 @@ public:
 				++cell_iter)
 		{
 			cell_iter->AddCellProperty(p_chondrocyte);
+			TS_ASSERT_EQUALS(cell_iter->HasCellProperty<PerichondrialCellTissueType>(), false);
+			TS_ASSERT_EQUALS(cell_iter->HasCellProperty<ChondrocyteCellTissueType>(), true);
 		}
 
 		boost::shared_ptr<AbstractCellProperty> p_perichondrial(cell_population.GetCellPropertyRegistry()->Get<PerichondrialCellTissueType>());
@@ -130,7 +132,10 @@ public:
 				cell_iter != cell_population.End();
 				++cell_iter)
 		{
+			cell_iter->RemoveCellProperty<ChondrocyteCellTissueType>(); //remove cell tissue type from test before
 			cell_iter->AddCellProperty(p_perichondrial);
+			TS_ASSERT_EQUALS(cell_iter->HasCellProperty<PerichondrialCellTissueType>(), true);
+			TS_ASSERT_EQUALS(cell_iter->HasCellProperty<ChondrocyteCellTissueType>(), false);
 		}
 
 		cell_population.GetCellUsingLocationIndex(59)->RemoveCellProperty<PerichondrialCellTissueType>();
@@ -155,11 +160,15 @@ public:
 			cell_population.GetNode(i)->ClearAppliedForce();
 		}
 
+		cell_population.GetCellUsingLocationIndex(59)->RemoveCellProperty<ChondrocyteCellTissueType>(); //delete its type from the last test
+
 		for (AbstractCellPopulation<2>::Iterator cell_iter = cell_population.Begin();
 				cell_iter != cell_population.End();
 				++cell_iter)
 		{
 			cell_iter->AddCellProperty(p_perichondrial);
+			TS_ASSERT_EQUALS(cell_iter->HasCellProperty<PerichondrialCellTissueType>(), true);
+			TS_ASSERT_EQUALS(cell_iter->HasCellProperty<ChondrocyteCellTissueType>(), false);
 		}
 
 		force.AddForceContribution(cell_population);
@@ -182,7 +191,10 @@ public:
 				cell_iter != cell_population.End();
 				++cell_iter)
 		{
+			cell_iter->RemoveCellProperty<PerichondrialCellTissueType>(); //remove cell tissue type from test before
 			cell_iter->AddCellProperty(p_chondrocyte);
+			TS_ASSERT_EQUALS(cell_iter->HasCellProperty<PerichondrialCellTissueType>(), false);
+			TS_ASSERT_EQUALS(cell_iter->HasCellProperty<ChondrocyteCellTissueType>(), true);
 		}
 
 		force.AddForceContribution(cell_population);
