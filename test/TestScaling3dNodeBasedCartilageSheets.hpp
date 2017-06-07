@@ -11,25 +11,27 @@
 #include "StemCellProliferativeType.hpp"
 #include "DifferentiatedCellProliferativeType.hpp"
 #include "WildTypeCellMutationState.hpp"
-#include "CellTissueTypeBasedGeneralisedLinearSpringForce.hpp"
-#include "PerichondrialCellTissueType.hpp"
-#include "ChondrocyteCellTissueType.hpp"
-#include "StochasticDurationGenerationBasedCellCycleModel.hpp"
+//#include "StochasticDurationGenerationBasedCellCycleModel.hpp"
 #include "HoneycombMeshGenerator.hpp"
 //#include "CylindricalHoneycombMeshGenerator.hpp"
 //#include "OffLatticeSimulation.hpp"
 #include "NodeBasedCellPopulation.hpp"
 #include "NodesOnlyMesh.hpp"
-//#include "MeshBasedCellPopulationWithGhostNodes.hpp"
-#include "GeneralisedLinearSpringForce.hpp"
+//#include "GeneralisedLinearSpringForce.hpp"
 #include "PlaneBoundaryCondition.hpp"
-#include "VoronoiDataWriter.hpp"
 #include "CellAncestorWriter.hpp"
-#include "CellAgesWriter.hpp"
-#include "FakePetscSetup.hpp"
+
 #include "OffLatticeSimulationDirectedDivision.hpp"
+#include "CellTissueTypeBasedCellCycleModel.hpp"
+#include "CellTissueTypeBasedGeneralisedLinearSpringForce.hpp"
+#include "PerichondrialCellTissueType.hpp"
+#include "ChondrocyteCellTissueType.hpp"
 #include "UpwardsCellDivisionDirection.hpp"
 #include "DownwardsCellDivisionDirection.hpp"
+#include "CellTissueTypesWriter.hpp"
+#include "CellDivisionDirectionsWriter.hpp"
+
+#include "FakePetscSetup.hpp"
 /**
  * Second try to build a model for the cartilage sheet based on a center-based model.
  */
@@ -148,10 +150,10 @@ private:
 		MAKE_PTR(StemCellProliferativeType, p_stem_type);
 		MAKE_PTR(DifferentiatedCellProliferativeType, p_diff_type);
 		MAKE_PTR(WildTypeCellMutationState, p_state);
-		CellsGenerator<StochasticDurationGenerationBasedCellCycleModel, 3> cells_generator;
+		CellsGenerator<CellTissueTypeBasedCellCycleModel, 3> cells_generator;
 		cells_generator.GenerateBasicRandom(cells, mesh.GetNumNodes(), p_diff_type);
 
-		StochasticDurationGenerationBasedCellCycleModel* p_cell_cycle_model = new StochasticDurationGenerationBasedCellCycleModel;
+		CellTissueTypeBasedCellCycleModel* p_cell_cycle_model = new CellTissueTypeBasedCellCycleModel;
 		//p_cell_cycle_model->SetDimension(3);
 
 		NodeBasedCellPopulation<3> cell_population(mesh, cells);
@@ -222,6 +224,8 @@ private:
 			}
 		}
 		cell_population.AddCellWriter<CellAncestorWriter>();
+		cell_population.AddCellWriter<CellDivisionDirectionsWriter>();
+		cell_population.AddCellWriter<CellTissueTypesWriter>();
 
 		OffLatticeSimulationDirectedDivision<3> simulator(cell_population);
 		//OffLatticeSimulation<3> simulator(cell_population);
