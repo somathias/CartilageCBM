@@ -44,11 +44,11 @@ public:
 	 */
 	void Test3dNodeBasedCartilageSheet() throw (Exception) {
 
-		bool random_seed = true;
-		unsigned n_cells_wide = 6;
-		unsigned n_cells_deep = 6;
-		unsigned n_cells_high = 5;
-		unsigned n_differentiated_cells_width = 2;
+		bool random_seed = false;
+		unsigned n_cells_wide = 2;
+		unsigned n_cells_deep = 4;
+		unsigned n_cells_high = 1;
+		unsigned n_differentiated_cells_width = 1;
 		unsigned n_differentiated_cells_depth = 2;
 		bool random_birth_times = true;
 
@@ -59,7 +59,7 @@ public:
 		double simulation_endtime = 40.0;
 
 		std::string output_directory =
-				"3dNodeBasedCartilageSheet/Test3dSheetBottomPerichondrialLayer/";
+				"3dNodeBasedCartilageSheet/Test3dSheetRandomNodeCoordinates/cutoff1-5/";
 
 		Setup3dNodeBasedCartilageSheet(random_seed, n_cells_wide, n_cells_deep,
 				n_cells_high, n_differentiated_cells_width,
@@ -91,6 +91,30 @@ public:
 			TS_ASSERT_LESS_THAN_EQUALS(coordinates[0], 2.0);
 			TS_ASSERT_LESS_THAN_EQUALS(coordinates[1], 1.0);
 			TS_ASSERT_EQUALS(coordinates[2], 0.0);
+		}
+	}
+
+	/**
+	 * Minimal testing for the generation of the random node coordinates
+	 */
+	void Test3dRandomNodeGeneration() throw (Exception) {
+		unsigned n_nodes_width = 3;
+		unsigned n_nodes_depth = 2;
+		unsigned n_nodes_height = 1;
+		double max_noise = 0.5;
+
+		std::vector<Node<3>*> nodes;
+		GenerateRandomNodes(nodes, n_nodes_width, n_nodes_depth, n_nodes_height, max_noise);
+
+		TS_ASSERT_EQUALS(nodes.size(),
+				n_nodes_width * n_nodes_depth * n_nodes_height);
+
+		for (unsigned i = 0; i < nodes.size(); i++) {
+			c_vector<double, 3> coordinates = nodes[i]->rGetLocation();
+
+			TS_ASSERT_LESS_THAN_EQUALS(coordinates[0], 2.5);
+			TS_ASSERT_LESS_THAN_EQUALS(coordinates[1], 1.5);
+			TS_ASSERT_LESS_THAN_EQUALS(coordinates[2], 0.5);
 		}
 	}
 
@@ -140,11 +164,13 @@ private:
 		}
 		std::string filenameaddon_str = ss.str();
 
+		double max_noise = 0.001;
+
 		std::vector<Node<3>*> nodes;
-		GenerateNodes(nodes, n_cells_wide,n_cells_deep,n_cells_high);
+		GenerateRandomNodes(nodes, n_cells_wide,n_cells_deep,n_cells_high, max_noise);
 
 		NodesOnlyMesh<3> mesh;
-		mesh.ConstructNodesWithoutMesh(nodes, 1.5);
+		mesh.ConstructNodesWithoutMesh(nodes, 1.7);
 
 		std::vector<CellPtr> cells;
 		MAKE_PTR(StemCellProliferativeType, p_stem_type);
@@ -194,8 +220,8 @@ private:
 			// (if we want stem cells only in the boundary layer and
 			// with a padding of a fixed number of differentiated
 			// cells in the x and y directions)
-			bool stem_cell_bottom = node_index >= lower_index_bottom && node_index < upper_index_bottom && (row_index >= n_differentiated_cells_width) && (row_index < n_cells_wide - n_differentiated_cells_width) ;
-			bool stem_cell_top = node_index >= lower_index_top && node_index < upper_index_top && (row_index >= n_differentiated_cells_width) && (row_index < n_cells_wide - n_differentiated_cells_width) ;
+			bool stem_cell_bottom = node_index >= lower_index_bottom && node_index < upper_index_bottom && (row_index >= n_differentiated_cells_width) && (row_index < n_cells_wide - n_differentiated_cells_width);
+			bool stem_cell_top = node_index >= lower_index_top && node_index < upper_index_top && (row_index >= n_differentiated_cells_width) && (row_index < n_cells_wide - n_differentiated_cells_width);
 			if (stem_cell_bottom || stem_cell_top)
 			{
 				cell_iter->SetCellProliferativeType(p_stem_type);
@@ -203,10 +229,10 @@ private:
 				cell_iter->SetAncestor(p_cell_ancestor);
 
 				// set cell division direction
-				if (layer_index == 0){
+				if (layer_index == 0) {
 					cell_iter->AddCellProperty(p_upwards);
 				}
-				else{
+				else {
 					cell_iter->AddCellProperty(p_downwards);
 				}
 
@@ -234,7 +260,7 @@ private:
 		simulator.SetSamplingTimestepMultiple(12);
 
 		MAKE_PTR(CellTissueTypeBasedGeneralisedLinearSpringForce<3>, p_force);
-		p_force->SetCutOffLength(1.2);
+		p_force->SetCutOffLength(1.5);
 		p_force->SetMeinekeSpringStiffness(spring_stiffness);
 		p_force->SetHomotypicPerichondrialSpringConstantMultiplier(perichondrial_spring_constant_multiplier);
 		p_force->SetHomotypicChondrocyteSpringConstantMultiplier(chondrocyte_spring_constant_multiplier);
@@ -275,6 +301,52 @@ private:
 				for(unsigned i=0; i<n_nodes_width; i++)
 				{
 					rNodes.push_back(new Node<3>(id, false, (double) i, (double) j, (double) k));
+					id++;
+				}
+			}
+		}
+	}
+
+	/**
+	 * Generates random node coordinates for a 3D cell sheet a given number of cells wide, deep and high.
+	 */
+	void GenerateRandomNodes(std::vector<Node<3>*> & rNodes,
+			unsigned n_nodes_width,
+			unsigned n_nodes_depth,
+			unsigned n_nodes_height,
+			double max_noise) throw(Exception)
+	{
+
+		rNodes.clear();
+		unsigned n_nodes = n_nodes_width*n_nodes_depth*n_nodes_height;
+		rNodes.reserve(n_nodes);
+
+		unsigned id = 0;
+
+		for(unsigned k=0; k<n_nodes_height; k++)
+		{
+			for(unsigned j=0; j<n_nodes_depth; j++)
+			{
+				for(unsigned i=0; i<n_nodes_width; i++)
+				{
+					/*
+					 * Note that to pick a random point on the surface of a sphere, it is incorrect
+					 * to select spherical coordinates from uniform distributions on [0, 2*pi) and
+					 * [0, pi) respectively, since points picked in this way will be 'bunched' near
+					 * the poles. See #2230.
+					 */
+					double u = RandomNumberGenerator::Instance()->ranf();
+					double v = RandomNumberGenerator::Instance()->ranf();
+
+					double noise = max_noise * RandomNumberGenerator::Instance()->ranf();
+
+					double random_azimuth_angle = 2 * M_PI * u;
+					double random_zenith_angle = std::acos(2 * v - 1);
+
+					double x_coordinate = i + noise * cos(random_azimuth_angle) * sin(random_zenith_angle);
+					double y_coordinate = j + noise * sin(random_azimuth_angle) * sin(random_zenith_angle);
+					double z_coordinate = k + noise * cos(random_zenith_angle);
+					rNodes.push_back(new Node<3>(id, false, x_coordinate, y_coordinate, z_coordinate));
 					id++;
 				}
 			}
