@@ -55,11 +55,11 @@ public:
 		double spring_stiffness = 1.0;
 		double perichondrial_spring_constant_multiplier = 1.0;
 		double chondrocyte_spring_constant_multiplier = 1.0;
-		double heterotypic_spring_constant_multiplier = 2.0;
+		double heterotypic_spring_constant_multiplier = 1.0;
 		double simulation_endtime = 40.0;
 
 		std::string output_directory =
-				"3dNodeBasedCartilageSheet/Test3dSheetRandomNodeCoordinates/cutoff1-5/";
+				"3dNodeBasedCartilageSheet/Test3dSheetRandomNodeCoordinates/noise-0-1/";
 
 		Setup3dNodeBasedCartilageSheet(random_seed, n_cells_wide, n_cells_deep,
 				n_cells_high, n_differentiated_cells_width,
@@ -164,13 +164,13 @@ private:
 		}
 		std::string filenameaddon_str = ss.str();
 
-		double max_noise = 0.001;
+		double max_noise = 0.1;
 
 		std::vector<Node<3>*> nodes;
 		GenerateRandomNodes(nodes, n_cells_wide,n_cells_deep,n_cells_high, max_noise);
 
 		NodesOnlyMesh<3> mesh;
-		mesh.ConstructNodesWithoutMesh(nodes, 1.7);
+		mesh.ConstructNodesWithoutMesh(nodes, 1.5);
 
 		std::vector<CellPtr> cells;
 		MAKE_PTR(StemCellProliferativeType, p_stem_type);
