@@ -95,30 +95,30 @@ public:
 		}
 	}
 
-	/**
-	 * Minimal testing for the generation of the random node coordinates
-	 */
-	void xTest3dRandomNodeGeneration() throw (Exception) {
-		unsigned n_nodes_width = 3;
-		unsigned n_nodes_depth = 2;
-		unsigned n_nodes_height = 1;
-		double max_noise = 0.5;
-
-		std::vector<Node<3>*> nodes;
-		GenerateRandomNodes(nodes, n_nodes_width, n_nodes_depth, n_nodes_height,
-				max_noise);
-
-		TS_ASSERT_EQUALS(nodes.size(),
-				n_nodes_width * n_nodes_depth * n_nodes_height);
-
-		for (unsigned i = 0; i < nodes.size(); i++) {
-			c_vector<double, 3> coordinates = nodes[i]->rGetLocation();
-
-			TS_ASSERT_LESS_THAN_EQUALS(coordinates[0], 2.5);
-			TS_ASSERT_LESS_THAN_EQUALS(coordinates[1], 1.5);
-			TS_ASSERT_LESS_THAN_EQUALS(coordinates[2], 0.5);
-		}
-	}
+//	/**
+//	 * Minimal testing for the generation of the random node coordinates
+//	 */
+//	void xTest3dRandomNodeGeneration() throw (Exception) {
+//		unsigned n_nodes_width = 3;
+//		unsigned n_nodes_depth = 2;
+//		unsigned n_nodes_height = 1;
+//		double max_noise = 0.5;
+//
+//		std::vector<Node<3>*> nodes;
+//		GenerateRandomNodes(nodes, n_nodes_width, n_nodes_depth, n_nodes_height,
+//				max_noise);
+//
+//		TS_ASSERT_EQUALS(nodes.size(),
+//				n_nodes_width * n_nodes_depth * n_nodes_height);
+//
+//		for (unsigned i = 0; i < nodes.size(); i++) {
+//			c_vector<double, 3> coordinates = nodes[i]->rGetLocation();
+//
+//			TS_ASSERT_LESS_THAN_EQUALS(coordinates[0], 2.5);
+//			TS_ASSERT_LESS_THAN_EQUALS(coordinates[1], 1.5);
+//			TS_ASSERT_LESS_THAN_EQUALS(coordinates[2], 0.5);
+//		}
+//	}
 
 	/**
 	 * Minimal testing for the generation of the node coordinates
@@ -225,22 +225,52 @@ private:
 					throw (Exception) {
 		CellBasedEventHandler::Enable();
 
-		NodeBasedCartilageSheet* p_cartilage_sheet = new NodeBasedCartilageSheet();
+		NodeBasedCartilageSheet* p_cartilage_sheet =
+				new NodeBasedCartilageSheet();
 
-		boost::shared_ptr<NodeBasedCellPopulation<3> > cell_population = p_cartilage_sheet->Setup();
+		// set the sheet dimensions
+		p_cartilage_sheet->SetCartilageSheetDimensions(n_cells_wide,
+				n_cells_deep, n_cells_high);
+		p_cartilage_sheet->setMaxCoordinatePerturbation(0.1);
+		if (random_seed) {
+			p_cartilage_sheet->UseRandomSeed();
+		}
+		if (!random_birth_times){
+			p_cartilage_sheet->setSynchronizeCellCycles(true);
+		}
+		// generate the nodes
+		p_cartilage_sheet->GenerateNodesOnHCPGrid();
+
+		// setup the cell population
+		if (!p_cartilage_sheet->isCellPopulationSetup()) {
+			p_cartilage_sheet->Setup();
+		}
+		// setup the cell tissue types and cell division directions
+		p_cartilage_sheet->InitialiseTissueLayersAndCellDivisionDirections();
+		// setup the initial stem cell configuration
+		p_cartilage_sheet->InitialiseBulkStemCellConfiguration(
+				n_cells_wide - 2 * n_differentiated_cells_width,
+				n_cells_deep - 2 * n_differentiated_cells_depth);
+
+		// get the cell population
+		boost::shared_ptr<NodeBasedCellPopulation<3> > cell_population =
+				p_cartilage_sheet->GetCellPopulation();
 
 		OffLatticeSimulationDirectedDivision<3> simulator(*cell_population);
 		//OffLatticeSimulation<3> simulator(cell_population);
 		simulator.SetOutputDirectory(output_directory);
-		simulator.SetEndTime(simulation_endtime);//hours
+		simulator.SetEndTime(simulation_endtime); //hours
 		simulator.SetSamplingTimestepMultiple(12);
 
 		MAKE_PTR(CellTissueTypeBasedGeneralisedLinearSpringForce<3>, p_force);
 		p_force->SetCutOffLength(1.5);
 		p_force->SetMeinekeSpringStiffness(spring_stiffness);
-		p_force->SetHomotypicPerichondrialSpringConstantMultiplier(perichondrial_spring_constant_multiplier);
-		p_force->SetHomotypicChondrocyteSpringConstantMultiplier(chondrocyte_spring_constant_multiplier);
-		p_force->SetHeterotypicSpringConstantMultiplier(heterotypic_spring_constant_multiplier);
+		p_force->SetHomotypicPerichondrialSpringConstantMultiplier(
+				perichondrial_spring_constant_multiplier);
+		p_force->SetHomotypicChondrocyteSpringConstantMultiplier(
+				chondrocyte_spring_constant_multiplier);
+		p_force->SetHeterotypicSpringConstantMultiplier(
+				heterotypic_spring_constant_multiplier);
 		simulator.AddForce(p_force);
 
 		CellBasedEventHandler::Reset();
@@ -249,79 +279,27 @@ private:
 		CellBasedEventHandler::Headings();
 		CellBasedEventHandler::Report();
 
-
 	}
 
 	/**
 	 * Generates nodes for a 3D cell sheet a given number of cells wide, deep and high.
 	 * Arrangement of the nodes will be on a Cartesian grid.
 	 */
-	void GenerateNodes(std::vector<Node<3>*> & rNodes,
-			unsigned n_nodes_width,
-			unsigned n_nodes_depth,
-			unsigned n_nodes_height) throw(Exception)
-	{
+	void GenerateNodes(std::vector<Node<3>*> & rNodes, unsigned n_nodes_width,
+			unsigned n_nodes_depth, unsigned n_nodes_height) throw (Exception) {
 
 		rNodes.clear();
-		unsigned n_nodes = n_nodes_width*n_nodes_depth*n_nodes_height;
+		unsigned n_nodes = n_nodes_width * n_nodes_depth * n_nodes_height;
 		rNodes.reserve(n_nodes);
 
 		unsigned id = 0;
 
-		for(unsigned k=0; k<n_nodes_height; k++)
-		{
-			for(unsigned j=0; j<n_nodes_depth; j++)
-			{
-				for(unsigned i=0; i<n_nodes_width; i++)
-				{
-					rNodes.push_back(new Node<3>(id, false, (double) i, (double) j, (double) k));
-					id++;
-				}
-			}
-		}
-	}
-
-	/**
-	 * Generates random node coordinates for a 3D cell sheet a given number of cells wide, deep and high.
-	 * Arrangement of the nodes will be on a Cartesian grid.
-	 */
-	void GenerateRandomNodes(std::vector<Node<3>*> & rNodes,
-			unsigned n_nodes_width,
-			unsigned n_nodes_depth,
-			unsigned n_nodes_height,
-			double max_noise) throw(Exception)
-	{
-
-		rNodes.clear();
-		unsigned n_nodes = n_nodes_width*n_nodes_depth*n_nodes_height;
-		rNodes.reserve(n_nodes);
-
-		unsigned id = 0;
-
-		for(unsigned k=0; k<n_nodes_height; k++)
-		{
-			for(unsigned j=0; j<n_nodes_depth; j++)
-			{
-				for(unsigned i=0; i<n_nodes_width; i++)
-				{
-					/*
-					 * Note that to pick a random point on the surface of a sphere, it is incorrect
-					 * to select spherical coordinates from uniform distributions on [0, 2*pi) and
-					 * [0, pi) respectively, since points picked in this way will be 'bunched' near
-					 * the poles.
-					 */
-					double u = RandomNumberGenerator::Instance()->ranf();
-					double v = RandomNumberGenerator::Instance()->ranf();
-
-					double noise = max_noise * RandomNumberGenerator::Instance()->ranf();
-
-					double random_azimuth_angle = 2 * M_PI * u;
-					double random_zenith_angle = std::acos(2 * v - 1);
-
-					double x_coordinate = i + noise * cos(random_azimuth_angle) * sin(random_zenith_angle);
-					double y_coordinate = j + noise * sin(random_azimuth_angle) * sin(random_zenith_angle);
-					double z_coordinate = k + noise * cos(random_zenith_angle);
-					rNodes.push_back(new Node<3>(id, false, x_coordinate, y_coordinate, z_coordinate));
+		for (unsigned k = 0; k < n_nodes_height; k++) {
+			for (unsigned j = 0; j < n_nodes_depth; j++) {
+				for (unsigned i = 0; i < n_nodes_width; i++) {
+					rNodes.push_back(
+							new Node<3>(id, false, (double) i, (double) j,
+									(double) k));
 					id++;
 				}
 			}
@@ -333,32 +311,28 @@ private:
 	 * Arrangement of the nodes will be on a hexagonal close packed (hcp) lattice.
 	 */
 	void GenerateHCPNodes(std::vector<Node<3>*> & rNodes,
-			unsigned n_nodes_width,
-			unsigned n_nodes_depth,
-			unsigned n_nodes_height) throw(Exception)
-	{
+			unsigned n_nodes_width, unsigned n_nodes_depth,
+			unsigned n_nodes_height) throw (Exception) {
 
 		rNodes.clear();
-		unsigned n_nodes = n_nodes_width*n_nodes_depth*n_nodes_height;
+		unsigned n_nodes = n_nodes_width * n_nodes_depth * n_nodes_height;
 		rNodes.reserve(n_nodes);
 
 		unsigned id = 0;
 
-		for(unsigned k=0; k<n_nodes_height; k++)
-		{
-			for(unsigned j=0; j<n_nodes_depth; j++)
-			{
-				for(unsigned i=0; i<n_nodes_width; i++)
-				{
-					double x_coordinate = (2*i + ((j+k) % 2))*0.5; //cell radius = 0.5 cell diameter (reference length)
-					double y_coordinate = (sqrt(3)*(j+(k % 2)/3.0))*0.5;//cell radius = 0.5 cell diameter (reference length)
-					double z_coordinate = (2*sqrt(6)*k/3.0)*0.5;//cell radius = 0.5 cell diameter (reference length)
-					rNodes.push_back(new Node<3>(id, false, x_coordinate, y_coordinate, z_coordinate));
+		for (unsigned k = 0; k < n_nodes_height; k++) {
+			for (unsigned j = 0; j < n_nodes_depth; j++) {
+				for (unsigned i = 0; i < n_nodes_width; i++) {
+					double x_coordinate = (2 * i + ((j + k) % 2)) * 0.5; //cell radius = 0.5 cell diameter (reference length)
+					double y_coordinate = (sqrt(3) * (j + (k % 2) / 3.0)) * 0.5; //cell radius = 0.5 cell diameter (reference length)
+					double z_coordinate = (2 * sqrt(6) * k / 3.0) * 0.5; //cell radius = 0.5 cell diameter (reference length)
+					rNodes.push_back(
+							new Node<3>(id, false, x_coordinate, y_coordinate,
+									z_coordinate));
 					id++;
 				}
 			}
 		}
 	}
-
 
 };
