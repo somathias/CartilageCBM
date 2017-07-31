@@ -86,6 +86,7 @@ void NodeBasedCartilageSheet::InitialiseTissueLayersAndCellDivisionDirections()
 		unsigned node_index = mpCellPopulation->GetLocationIndexUsingCell(
 				*cell_iter);
 
+
 		// the cell's node_index can be calculated from its coordinates i,j,k (row, column, layer) as
 		// node_index = i + j* n_cells_wide + k*n_cells_wide *n_cells_deep,
 		// hence reversely they can be obtained via
@@ -94,6 +95,7 @@ void NodeBasedCartilageSheet::InitialiseTissueLayersAndCellDivisionDirections()
 //		unsigned layer_local_index = node_index
 //				% (mNumberOfNodesPerXDimension * mNumberOfNodesPerYDimension);// i + j* n_cells_wide = node_index % (n_cells_wide *n_cells_deep)
 //		unsigned row_index = layer_local_index % mNumberOfNodesPerXDimension;// i = (i + j* n_cells_wide) % n_cells_wide
+
 
 		// set the cell tissue type and cell division direction based on the layer index
 		if (layer_index == 0) {
@@ -125,7 +127,6 @@ void NodeBasedCartilageSheet::InitialiseBulkStemCellConfiguration(
 			- numberOfCellsWide) / 2;
 	unsigned n_differentiated_cells_depth = (mNumberOfNodesPerYDimension
 			- numberOfCellsDeep) / 2;
-
 
 	unsigned lower_index_bottom = n_differentiated_cells_width
 			+ n_differentiated_cells_depth * mNumberOfNodesPerXDimension;
@@ -197,6 +198,68 @@ void NodeBasedCartilageSheet::InitialiseBulkStemCellConfiguration(
 			}
 		}
 
+	}
+	mpCellPopulation->AddCellWriter<CellAncestorWriter>();
+}
+
+void NodeBasedCartilageSheet::InitialiseRandomStemCellConfiguration(
+		unsigned numberOfStemCellsPerLayer) throw (Exception) {
+
+	//check if the population is set up
+	if (!mCellPopulationSetup) {
+		EXCEPTION("The cell population has not been set up yet.");
+	}
+
+	// sanity check input parameter
+	unsigned n_cells_total_per_layer = mNumberOfNodesPerXDimension
+			* mNumberOfNodesPerYDimension;
+	if (numberOfStemCellsPerLayer > n_cells_total_per_layer) {
+		EXCEPTION(
+				"Specified number of stem cells larger than total number of cells per layer.");
+	}
+
+	MAKE_PTR(StemCellProliferativeType, p_stem_type);
+
+	//generate stem cell indices for both layers
+	unsigned i = 0;
+	while (i < 2*numberOfStemCellsPerLayer) {
+		//choose a row
+		unsigned row = RandomNumberGenerator::Instance()->randMod(
+				mNumberOfNodesPerXDimension);
+		//choose a column
+		unsigned column = RandomNumberGenerator::Instance()->randMod(
+				mNumberOfNodesPerYDimension);
+		//calculate node index
+		// if in lower layer the offset is zero, else the offset is n_cells_total_per_layer*(mNumberOfNodesPerZDimension -1);
+		unsigned offset = (i<numberOfStemCellsPerLayer) ? 0 : n_cells_total_per_layer*(mNumberOfNodesPerZDimension -1);
+		unsigned node_index = row + column * mNumberOfNodesPerXDimension + offset;
+
+		//get cell belonging to node index
+		CellPtr cell = mpCellPopulation->GetCellUsingLocationIndex(node_index);
+
+		// set proliferative type to stem cell if differentiated in order to not choose the same cell twice
+		if (!cell->GetCellProliferativeType()->IsType<StemCellProliferativeType>()) {
+
+			cell->SetCellProliferativeType(p_stem_type);
+
+			MAKE_PTR_ARGS(CellAncestor, p_cell_ancestor, (node_index));
+			cell->SetAncestor(p_cell_ancestor);
+
+			// set random birth times if required
+			if (!mSynchronizeCellCycles) {
+				CellTissueTypeBasedCellCycleModel* p_cell_cycle_model =
+						new CellTissueTypeBasedCellCycleModel;
+				double birth_time =
+						-p_cell_cycle_model->GetAverageStemCellCycleTime()
+								* RandomNumberGenerator::Instance()->ranf();
+				cell->SetBirthTime(birth_time);
+			} else {
+				cell->SetBirthTime(-20.0); //Average stem cell cycle time is 24.0 with default values
+										   //Now we don't have to wait forever for cell divisions to start
+			}
+			//increase counter
+			i++;
+		}
 	}
 	mpCellPopulation->AddCellWriter<CellAncestorWriter>();
 }

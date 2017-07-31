@@ -37,6 +37,9 @@
 
 class NodeBasedCartilageSheet {
 
+	// Allow tests to access private members to test private functions
+	friend class TestNodeBasedCartilageSheet;
+
 private:
 	//c_vector<unsigned, 3> mNumberOfNodesPerDimension;
 	unsigned mNumberOfNodesPerXDimension;
@@ -67,8 +70,9 @@ public:
 			throw (Exception);
 
 	void InitialiseTissueLayersAndCellDivisionDirections() throw (Exception);
-	void InitialiseBulkStemCellConfiguration(unsigned numberOfCellsWide,
-			unsigned numberOfCellsDeep) throw (Exception);
+	void InitialiseBulkStemCellConfiguration(unsigned, unsigned)
+			throw (Exception);
+	void InitialiseRandomStemCellConfiguration(unsigned) throw (Exception);
 
 	void SetCartilageSheetDimensions(unsigned, unsigned, unsigned);
 
@@ -76,12 +80,16 @@ public:
 	void GenerateNodesOnHCPGrid();
 
 	void UseRandomSeed();
+
 	double getMaxCoordinatePerturbation() const;
 	void setMaxCoordinatePerturbation(double maxCoordinatePerturbation);
+
 	unsigned getNumberOfNodesPerXDimension() const;
 	unsigned getNumberOfNodesPerYDimension() const;
 	unsigned getNumberOfNodesPerZDimension() const;
+
 	unsigned getSeed() const;
+
 	void setSynchronizeCellCycles(bool synchronizeCellCycles);
 };
 
