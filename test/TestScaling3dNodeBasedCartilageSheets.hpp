@@ -45,7 +45,7 @@ public:
 	 */
 	void Test3dNodeBasedCartilageSheet() throw (Exception) {
 
-		bool random_seed = false;
+		bool random_seed = true;
 		unsigned n_cells_wide = 3;
 		unsigned n_cells_deep = 3;
 		unsigned n_cells_high = 3;
@@ -102,6 +102,11 @@ private:
 		p_cartilage_sheet->setMaxCoordinatePerturbation(0.1);
 		if (random_seed) {
 			p_cartilage_sheet->UseRandomSeed();
+			unsigned seed = p_cartilage_sheet->getSeed();
+			std::stringstream ss;
+			ss << "/" << seed;
+			std::string seed_string = ss.str();
+			output_directory.append(seed_string);
 		}
 		if (!random_birth_times){
 			p_cartilage_sheet->setSynchronizeCellCycles(true);

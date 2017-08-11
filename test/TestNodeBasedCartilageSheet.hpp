@@ -1,5 +1,6 @@
 #include <cxxtest/TestSuite.h>
 #include <iostream>
+#include <sstream>
 #include "AbstractCellBasedTestSuite.hpp"
 #include "CheckpointArchiveTypes.hpp"
 #include "SmartPointers.hpp"
@@ -18,9 +19,14 @@ public:
 				new NodeBasedCartilageSheet();
 
 		// set the sheet dimensions
-		p_cartilage_sheet->SetCartilageSheetDimensions(4, 3, 5);
+		p_cartilage_sheet->SetCartilageSheetDimensions(5, 4, 3);
 		p_cartilage_sheet->setMaxCoordinatePerturbation(0.1);
 		p_cartilage_sheet->UseRandomSeed();
+		unsigned seed = p_cartilage_sheet->getSeed();
+		std::stringstream ss;
+		ss << "/" << seed;
+		std::string seed_string = ss.str();
+
 		// generate the nodes
 		p_cartilage_sheet->GenerateNodesOnHCPGrid();
 
@@ -32,7 +38,7 @@ public:
 		p_cartilage_sheet->InitialiseTissueLayersAndCellDivisionDirections();
 		// setup the initial stem cell configuration
 		//p_cartilage_sheet->InitialiseBulkStemCellConfiguration(2, 1);
-		p_cartilage_sheet->InitialiseRandomStemCellConfiguration(2);
+		p_cartilage_sheet->InitialiseRandomStemCellConfiguration(5);
 
 		// get the cell population
 		boost::shared_ptr<NodeBasedCellPopulation<3> > cell_population =
@@ -40,11 +46,13 @@ public:
 
 		//pass it to the simulator
 		OffLatticeSimulation<3> simulator(*cell_population);
-		simulator.SetOutputDirectory("NodeBasedCartilageSheet");
+		simulator.SetOutputDirectory("NodeBasedCartilageSheet" + seed_string);
 		simulator.SetSamplingTimestepMultiple(12);
-		simulator.SetEndTime(10.0);
+		simulator.SetEndTime(50.0);
 
 		MAKE_PTR(GeneralisedLinearSpringForce<3>, p_force);
+		p_force->SetCutOffLength(1.5);
+		p_force->SetMeinekeSpringStiffness(1.0);
 		simulator.AddForce(p_force);
 
 		simulator.Solve();
