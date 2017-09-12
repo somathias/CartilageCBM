@@ -33,7 +33,6 @@
 #include "CellTissueTypesWriter.hpp"
 #include "CellDivisionDirectionsWriter.hpp"
 
-#include "FakePetscSetup.hpp"
 
 class NodeBasedCartilageSheet {
 

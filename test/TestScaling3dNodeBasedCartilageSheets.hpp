@@ -32,7 +32,7 @@
 #include "CellDivisionDirectionsWriter.hpp"
 #include "NodeBasedCartilageSheet.hpp"
 
-#include "PetscSetupAndFinalize.hpp"
+#include "FakePetscSetup.hpp"
 /**
  * Second try to build a model for the cartilage sheet based on a center-based model.
  */
