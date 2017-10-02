@@ -51,14 +51,17 @@ public:
 		TS_ASSERT_DELTA(force.GetHomotypicPerichondrialSpringConstantMultiplier(), 1.0, 1e-6);
 		TS_ASSERT_DELTA(force.GetHomotypicChondrocyteSpringConstantMultiplier(), 1.0, 1e-6);
 		TS_ASSERT_DELTA(force.GetHeterotypicSpringConstantMultiplier(), 1.0, 1e-6);
+		TS_ASSERT_DELTA(force.GetAlpha(), 5.0, 1e-6);
 
 		force.SetHomotypicPerichondrialSpringConstantMultiplier(2.0);
 		force.SetHomotypicChondrocyteSpringConstantMultiplier(3.0);
 		force.SetHeterotypicSpringConstantMultiplier(4.0);
+		force.SetAlpha(12.5);
 
 		TS_ASSERT_DELTA(force.GetHomotypicPerichondrialSpringConstantMultiplier(), 2.0, 1e-6);
 		TS_ASSERT_DELTA(force.GetHomotypicChondrocyteSpringConstantMultiplier(), 3.0, 1e-6);
 		TS_ASSERT_DELTA(force.GetHeterotypicSpringConstantMultiplier(), 4.0, 1e-6);
+		TS_ASSERT_DELTA(force.GetAlpha(), 12.5, 1e-6);
 
 		// Initialise a vector of node forces
 		for (unsigned i=0; i<cell_population.GetNumNodes(); i++)
