@@ -48,6 +48,13 @@ private:
 	 */
 	double mHeterotypicSpringConstantMultiplier;
 
+	/**
+	 * Decay parameter of the attractive part of the force function.
+	 *
+	 * Defaults to 5.0 in the constructor.
+	 */
+	double mAlpha;
+
 	/** Needed for serialization. */
 	friend class boost::serialization::access;
 	/**
@@ -65,6 +72,7 @@ private:
 		archive & mHomotypicPerichondrialSpringConstantMultiplier;
 		archive & mHomotypicChondrocyteSpringConstantMultiplier;
 		archive & mHeterotypicSpringConstantMultiplier;
+		archive & mAlpha;
 	}
 public:
 	/**
@@ -130,6 +138,26 @@ public:
 	 */
 	void SetHeterotypicSpringConstantMultiplier(
 			double heterotypicSpringConstantMultiplier);
+
+	/**
+	 * Set mAlpha.
+	 *
+	 * @param alpha the new value of mAlpha
+	 */
+	void SetAlpha(double alpha);
+
+	/**
+	 * @return #mAlpha
+	 */
+	double GetAlpha();
+
+	/**
+	 * Overridden CalculateForceBetweenNodes method which uses the member
+	 * variable mAlpha instead of a hard-coded decay in the force function.
+	 */
+	c_vector<double, SPACE_DIM> CalculateForceBetweenNodes(
+			unsigned nodeAGlobalIndex, unsigned nodeBGlobalIndex,
+			AbstractCellPopulation<ELEMENT_DIM, SPACE_DIM>& rCellPopulation);
 
 	/**
 	 * Overridden OutputForceParameters() method.

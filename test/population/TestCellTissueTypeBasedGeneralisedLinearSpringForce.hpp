@@ -225,7 +225,7 @@ public:
 
 		{
 			FileFinder generated_file = output_file_handler.FindFile("tissue_type_based_results.parameters");
-			FileFinder reference_file("projects/chaste_project/test/data/TestCellTissueTypeBasedGeneralisedLinearSpringForce/tissue_type_based_results.parameters",
+			FileFinder reference_file("projects/scaling_cartilage_sheets/test/data/TestCellTissueTypeBasedGeneralisedLinearSpringForce/tissue_type_based_results.parameters",
 					RelativeTo::ChasteSourceRoot);
 			FileComparison comparer(generated_file,reference_file);
 			TS_ASSERT(comparer.CompareFiles());
@@ -252,6 +252,7 @@ public:
 			force.SetHomotypicPerichondrialSpringConstantMultiplier(0.051);
 			force.SetHomotypicChondrocyteSpringConstantMultiplier(0.091);
 			force.SetHeterotypicSpringConstantMultiplier(1.348);
+			force.SetAlpha(12.5);
 
 			// Serialize via pointer to most abstract class possible
 			AbstractForce<2>* const p_force = &force;
@@ -277,6 +278,8 @@ public:
 			TS_ASSERT_DELTA((static_cast<CellTissueTypeBasedGeneralisedLinearSpringForce<2>*>(p_force))->GetHomotypicPerichondrialSpringConstantMultiplier(), 0.051, 1e-6);
 			TS_ASSERT_DELTA((static_cast<CellTissueTypeBasedGeneralisedLinearSpringForce<2>*>(p_force))->GetHomotypicChondrocyteSpringConstantMultiplier(), 0.091, 1e-6);
 			TS_ASSERT_DELTA((static_cast<CellTissueTypeBasedGeneralisedLinearSpringForce<2>*>(p_force))->GetHeterotypicSpringConstantMultiplier(), 1.348, 1e-6);
+			TS_ASSERT_DELTA((static_cast<CellTissueTypeBasedGeneralisedLinearSpringForce<2>*>(p_force))->GetAlpha(), 12.5, 1e-6);
+
 
 			// Tidy up
 			delete p_force;
