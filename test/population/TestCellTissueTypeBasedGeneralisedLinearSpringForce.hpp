@@ -22,7 +22,7 @@
 class TestCellTissueTypeBasedGeneralisedLinearSpringForce: public AbstractCellBasedTestSuite {
 public:
 
-	void TestCellTissueTypeBasedGeneralisedLinearSpringForceMethods()
+	void TestCellTissueTypeBasedGeneralisedLinearSpringForceWithMeshBasedCellPopulation()
 			throw (Exception) {
 		EXIT_IF_PARALLEL;    // HoneycombMeshGenerator doesn't work in parallel.
 
@@ -56,12 +56,12 @@ public:
 		force.SetHomotypicPerichondrialSpringConstantMultiplier(2.0);
 		force.SetHomotypicChondrocyteSpringConstantMultiplier(3.0);
 		force.SetHeterotypicSpringConstantMultiplier(4.0);
-		force.SetAlpha(12.5);
+//		force.SetAlpha(12.5);
 
 		TS_ASSERT_DELTA(force.GetHomotypicPerichondrialSpringConstantMultiplier(), 2.0, 1e-6);
 		TS_ASSERT_DELTA(force.GetHomotypicChondrocyteSpringConstantMultiplier(), 3.0, 1e-6);
 		TS_ASSERT_DELTA(force.GetHeterotypicSpringConstantMultiplier(), 4.0, 1e-6);
-		TS_ASSERT_DELTA(force.GetAlpha(), 12.5, 1e-6);
+//		TS_ASSERT_DELTA(force.GetAlpha(), 12.5, 1e-6);
 
 		// Initialise a vector of node forces
 		for (unsigned i=0; i<cell_population.GetNumNodes(); i++)
@@ -211,6 +211,106 @@ public:
 		TS_ASSERT_DELTA(cell_population.GetNode(60)->rGetAppliedForce()[1], 0.0, 1e-4);
 	}
 
+	void TestCellTissueTypeBasedGeneralisedLinearSpringForceWithNodeBasedCellPopulation() {
+
+		std::vector<Node<3>*> nodes;
+		nodes.push_back(new Node<3>(0u, false, 0.0, 0.0, 0.0));
+		nodes.push_back(new Node<3>(1u, false, -1.0, 0.0, 0.0));
+		nodes.push_back(new Node<3>(2u, false, 1.0, 0.0, 0.0));
+//     nodes.push_back(new Node<3>(3u,  false,  0.0, -0.5, 0.0));
+
+		NodesOnlyMesh<3> mesh;
+		mesh.ConstructNodesWithoutMesh(nodes, 1.5);
+
+		std::vector<CellPtr> cells;
+		MAKE_PTR(TransitCellProliferativeType, p_transit_type);
+		CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 3> cells_generator;
+		cells_generator.GenerateBasicRandom(cells, mesh.GetNumNodes(), p_transit_type);
+
+		NodeBasedCellPopulation<3> cell_population(mesh, cells);
+
+		// Create force
+		CellTissueTypeBasedGeneralisedLinearSpringForce<3> force;
+
+		// Test set/get method
+		TS_ASSERT_DELTA(force.GetHomotypicPerichondrialSpringConstantMultiplier(), 1.0, 1e-6);
+		TS_ASSERT_DELTA(force.GetHomotypicChondrocyteSpringConstantMultiplier(), 1.0, 1e-6);
+		TS_ASSERT_DELTA(force.GetHeterotypicSpringConstantMultiplier(), 1.0, 1e-6);
+		TS_ASSERT_DELTA(force.GetAlpha(), 5.0, 1e-6);
+
+		double alpha = 12.5;
+		force.SetAlpha(alpha);
+		TS_ASSERT_DELTA(force.GetAlpha(), alpha, 1e-6);
+
+		// Initialise a vector of node forces
+		for (unsigned i=0; i<cell_population.GetNumNodes(); i++)
+		{
+			cell_population.GetNode(i)->ClearAppliedForce();
+		}
+
+		// Move a node along the x-axis and calculate the force exerted on a neighbour
+		CellPtr my_cell = cell_population.rGetCells().front();
+		c_vector<double, 3> my_old_coords = cell_population.GetLocationOfCellCentre(my_cell);
+		ChastePoint<3> new_coords;
+		new_coords.rGetLocation()[0] = my_old_coords[0]+0.25;
+		new_coords.rGetLocation()[1] = my_old_coords[1];
+		new_coords.rGetLocation()[2] = my_old_coords[2];
+		unsigned node_index = cell_population.GetLocationIndexUsingCell(my_cell);
+		std::cout << node_index << std::endl;
+		cell_population.SetNode(node_index, new_coords);
+
+		TS_ASSERT_DELTA(cell_population.GetNode(0)->rGetLocation()[0], 0.25, 1e-4);
+		TS_ASSERT_DELTA(cell_population.GetNode(0)->rGetLocation()[1], 0.0, 1e-4);
+		TS_ASSERT_DELTA(cell_population.GetNode(0)->rGetLocation()[2], 0.0, 1e-4);
+
+		double spring_stiffness = force.GetMeinekeSpringStiffness();
+
+		// Calculate the force between nodes 0 and 2
+		c_vector<double, 3> force_contribution = force.CalculateForceBetweenNodes(0, 2, cell_population);
+		for (unsigned j=0; j<3; j++)
+		{
+			assert(!std::isnan(force_contribution[j]));
+		}
+
+		TS_ASSERT_DELTA(force_contribution[0], spring_stiffness*log(0.75), 1e-4);
+		TS_ASSERT_DELTA(force_contribution[1], 0.0, 1e-4);
+		TS_ASSERT_DELTA(force_contribution[2], 0.0, 1e-4);
+
+		// Calculate the force between nodes 0 and 1
+		force_contribution = force.CalculateForceBetweenNodes(0, 1, cell_population);
+		for (unsigned j=0; j<3; j++)
+		{
+			assert(!std::isnan(force_contribution[j]));
+		}
+
+		TS_ASSERT_DELTA(force_contribution[0], -0.25*spring_stiffness*exp(-alpha*0.25), 1e-4);
+		TS_ASSERT_DELTA(force_contribution[1], 0.0, 1e-4);
+		TS_ASSERT_DELTA(force_contribution[2], 0.0, 1e-4);
+
+		cell_population.Update(false);
+		std::vector< std::pair<Node<3>*, Node<3>* > >& r_node_pairs = cell_population.rGetNodePairs();
+		TS_ASSERT_EQUALS(r_node_pairs.size(), 3);
+
+		// Initialise a vector of node forces
+		for (unsigned i=0; i<cell_population.GetNumNodes(); i++)
+		{
+			cell_population.GetNode(i)->ClearAppliedForce();
+		}
+		force.AddForceContribution(cell_population);
+
+
+
+		TS_ASSERT_DELTA(cell_population.GetNode(0)->rGetAppliedForce()[0], spring_stiffness*log(0.75) - 0.25*spring_stiffness*exp(-alpha*0.25), 1e-4);
+		TS_ASSERT_DELTA(cell_population.GetNode(0)->rGetAppliedForce()[1], 0.0, 1e-4);
+		TS_ASSERT_DELTA(cell_population.GetNode(0)->rGetAppliedForce()[2], 0.0, 1e-4);
+		TS_ASSERT_DELTA(cell_population.GetNode(1)->rGetAppliedForce()[0], 0.25*spring_stiffness*exp(-alpha*0.25), 1e-4);
+		TS_ASSERT_DELTA(cell_population.GetNode(1)->rGetAppliedForce()[1], 0.0, 1e-4);
+		TS_ASSERT_DELTA(cell_population.GetNode(1)->rGetAppliedForce()[2], 0.0, 1e-4);
+		TS_ASSERT_DELTA(cell_population.GetNode(2)->rGetAppliedForce()[0], -spring_stiffness*log(0.75), 1e-4);
+		TS_ASSERT_DELTA(cell_population.GetNode(2)->rGetAppliedForce()[1], 0.0, 1e-4);
+		TS_ASSERT_DELTA(cell_population.GetNode(2)->rGetAppliedForce()[2], 0.0, 1e-4);
+
+	}
 	void TestCellTissueTypeBasedGeneralisedLinearSpringForceOutputParameters()
 	{
 		EXIT_IF_PARALLEL;
@@ -282,7 +382,6 @@ public:
 			TS_ASSERT_DELTA((static_cast<CellTissueTypeBasedGeneralisedLinearSpringForce<2>*>(p_force))->GetHomotypicChondrocyteSpringConstantMultiplier(), 0.091, 1e-6);
 			TS_ASSERT_DELTA((static_cast<CellTissueTypeBasedGeneralisedLinearSpringForce<2>*>(p_force))->GetHeterotypicSpringConstantMultiplier(), 1.348, 1e-6);
 			TS_ASSERT_DELTA((static_cast<CellTissueTypeBasedGeneralisedLinearSpringForce<2>*>(p_force))->GetAlpha(), 12.5, 1e-6);
-
 
 			// Tidy up
 			delete p_force;

@@ -213,8 +213,10 @@ c_vector<double, SPACE_DIM> CellTissueTypeBasedGeneralisedLinearSpringForce<
 	 * If the cells are both newly divided, then the rest length of the spring
 	 * connecting them grows linearly with time, until 1 hour after division.
 	 */
-	if (ageA < GeneralisedLinearSpringForce<ELEMENT_DIM, SPACE_DIM>::mMeinekeSpringGrowthDuration
-			&& ageB < GeneralisedLinearSpringForce<ELEMENT_DIM, SPACE_DIM>::mMeinekeSpringGrowthDuration) {
+	if (ageA
+			< GeneralisedLinearSpringForce<ELEMENT_DIM, SPACE_DIM>::mMeinekeSpringGrowthDuration
+			&& ageB
+					< GeneralisedLinearSpringForce<ELEMENT_DIM, SPACE_DIM>::mMeinekeSpringGrowthDuration) {
 		AbstractCentreBasedCellPopulation<ELEMENT_DIM, SPACE_DIM>* p_static_cast_cell_population =
 				static_cast<AbstractCentreBasedCellPopulation<ELEMENT_DIM,
 						SPACE_DIM>*>(&rCellPopulation);
@@ -225,10 +227,12 @@ c_vector<double, SPACE_DIM> CellTissueTypeBasedGeneralisedLinearSpringForce<
 
 		if (p_static_cast_cell_population->IsMarkedSpring(cell_pair)) {
 			// Spring rest length increases from a small value to the normal rest length over 1 hour
-			double lambda = GeneralisedLinearSpringForce<ELEMENT_DIM, SPACE_DIM>::mMeinekeDivisionRestingSpringLength;
+			double lambda =
+					GeneralisedLinearSpringForce<ELEMENT_DIM, SPACE_DIM>::mMeinekeDivisionRestingSpringLength;
 			rest_length = lambda
 					+ (rest_length_final - lambda) * ageA
-							/ GeneralisedLinearSpringForce<ELEMENT_DIM, SPACE_DIM>::mMeinekeSpringGrowthDuration;
+							/ GeneralisedLinearSpringForce<ELEMENT_DIM,
+									SPACE_DIM>::mMeinekeSpringGrowthDuration;
 		}
 		if (ageA + SimulationTime::Instance()->GetTimeStep()
 				>= GeneralisedLinearSpringForce<ELEMENT_DIM, SPACE_DIM>::mMeinekeSpringGrowthDuration) {
@@ -277,7 +281,8 @@ c_vector<double, SPACE_DIM> CellTissueTypeBasedGeneralisedLinearSpringForce<
 	double multiplication_factor = VariableSpringConstantMultiplicationFactor(
 			nodeAGlobalIndex, nodeBGlobalIndex, rCellPopulation,
 			is_closer_than_rest_length);
-	double spring_stiffness = GeneralisedLinearSpringForce<ELEMENT_DIM, SPACE_DIM>::mMeinekeSpringStiffness;
+	double spring_stiffness = GeneralisedLinearSpringForce<ELEMENT_DIM,
+			SPACE_DIM>::mMeinekeSpringStiffness;
 
 	if (bool(
 			dynamic_cast<MeshBasedCellPopulation<ELEMENT_DIM, SPACE_DIM>*>(&rCellPopulation))) {

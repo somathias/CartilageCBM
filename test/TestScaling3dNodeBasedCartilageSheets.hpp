@@ -54,18 +54,19 @@ public:
 		bool random_birth_times = true;
 
 		double spring_stiffness = 1.0;
+		double alpha = 5.0;
 		double perichondrial_spring_constant_multiplier = 1.0;
 		double chondrocyte_spring_constant_multiplier = 1.0;
 		double heterotypic_spring_constant_multiplier = 1.0;
 		double simulation_endtime = 20.0;
 
 		std::string output_directory =
-				"3dNodeBasedCartilageSheet/Test3dHCPCoordinates/";
+				"3dNodeBasedCartilageSheet/TestAlpha/";
 
 		RunNodeBasedCartilageSheet(random_seed, n_cells_wide, n_cells_deep,
 				n_cells_high, n_differentiated_cells_width,
 				n_differentiated_cells_depth, random_birth_times,
-				spring_stiffness, perichondrial_spring_constant_multiplier,
+				spring_stiffness, alpha, perichondrial_spring_constant_multiplier,
 				chondrocyte_spring_constant_multiplier,
 				heterotypic_spring_constant_multiplier, output_directory,
 				simulation_endtime);
@@ -86,6 +87,7 @@ private:
 			unsigned n_differentiated_cells_width,
 			unsigned n_differentiated_cells_depth, bool random_birth_times,
 			double spring_stiffness,
+			double alpha,
 			double perichondrial_spring_constant_multiplier,
 			double chondrocyte_spring_constant_multiplier,
 			double heterotypic_spring_constant_multiplier,
@@ -138,6 +140,7 @@ private:
 		MAKE_PTR(CellTissueTypeBasedGeneralisedLinearSpringForce<3>, p_force);
 		p_force->SetCutOffLength(1.5);
 		p_force->SetMeinekeSpringStiffness(spring_stiffness);
+		p_force->SetAlpha(alpha);
 		p_force->SetHomotypicPerichondrialSpringConstantMultiplier(
 				perichondrial_spring_constant_multiplier);
 		p_force->SetHomotypicChondrocyteSpringConstantMultiplier(
