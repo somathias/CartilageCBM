@@ -36,7 +36,8 @@
  */
 void SetupSingletons(unsigned randomSeed);
 void DestroySingletons();
-void SetupAndRunCartilageSheetSimulation(unsigned randomSeed);
+void SetupAndRunCartilageSheetSimulation(unsigned randomSeed, unsigned,
+		unsigned, unsigned, double, double, double, std::string);
 
 int main(int argc, char *argv[]) {
 	// This sets up PETSc and prints out copyright information, etc.
@@ -45,9 +46,23 @@ int main(int argc, char *argv[]) {
 	// Define command line options
 	boost::program_options::options_description general_options(
 			"This is a Chaste executable.\n");
-	general_options.add_options()("help", "produce help message")("S",
+	general_options.add_options()("help", "Produce help message")("S",
 			boost::program_options::value<unsigned>()->default_value(0),
-			"The random seed");
+			"The random seed")("sw",
+			boost::program_options::value<unsigned>()->default_value(5),
+			"The number of cells in x direction")("sd",
+			boost::program_options::value<unsigned>()->default_value(5),
+			"The number of cells in y direction")("sh",
+			boost::program_options::value<unsigned>()->default_value(2),
+			"The number of cells in z direction")("mu",
+			boost::program_options::value<double>()->default_value(15.0),
+			"The spring stiffness")("A",
+			boost::program_options::value<double>()->default_value(0.5),
+			"The percentage of activated stem cells")("T",
+			boost::program_options::value<double>()->default_value(10.0),
+			"The simulation end time")("output-dir",
+			boost::program_options::value<std::string>()->default_value(
+					"3dNodeBasedCartilageSheet/"), "The output directory");
 
 	// Define parse command line into variables_map
 	boost::program_options::variables_map variables_map;
@@ -56,16 +71,25 @@ int main(int argc, char *argv[]) {
 
 	// Print help message if wanted
 	if (variables_map.count("help")) {
-		std::cout << setprecision(3) << general_options << "\n";
+		//std::cout << setprecision(3) << general_options << "\n";
 		std::cout << general_options << "\n";
 		return 1;
 	}
 
 	// Get ID and name from command line
 	unsigned random_seed = variables_map["S"].as<unsigned>();
+	unsigned n_cells_wide = variables_map["sw"].as<unsigned>();
+	unsigned n_cells_deep = variables_map["sd"].as<unsigned>();
+	unsigned n_cells_high = variables_map["sh"].as<unsigned>();
+	double activation_percentage = variables_map["A"].as<double>();
+	double spring_stiffness = variables_map["mu"].as<double>();
+	double simulation_end_time = variables_map["T"].as<double>();
+	std::string output_directory = variables_map["output-dir"].as<std::string>();
 
 	SetupSingletons(random_seed);
-	SetupAndRunCartilageSheetSimulation(random_seed);
+	SetupAndRunCartilageSheetSimulation(random_seed, n_cells_wide, n_cells_deep,
+			n_cells_high, activation_percentage, spring_stiffness,
+			simulation_end_time, output_directory);
 	DestroySingletons();
 }
 
@@ -86,22 +110,14 @@ void DestroySingletons() {
 	CellPropertyRegistry::Instance()->Clear();
 }
 
-void SetupAndRunCartilageSheetSimulation(unsigned random_seed) {
+void SetupAndRunCartilageSheetSimulation(unsigned random_seed,
+		unsigned n_cells_wide, unsigned n_cells_deep, unsigned n_cells_high,
+		double activation_percentage, double spring_stiffness,
+		double simulation_endtime, std::string output_directory) {
 	// Simulation goes here
 
-	//std::string output_directory = "paths/to/output" + boost::lexical_cast<std::string>(randomSeed);
-
-	std::cout << "Testing3! " << random_seed << std::endl;
-
-	unsigned n_cells_wide = 3;
-	unsigned n_cells_deep = 3;
-	unsigned n_cells_high = 2;
 	bool random_birth_times = true;
-	double spring_stiffness = 15;
-	double activation_percentage =0.5;
-	double alpha = 5.0 ;
-	std::string output_directory = "3dNodeBasedCartilageSheet/" + boost::lexical_cast<std::string>(random_seed);;
-	double simulation_endtime = 10.0;
+	output_directory.append(boost::lexical_cast<std::string>(random_seed));
 
 	CellBasedEventHandler::Enable();
 
@@ -125,8 +141,10 @@ void SetupAndRunCartilageSheetSimulation(unsigned random_seed) {
 	// setup the cell tissue types and cell division directions
 	p_cartilage_sheet->InitialiseTissueLayersAndCellDivisionDirections();
 	// setup the initial stem cell configuration
-	unsigned n_activated_stem_cells = floor(n_cells_wide*n_cells_deep*activation_percentage);
-	p_cartilage_sheet->InitialiseRandomStemCellConfiguration(n_activated_stem_cells);
+	unsigned n_activated_stem_cells = floor(
+			n_cells_wide * n_cells_deep * activation_percentage);
+	p_cartilage_sheet->InitialiseRandomStemCellConfiguration(
+			n_activated_stem_cells);
 
 	// get the cell population
 	boost::shared_ptr<NodeBasedCellPopulation<3> > cell_population =
@@ -139,6 +157,7 @@ void SetupAndRunCartilageSheetSimulation(unsigned random_seed) {
 	simulator.SetSamplingTimestepMultiple(12);
 
 	MAKE_PTR(CellTissueTypeBasedGeneralisedLinearSpringForce<3>, p_force);
+	double alpha = -2.0 * log(2.0 / spring_stiffness * 0.001);
 	p_force->SetCutOffLength(1.5);
 	p_force->SetMeinekeSpringStiffness(spring_stiffness);
 	p_force->SetAlpha(alpha);
