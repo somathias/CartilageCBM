@@ -41,7 +41,9 @@ void SetupAndRunCartilageSheetSimulation(unsigned randomSeed, unsigned,
 
 int main(int argc, char *argv[]) {
 	// This sets up PETSc and prints out copyright information, etc.
-	ExecutableSupport::StandardStartup(&argc, &argv);
+	//ExecutableSupport::StandardStartup(&argc, &argv);
+	ExecutableSupport::InitializePetsc(&argc, &argv);
+
 
 	// Define command line options
 	boost::program_options::options_description general_options(
