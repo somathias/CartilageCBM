@@ -37,13 +37,12 @@
 void SetupSingletons(unsigned randomSeed);
 void DestroySingletons();
 void SetupAndRunCartilageSheetSimulation(unsigned randomSeed, unsigned,
-		unsigned, unsigned, double, double, double, std::string);
+		unsigned, unsigned, double, double, double, double, std::string);
 
 int main(int argc, char *argv[]) {
 	// This sets up PETSc and prints out copyright information, etc.
 	//ExecutableSupport::StandardStartup(&argc, &argv);
 	ExecutableSupport::InitializePetsc(&argc, &argv);
-
 
 	// Define command line options
 	boost::program_options::options_description general_options(
@@ -60,7 +59,9 @@ int main(int argc, char *argv[]) {
 			boost::program_options::value<double>()->default_value(15.0),
 			"The spring stiffness")("A",
 			boost::program_options::value<double>()->default_value(0.5),
-			"The percentage of activated stem cells")("T",
+			"The percentage of activated stem cells")("p",
+			boost::program_options::value<double>()->default_value(0.0),
+			"The maximum perturbation of the initial coordinates.")("T",
 			boost::program_options::value<double>()->default_value(10.0),
 			"The simulation end time")("output-dir",
 			boost::program_options::value<std::string>()->default_value(
@@ -84,14 +85,16 @@ int main(int argc, char *argv[]) {
 	unsigned n_cells_deep = variables_map["sd"].as<unsigned>();
 	unsigned n_cells_high = variables_map["sh"].as<unsigned>();
 	double activation_percentage = variables_map["A"].as<double>();
+	double maximum_perturbation = variables_map["p"].as<double>();
 	double spring_stiffness = variables_map["mu"].as<double>();
 	double simulation_end_time = variables_map["T"].as<double>();
-	std::string output_directory = variables_map["output-dir"].as<std::string>();
+	std::string output_directory =
+			variables_map["output-dir"].as<std::string>();
 
 	SetupSingletons(random_seed);
 	SetupAndRunCartilageSheetSimulation(random_seed, n_cells_wide, n_cells_deep,
-			n_cells_high, activation_percentage, spring_stiffness,
-			simulation_end_time, output_directory);
+			n_cells_high, activation_percentage, maximum_perturbation,
+			spring_stiffness, simulation_end_time, output_directory);
 	DestroySingletons();
 }
 
@@ -114,8 +117,9 @@ void DestroySingletons() {
 
 void SetupAndRunCartilageSheetSimulation(unsigned random_seed,
 		unsigned n_cells_wide, unsigned n_cells_deep, unsigned n_cells_high,
-		double activation_percentage, double spring_stiffness,
-		double simulation_endtime, std::string output_directory) {
+		double activation_percentage, double maximum_perturbation,
+		double spring_stiffness, double simulation_endtime,
+		std::string output_directory) {
 	// Simulation goes here
 
 	bool random_birth_times = true;
@@ -128,7 +132,7 @@ void SetupAndRunCartilageSheetSimulation(unsigned random_seed,
 	// set the sheet dimensions
 	p_cartilage_sheet->SetCartilageSheetDimensions(n_cells_wide, n_cells_deep,
 			n_cells_high);
-	p_cartilage_sheet->setMaxCoordinatePerturbation(0.1);
+	p_cartilage_sheet->setMaxCoordinatePerturbation(maximum_perturbation);
 
 	if (!random_birth_times) {
 		p_cartilage_sheet->setSynchronizeCellCycles(true);
