@@ -8,8 +8,13 @@ Created on Mon Oct 30 09:17:38 2017
 import multiprocessing
 import os
 import subprocess
+import sys
 
-import numpy as np
+sys.path.append('/home/kubuntu1404/Documents/sheet_metrics')
+
+import evaluate_cartilage_sheet
+
+#import numpy as np
 
 executable = '/home/kubuntu1404/Documents/scaling_cartilage_sheets/apps/src/CartilageSheetSimulation'
 
@@ -21,7 +26,10 @@ number_of_simulations = 5
 def main():
     output_directory = '3dNodeBasedCartilageSheet/'
     run_simulations(output_directory)
-    run_postprocessing(output_directory)
+    
+    run_postprocessing('testoutput/'+output_directory)
+    
+    print('Done.')
 
 
 # Create a list of commands and pass them to separate processes
@@ -49,7 +57,25 @@ def run_simulations(output_directory):
     pool.map_async(execute_command, command_list).get(86400)
 
 def run_postprocessing(output_directory):
-    print("Test")
+    
+    # Make a list of output_directories
+    directory_list = []
+
+    for random_seed in range(number_of_simulations):
+
+        directory = output_directory + str(random_seed) +'/results_from_time_0/'
+        directory_list.append(directory)
+
+    # Use processes equal to the number of cpus available
+    count = multiprocessing.cpu_count()
+
+    print("Starting postprocessing with " + str(count) + " processes")
+
+    # Generate a pool of workers
+    pool = multiprocessing.Pool(processes=count)
+
+    # Pass the list of bash commands to the pool
+    pool.map_async(evaluate_cartilage_sheet.main, directory_list).get(86400)
 
 
 # This is a helper function for run_simulation that runs bash commands in separate processes
