@@ -7,6 +7,7 @@
 
 #include <cxxtest/TestSuite.h>
 #include <string>
+#include <iostream>
 
 // Includes from trunk
 #include "CellId.hpp"
@@ -124,6 +125,7 @@ void SetupAndRunCartilageSheetSimulation(unsigned random_seed,
 
 	bool random_birth_times = true;
 	output_directory.append(boost::lexical_cast<std::string>(random_seed));
+	double alpha = -2.0 * log(2.0 / spring_stiffness * 0.001);
 
 	CellBasedEventHandler::Enable();
 
@@ -163,7 +165,6 @@ void SetupAndRunCartilageSheetSimulation(unsigned random_seed,
 	simulator.SetSamplingTimestepMultiple(12);
 
 	MAKE_PTR(CellTissueTypeBasedGeneralisedLinearSpringForce<3>, p_force);
-	double alpha = -2.0 * log(2.0 / spring_stiffness * 0.001);
 	p_force->SetCutOffLength(1.5);
 	p_force->SetMeinekeSpringStiffness(spring_stiffness);
 	p_force->SetAlpha(alpha);
@@ -171,6 +172,33 @@ void SetupAndRunCartilageSheetSimulation(unsigned random_seed,
 
 	CellBasedEventHandler::Reset();
 	simulator.Solve();
+
+	// write sheet parameters to file
+	std::stringstream ss;
+	ss << "/home/kubuntu1404/Documents/scaling_cartilage_sheets/testoutput/"<< output_directory << "/results_from_time_0/sheet.parameters";
+	std::string sheet_params_filename = ss.str();
+	std::cout << sheet_params_filename << std::endl;
+	std::ofstream sheet_params_file;
+	sheet_params_file.open(sheet_params_filename.c_str());
+	std::cout << sheet_params_file.is_open() << std::endl;
+	sheet_params_file << "---------------------------------\n";
+	sheet_params_file << "Parameters of current sheet simulation:\n";
+	sheet_params_file << "---------------------------------\n";
+	sheet_params_file << "Random seed : " << random_seed << "\n";
+	sheet_params_file << "Number cells X : " << n_cells_wide << "\n";
+	sheet_params_file << "Number cells Y : " << n_cells_deep << "\n";
+	sheet_params_file << "Number cells Z : " << n_cells_high << "\n";
+	sheet_params_file << "Activation percentage : " << activation_percentage
+			<< "\n";
+	sheet_params_file << "Maximum perturbation : " << maximum_perturbation
+			<< "\n";
+	sheet_params_file << "Spring stiffness : " << spring_stiffness << "\n";
+	sheet_params_file << "Attraction force decay : " << alpha << "\n";
+	sheet_params_file << "Simulation end time : " << simulation_endtime << "\n";
+	sheet_params_file << "Output directory : " << output_directory << "\n";
+	sheet_params_file.close();
+
+	std::cout << "Written sheet parameters to file." << std::endl;
 
 	CellBasedEventHandler::Headings();
 	CellBasedEventHandler::Report();
