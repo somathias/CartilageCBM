@@ -175,7 +175,8 @@ void SetupAndRunCartilageSheetSimulation(unsigned random_seed,
 
 	// write sheet parameters to file
 	std::stringstream ss;
-	ss << "/home/kubuntu1404/Documents/scaling_cartilage_sheets/testoutput/"<< output_directory << "/results_from_time_0/sheet.parameters";
+	ss << "/home/kubuntu1404/Documents/scaling_cartilage_sheets/testoutput/"
+			<< output_directory << "/results_from_time_0/sheet.parameters";
 	std::string sheet_params_filename = ss.str();
 	std::cout << sheet_params_filename << std::endl;
 	std::ofstream sheet_params_file;
@@ -188,6 +189,7 @@ void SetupAndRunCartilageSheetSimulation(unsigned random_seed,
 	sheet_params_file << "Number cells X : " << n_cells_wide << "\n";
 	sheet_params_file << "Number cells Y : " << n_cells_deep << "\n";
 	sheet_params_file << "Number cells Z : " << n_cells_high << "\n";
+	sheet_params_file << "Random birth times : " << random_birth_times << "\n";
 	sheet_params_file << "Activation percentage : " << activation_percentage
 			<< "\n";
 	sheet_params_file << "Maximum perturbation : " << maximum_perturbation
