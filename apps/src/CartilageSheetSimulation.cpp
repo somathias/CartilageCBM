@@ -25,6 +25,7 @@
 #include "NodeBasedCartilageSheet.hpp"
 #include "OffLatticeSimulationDirectedDivision.hpp"
 #include "CellTissueTypeBasedGeneralisedLinearSpringForce.hpp"
+#include "IndividualSpringStiffnessGeneralisedLinearSpringForce.hpp"
 
 // Program option includes for handling command line arguments
 #include <boost/program_options/options_description.hpp>
@@ -59,7 +60,7 @@ int main(int argc, char *argv[]) {
 			boost::program_options::value<unsigned>()->default_value(2),
 			"The number of cells in z direction")("mu",
 			boost::program_options::value<double>()->default_value(15.0),
-			"The spring stiffness")("A",
+			"The adhesion spring stiffness")("A",
 			boost::program_options::value<double>()->default_value(0.5),
 			"The percentage of activated stem cells")("p",
 			boost::program_options::value<double>()->default_value(0.0),
@@ -172,9 +173,10 @@ void SetupAndRunCartilageSheetSimulation(unsigned random_seed, bool random_birth
 	simulator.SetEndTime(simulation_endtime); //hours
 	simulator.SetSamplingTimestepMultiple(12);
 
-	MAKE_PTR(CellTissueTypeBasedGeneralisedLinearSpringForce<3>, p_force);
+	MAKE_PTR(IndividualSpringStiffnessGeneralisedLinearSpringForce<3>, p_force);
 	p_force->SetCutOffLength(1.5);
 	p_force->SetMeinekeSpringStiffness(spring_stiffness);
+	p_force->SetRepulsionSpringStiffness(1.4); // our default value fixed by experiments on optimal relative column height
 	p_force->SetAlpha(alpha);
 	simulator.AddForce(p_force);
 

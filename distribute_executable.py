@@ -24,7 +24,7 @@ if not(os.path.isfile(executable)):
 number_of_simulations = 3
 
 def main():
-    output_directory = '3dNodeBasedCartilageSheet/TestCLA/'
+    output_directory = '3dNodeBasedCartilageSheet/dev-extended_GLS_force/'
     run_simulations(output_directory)
     
     run_postprocessing('testoutput/'+output_directory)
