@@ -21,10 +21,10 @@ executable = '/home/kubuntu1404/Documents/scaling_cartilage_sheets/apps/src/Cart
 if not(os.path.isfile(executable)):
     raise Exception('Could not find executable: ' + executable)
 
-number_of_simulations = 5
+number_of_simulations = 3
 
 def main():
-    output_directory = '3dNodeBasedCartilageSheet/'
+    output_directory = '3dNodeBasedCartilageSheet/TestCLA/'
     run_simulations(output_directory)
     
     run_postprocessing('testoutput/'+output_directory)
@@ -42,7 +42,7 @@ def run_simulations(output_directory):
 
     for random_seed in range(number_of_simulations):
 
-        command = base_command + ' --output-dir ' + output_directory + ' --S ' + str(random_seed) 
+        command = base_command + ' --output-dir ' + output_directory + ' --S ' + str(random_seed) + ' --sbt ' 
         command_list.append(command)
 
     # Use processes equal to the number of cpus available

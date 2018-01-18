@@ -37,7 +37,7 @@
  */
 void SetupSingletons(unsigned randomSeed);
 void DestroySingletons();
-void SetupAndRunCartilageSheetSimulation(unsigned randomSeed, unsigned,
+void SetupAndRunCartilageSheetSimulation(unsigned randomSeed, bool, unsigned,
 		unsigned, unsigned, double, double, double, double, std::string);
 
 int main(int argc, char *argv[]) {
@@ -48,7 +48,8 @@ int main(int argc, char *argv[]) {
 	// Define command line options
 	boost::program_options::options_description general_options(
 			"This is a Chaste executable.\n");
-	general_options.add_options()("help", "Produce help message")("S",
+	general_options.add_options()("help", "Produce help message")("sbt",
+			"Synchronized birth times")("S",
 			boost::program_options::value<unsigned>()->default_value(0),
 			"The random seed")("sw",
 			boost::program_options::value<unsigned>()->default_value(5),
@@ -80,6 +81,12 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
 
+	bool random_birth_times = true;
+	// set random birth times to false = synchronized case if wanted
+	if (variables_map.count("sbt")) {
+		random_birth_times = false;
+	}
+
 	// Get ID and name from command line
 	unsigned random_seed = variables_map["S"].as<unsigned>();
 	unsigned n_cells_wide = variables_map["sw"].as<unsigned>();
@@ -93,9 +100,10 @@ int main(int argc, char *argv[]) {
 			variables_map["output-dir"].as<std::string>();
 
 	SetupSingletons(random_seed);
-	SetupAndRunCartilageSheetSimulation(random_seed, n_cells_wide, n_cells_deep,
-			n_cells_high, activation_percentage, maximum_perturbation,
-			spring_stiffness, simulation_end_time, output_directory);
+	SetupAndRunCartilageSheetSimulation(random_seed, random_birth_times,
+			n_cells_wide, n_cells_deep, n_cells_high, activation_percentage,
+			maximum_perturbation, spring_stiffness, simulation_end_time,
+			output_directory);
 	DestroySingletons();
 }
 
@@ -116,14 +124,14 @@ void DestroySingletons() {
 	CellPropertyRegistry::Instance()->Clear();
 }
 
-void SetupAndRunCartilageSheetSimulation(unsigned random_seed,
-		unsigned n_cells_wide, unsigned n_cells_deep, unsigned n_cells_high,
-		double activation_percentage, double maximum_perturbation,
-		double spring_stiffness, double simulation_endtime,
-		std::string output_directory) {
-	// Simulation goes here
+void SetupAndRunCartilageSheetSimulation(unsigned random_seed, bool random_birth_times,
+		unsigned n_cells_wide, unsigned n_cells_deep,
+		unsigned n_cells_high, double activation_percentage,
+		double maximum_perturbation, double spring_stiffness,
+		double simulation_endtime, std::string output_directory) {
 
-	bool random_birth_times = true;
+
+	//bool random_birth_times = true;
 	output_directory.append(boost::lexical_cast<std::string>(random_seed));
 	double alpha = -2.0 * log(2.0 / spring_stiffness * 0.001);
 
