@@ -134,7 +134,17 @@ void SetupAndRunCartilageSheetSimulation(unsigned random_seed, bool random_birth
 
 	//bool random_birth_times = true;
 	output_directory.append(boost::lexical_cast<std::string>(random_seed));
-	double alpha = -2.0 * log(2.0 / spring_stiffness * 0.001);
+
+	double alpha;
+	if(spring_stiffness == 0){
+		alpha = 1.0; // magic number, doesn't matter anyway
+	}
+	else{
+		alpha = -2.0 * log(2.0 / spring_stiffness * 0.001); //not defined if spring_stiffness == 0
+	}
+
+
+
 
 	CellBasedEventHandler::Enable();
 
