@@ -60,6 +60,11 @@ public:
 	IndividualSpringStiffnessGeneralisedLinearSpringForce();
 
 	/**
+	 * Overwritten SetMeinekeSpringStiffness function
+	 */
+	void SetMeinekeSpringStiffness(double springStiffness);
+
+	/**
 	 * Set mRepulsionSpringStiffness.
 	 *
 	 * @param repulsion_spring_stiffness the new value of mRepulsionSpringStiffness
@@ -102,6 +107,7 @@ public:
 };
 
 #include "SerializationExportWrapper.hpp"
-EXPORT_TEMPLATE_CLASS_ALL_DIMS(IndividualSpringStiffnessGeneralisedLinearSpringForce)
+EXPORT_TEMPLATE_CLASS_ALL_DIMS(
+		IndividualSpringStiffnessGeneralisedLinearSpringForce)
 
 #endif /* INDIVIDUALSPRINGSTIFFNESSGENERALISEDLINEARSPRINGFORCE_HPP_ */

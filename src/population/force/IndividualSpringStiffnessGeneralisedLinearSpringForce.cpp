@@ -7,23 +7,31 @@
 
 #include "IndividualSpringStiffnessGeneralisedLinearSpringForce.hpp"
 
-
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 IndividualSpringStiffnessGeneralisedLinearSpringForce<ELEMENT_DIM, SPACE_DIM>::IndividualSpringStiffnessGeneralisedLinearSpringForce() :
 		GeneralisedLinearSpringForce<ELEMENT_DIM, SPACE_DIM>(), mRepulsionSpringStiffness(
 				15.0), mAlpha(5.0) {
 }
 
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void IndividualSpringStiffnessGeneralisedLinearSpringForce<ELEMENT_DIM,
+		SPACE_DIM>::SetMeinekeSpringStiffness(double springStiffness) {
+	assert(springStiffness >= 0.0);
+	GeneralisedLinearSpringForce<ELEMENT_DIM, SPACE_DIM>::mMeinekeSpringStiffness =
+			springStiffness;
+}
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void IndividualSpringStiffnessGeneralisedLinearSpringForce<ELEMENT_DIM, SPACE_DIM>::SetRepulsionSpringStiffness(
+void IndividualSpringStiffnessGeneralisedLinearSpringForce<ELEMENT_DIM,
+		SPACE_DIM>::SetRepulsionSpringStiffness(
 		double repulsion_spring_stiffness) {
 	assert(repulsion_spring_stiffness > 0.0);
 	mRepulsionSpringStiffness = repulsion_spring_stiffness;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-double IndividualSpringStiffnessGeneralisedLinearSpringForce<ELEMENT_DIM, SPACE_DIM>::GetRepulsionSpringStiffness() {
+double IndividualSpringStiffnessGeneralisedLinearSpringForce<ELEMENT_DIM,
+		SPACE_DIM>::GetRepulsionSpringStiffness() {
 	return mRepulsionSpringStiffness;
 }
 
@@ -33,8 +41,8 @@ double IndividualSpringStiffnessGeneralisedLinearSpringForce<ELEMENT_DIM, SPACE_
  * @param alpha the new value of mAlpha
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void IndividualSpringStiffnessGeneralisedLinearSpringForce<ELEMENT_DIM, SPACE_DIM>::SetAlpha(
-		double alpha) {
+void IndividualSpringStiffnessGeneralisedLinearSpringForce<ELEMENT_DIM,
+		SPACE_DIM>::SetAlpha(double alpha) {
 	assert(alpha > 0.0);
 	mAlpha = alpha;
 }
@@ -43,7 +51,8 @@ void IndividualSpringStiffnessGeneralisedLinearSpringForce<ELEMENT_DIM, SPACE_DI
  * @return #mAlpha
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-double IndividualSpringStiffnessGeneralisedLinearSpringForce<ELEMENT_DIM, SPACE_DIM>::GetAlpha() {
+double IndividualSpringStiffnessGeneralisedLinearSpringForce<ELEMENT_DIM,
+		SPACE_DIM>::GetAlpha() {
 	return mAlpha;
 }
 
@@ -209,8 +218,8 @@ c_vector<double, SPACE_DIM> IndividualSpringStiffnessGeneralisedLinearSpringForc
 
 	if (bool(
 			dynamic_cast<MeshBasedCellPopulation<ELEMENT_DIM, SPACE_DIM>*>(&rCellPopulation))) {
-		return multiplication_factor * spring_stiffness_adhesion * unit_difference
-				* overlap;
+		return multiplication_factor * spring_stiffness_adhesion
+				* unit_difference * overlap;
 	} else {
 		// A reasonably stable simple force law
 		if (is_closer_than_rest_length) //overlap is negative
@@ -218,7 +227,8 @@ c_vector<double, SPACE_DIM> IndividualSpringStiffnessGeneralisedLinearSpringForc
 			//log(x+1) is undefined for x<=-1
 			assert(overlap > -rest_length_final);
 			c_vector<double, SPACE_DIM> temp = multiplication_factor
-					* spring_stiffness_repulsion * unit_difference * rest_length_final
+					* spring_stiffness_repulsion * unit_difference
+					* rest_length_final
 					* log(1.0 + overlap / rest_length_final);
 			return temp;
 		} else {
@@ -232,14 +242,11 @@ c_vector<double, SPACE_DIM> IndividualSpringStiffnessGeneralisedLinearSpringForc
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void IndividualSpringStiffnessGeneralisedLinearSpringForce<ELEMENT_DIM, SPACE_DIM>::OutputForceParameters(
-		out_stream& rParamsFile) {
+void IndividualSpringStiffnessGeneralisedLinearSpringForce<ELEMENT_DIM,
+		SPACE_DIM>::OutputForceParameters(out_stream& rParamsFile) {
 	*rParamsFile << "\t\t\t<RepulsionSpringStiffness>"
-			<< mRepulsionSpringStiffness
-			<< "</RepulsionSpringStiffness>\n";
-	*rParamsFile << "\t\t\t<Alpha>"
-			<< mAlpha
-			<< "</Alpha>\n";
+			<< mRepulsionSpringStiffness << "</RepulsionSpringStiffness>\n";
+	*rParamsFile << "\t\t\t<Alpha>" << mAlpha << "</Alpha>\n";
 
 	// Call direct parent class
 	GeneralisedLinearSpringForce<ELEMENT_DIM, SPACE_DIM>::OutputForceParameters(
@@ -256,5 +263,6 @@ template class IndividualSpringStiffnessGeneralisedLinearSpringForce<3, 3> ;
 
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"
-EXPORT_TEMPLATE_CLASS_ALL_DIMS(IndividualSpringStiffnessGeneralisedLinearSpringForce)
+EXPORT_TEMPLATE_CLASS_ALL_DIMS(
+		IndividualSpringStiffnessGeneralisedLinearSpringForce)
 
