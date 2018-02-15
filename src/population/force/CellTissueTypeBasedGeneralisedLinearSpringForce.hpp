@@ -8,7 +8,7 @@
 #ifndef CELLTISSUEBASEDGENERALISEDLINEARSPRINGFORCE_HPP_
 #define CELLTISSUEBASEDGENERALISEDLINEARSPRINGFORCE_HPP_
 
-#include "GeneralisedLinearSpringForce.hpp"
+#include "IndividualSpringStiffnessGeneralisedLinearSpringForce.hpp"
 
 /**
  * A force class copying the DifferentialAdhesionGeneralisedSpringForce class,
@@ -16,7 +16,7 @@
  */
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM = ELEMENT_DIM>
-class CellTissueTypeBasedGeneralisedLinearSpringForce: public GeneralisedLinearSpringForce<
+class CellTissueTypeBasedGeneralisedLinearSpringForce: public IndividualSpringStiffnessGeneralisedLinearSpringForce<
 		ELEMENT_DIM, SPACE_DIM> {
 
 private:
@@ -48,12 +48,12 @@ private:
 	 */
 	double mHeterotypicSpringConstantMultiplier;
 
-	/**
-	 * Decay parameter of the attractive part of the force function.
-	 *
-	 * Defaults to 5.0 in the constructor.
-	 */
-	double mAlpha;
+//	/**
+//	 * Decay parameter of the attractive part of the force function.
+//	 *
+//	 * Defaults to 5.0 in the constructor.
+//	 */
+//	double mAlpha;
 
 	/** Needed for serialization. */
 	friend class boost::serialization::access;
@@ -67,12 +67,12 @@ private:
 	void serialize(Archive & archive, const unsigned int version) {
 		archive
 				& boost::serialization::base_object<
-						GeneralisedLinearSpringForce<ELEMENT_DIM, SPACE_DIM> >(
+						IndividualSpringStiffnessGeneralisedLinearSpringForce<ELEMENT_DIM, SPACE_DIM> >(
 						*this);
 		archive & mHomotypicPerichondrialSpringConstantMultiplier;
 		archive & mHomotypicChondrocyteSpringConstantMultiplier;
 		archive & mHeterotypicSpringConstantMultiplier;
-		archive & mAlpha;
+		//archive & mAlpha;
 	}
 public:
 	/**
@@ -139,17 +139,17 @@ public:
 	void SetHeterotypicSpringConstantMultiplier(
 			double heterotypicSpringConstantMultiplier);
 
-	/**
-	 * Set mAlpha.
-	 *
-	 * @param alpha the new value of mAlpha
-	 */
-	void SetAlpha(double alpha);
-
-	/**
-	 * @return #mAlpha
-	 */
-	double GetAlpha();
+//	/**
+//	 * Set mAlpha.
+//	 *
+//	 * @param alpha the new value of mAlpha
+//	 */
+//	void SetAlpha(double alpha);
+//
+//	/**
+//	 * @return #mAlpha
+//	 */
+//	double GetAlpha();
 
 	/**
 	 * Overridden CalculateForceBetweenNodes method which uses the member

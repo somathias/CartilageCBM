@@ -25,20 +25,6 @@ class IndividualSpringStiffnessGeneralisedLinearSpringForce: public GeneralisedL
 
 private:
 
-	/**
-	 * Spring stiffness for the repulsion part of the GLS force.
-	 *
-	 * Defaults to 15.0 in the constructor
-	 */
-	double mRepulsionSpringStiffness;
-
-	/**
-	 * Decay parameter of the attractive part of the force function.
-	 *
-	 * Defaults to 5.0 in the constructor.
-	 */
-	double mAlpha;
-
 	/** Needed for serialization. */
 	friend class boost::serialization::access;
 	/**
@@ -56,6 +42,22 @@ private:
 		archive & mRepulsionSpringStiffness;
 		archive & mAlpha;
 	}
+
+protected:
+	/**
+	 * Spring stiffness for the repulsion part of the GLS force.
+	 *
+	 * Defaults to 15.0 in the constructor
+	 */
+	double mRepulsionSpringStiffness;
+
+	/**
+	 * Decay parameter of the attractive part of the force function.
+	 *
+	 * Defaults to 5.0 in the constructor.
+	 */
+	double mAlpha;
+
 public:
 	IndividualSpringStiffnessGeneralisedLinearSpringForce();
 

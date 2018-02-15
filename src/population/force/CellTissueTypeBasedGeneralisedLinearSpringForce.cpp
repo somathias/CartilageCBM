@@ -12,9 +12,9 @@
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 CellTissueTypeBasedGeneralisedLinearSpringForce<ELEMENT_DIM, SPACE_DIM>::CellTissueTypeBasedGeneralisedLinearSpringForce() :
-		GeneralisedLinearSpringForce<ELEMENT_DIM, SPACE_DIM>(), mHomotypicPerichondrialSpringConstantMultiplier(
+		IndividualSpringStiffnessGeneralisedLinearSpringForce<ELEMENT_DIM, SPACE_DIM>(), mHomotypicPerichondrialSpringConstantMultiplier(
 				1.0), mHomotypicChondrocyteSpringConstantMultiplier(1.0), mHeterotypicSpringConstantMultiplier(
-				1.0), mAlpha(5.0) {
+				1.0){
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -106,25 +106,25 @@ void CellTissueTypeBasedGeneralisedLinearSpringForce<ELEMENT_DIM, SPACE_DIM>::Se
 	mHeterotypicSpringConstantMultiplier = heterotypicSpringConstantMultiplier;
 }
 
-/**
- * Set mAlpha.
- *
- * @param alpha the new value of mAlpha
- */
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void CellTissueTypeBasedGeneralisedLinearSpringForce<ELEMENT_DIM, SPACE_DIM>::SetAlpha(
-		double alpha) {
-	assert(alpha > 0.0);
-	mAlpha = alpha;
-}
-
-/**
- * @return #mAlpha
- */
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-double CellTissueTypeBasedGeneralisedLinearSpringForce<ELEMENT_DIM, SPACE_DIM>::GetAlpha() {
-	return mAlpha;
-}
+///**
+// * Set mAlpha.
+// *
+// * @param alpha the new value of mAlpha
+// */
+//template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+//void CellTissueTypeBasedGeneralisedLinearSpringForce<ELEMENT_DIM, SPACE_DIM>::SetAlpha(
+//		double alpha) {
+//	assert(alpha > 0.0);
+//	mAlpha = alpha;
+//}
+//
+///**
+// * @return #mAlpha
+// */
+//template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+//double CellTissueTypeBasedGeneralisedLinearSpringForce<ELEMENT_DIM, SPACE_DIM>::GetAlpha() {
+//	return mAlpha;
+//}
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 c_vector<double, SPACE_DIM> CellTissueTypeBasedGeneralisedLinearSpringForce<
@@ -281,13 +281,15 @@ c_vector<double, SPACE_DIM> CellTissueTypeBasedGeneralisedLinearSpringForce<
 	double multiplication_factor = VariableSpringConstantMultiplicationFactor(
 			nodeAGlobalIndex, nodeBGlobalIndex, rCellPopulation,
 			is_closer_than_rest_length);
-	double spring_stiffness = GeneralisedLinearSpringForce<ELEMENT_DIM,
+	double spring_stiffness_adhesion = GeneralisedLinearSpringForce<ELEMENT_DIM,
 			SPACE_DIM>::mMeinekeSpringStiffness;
+	double spring_stiffness_repulsion = IndividualSpringStiffnessGeneralisedLinearSpringForce<ELEMENT_DIM,
+			SPACE_DIM>::mRepulsionSpringStiffness;
 
 	if (bool(
 			dynamic_cast<MeshBasedCellPopulation<ELEMENT_DIM, SPACE_DIM>*>(&rCellPopulation))) {
-		return multiplication_factor * spring_stiffness * unit_difference
-				* overlap;
+		return multiplication_factor * spring_stiffness_adhesion
+				* unit_difference * overlap;
 	} else {
 		// A reasonably stable simple force law
 		if (is_closer_than_rest_length) //overlap is negative
@@ -295,14 +297,16 @@ c_vector<double, SPACE_DIM> CellTissueTypeBasedGeneralisedLinearSpringForce<
 			//log(x+1) is undefined for x<=-1
 			assert(overlap > -rest_length_final);
 			c_vector<double, SPACE_DIM> temp = multiplication_factor
-					* spring_stiffness * unit_difference * rest_length_final
+					* spring_stiffness_repulsion * unit_difference
+					* rest_length_final
 					* log(1.0 + overlap / rest_length_final);
 			return temp;
 		} else {
 			//double alpha = 5.0; we want to use our member variable instead
 			c_vector<double, SPACE_DIM> temp = multiplication_factor
-					* spring_stiffness * unit_difference * overlap
-					* exp(-mAlpha * overlap / rest_length_final);
+					* spring_stiffness_adhesion * unit_difference * overlap
+					* exp(-IndividualSpringStiffnessGeneralisedLinearSpringForce<ELEMENT_DIM,
+							SPACE_DIM>::mAlpha * overlap / rest_length_final);
 			return temp;
 		}
 	}
@@ -322,7 +326,8 @@ void CellTissueTypeBasedGeneralisedLinearSpringForce<ELEMENT_DIM, SPACE_DIM>::Ou
 			<< "</HeterotypicSpringConstantMultiplier>\n";
 
 	// Call direct parent class
-	GeneralisedLinearSpringForce<ELEMENT_DIM, SPACE_DIM>::OutputForceParameters(
+	IndividualSpringStiffnessGeneralisedLinearSpringForce<ELEMENT_DIM,
+				SPACE_DIM>::OutputForceParameters(
 			rParamsFile);
 }
 

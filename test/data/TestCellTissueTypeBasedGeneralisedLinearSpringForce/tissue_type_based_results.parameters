@@ -1,6 +1,8 @@
 			<HomotypicPerichondrialSpringConstantMultiplier>1</HomotypicPerichondrialSpringConstantMultiplier>
 			<HomotypicChondrocyteSpringConstantMultiplier>1</HomotypicChondrocyteSpringConstantMultiplier>
 			<HeterotypicSpringConstantMultiplier>1</HeterotypicSpringConstantMultiplier>
+			<RepulsionSpringStiffness>15</RepulsionSpringStiffness>
+			<Alpha>5</Alpha>
 			<MeinekeSpringStiffness>15</MeinekeSpringStiffness>
 			<MeinekeDivisionRestingSpringLength>0.5</MeinekeDivisionRestingSpringLength>
 			<MeinekeSpringGrowthDuration>1</MeinekeSpringGrowthDuration>
