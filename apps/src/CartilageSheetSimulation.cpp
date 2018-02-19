@@ -39,7 +39,8 @@
 void SetupSingletons(unsigned randomSeed);
 void DestroySingletons();
 void SetupAndRunCartilageSheetSimulation(unsigned randomSeed, bool, unsigned,
-		unsigned, unsigned, double, double, double, double, std::string);
+		unsigned, unsigned, double, double, double, double, double,
+		std::string);
 
 int main(int argc, char *argv[]) {
 	// This sets up PETSc and prints out copyright information, etc.
@@ -60,7 +61,9 @@ int main(int argc, char *argv[]) {
 			boost::program_options::value<unsigned>()->default_value(2),
 			"The number of cells in z direction")("mu",
 			boost::program_options::value<double>()->default_value(15.0),
-			"The adhesion spring stiffness")("A",
+			"The adhesion spring stiffness")("c",
+			boost::program_options::value<double>()->default_value(1.0),
+			"The homotypic chondrocyte multiplier")("A",
 			boost::program_options::value<double>()->default_value(0.5),
 			"The percentage of activated stem cells")("p",
 			boost::program_options::value<double>()->default_value(0.0),
@@ -96,6 +99,7 @@ int main(int argc, char *argv[]) {
 	double activation_percentage = variables_map["A"].as<double>();
 	double maximum_perturbation = variables_map["p"].as<double>();
 	double spring_stiffness = variables_map["mu"].as<double>();
+	double homotypic_chondro_multiplier = variables_map["c"].as<double>();
 	double simulation_end_time = variables_map["T"].as<double>();
 	std::string output_directory =
 			variables_map["output-dir"].as<std::string>();
@@ -103,7 +107,8 @@ int main(int argc, char *argv[]) {
 	SetupSingletons(random_seed);
 	SetupAndRunCartilageSheetSimulation(random_seed, random_birth_times,
 			n_cells_wide, n_cells_deep, n_cells_high, activation_percentage,
-			maximum_perturbation, spring_stiffness, simulation_end_time,
+			maximum_perturbation, spring_stiffness,
+			homotypic_chondro_multiplier, simulation_end_time,
 			output_directory);
 	DestroySingletons();
 }
@@ -125,26 +130,27 @@ void DestroySingletons() {
 	CellPropertyRegistry::Instance()->Clear();
 }
 
-void SetupAndRunCartilageSheetSimulation(unsigned random_seed, bool random_birth_times,
-		unsigned n_cells_wide, unsigned n_cells_deep,
+void SetupAndRunCartilageSheetSimulation(unsigned random_seed,
+		bool random_birth_times, unsigned n_cells_wide, unsigned n_cells_deep,
 		unsigned n_cells_high, double activation_percentage,
 		double maximum_perturbation, double spring_stiffness,
-		double simulation_endtime, std::string output_directory) {
-
+		double homotypic_chondro_multiplier, double simulation_endtime,
+		std::string output_directory) {
 
 	//bool random_birth_times = true;
 	output_directory.append(boost::lexical_cast<std::string>(random_seed));
 
 	double alpha;
-	if(spring_stiffness == 0){
+	if (spring_stiffness == 0) {
 		alpha = 1.0; // magic number, doesn't matter anyway
-	}
-	else{
+	} else {
 		alpha = -2.0 * log(2.0 / spring_stiffness * 0.001); //not defined if spring_stiffness == 0
 	}
 
-
-
+	double homotypic_peri_multiplier = 1.0;
+	//double homotypic_chondro_multiplier = 1.0;
+	double heterotypic_multiplier = 0.5
+			* (homotypic_peri_multiplier + homotypic_chondro_multiplier);
 
 	CellBasedEventHandler::Enable();
 
@@ -183,11 +189,16 @@ void SetupAndRunCartilageSheetSimulation(unsigned random_seed, bool random_birth
 	simulator.SetEndTime(simulation_endtime); //hours
 	simulator.SetSamplingTimestepMultiple(12);
 
-	MAKE_PTR(IndividualSpringStiffnessGeneralisedLinearSpringForce<3>, p_force);
+	MAKE_PTR(CellTissueTypeBasedGeneralisedLinearSpringForce<3>, p_force);
 	p_force->SetCutOffLength(1.5);
 	p_force->SetMeinekeSpringStiffness(spring_stiffness);
 	p_force->SetRepulsionSpringStiffness(1.4); // our default value fixed by experiments on optimal relative column height
 	p_force->SetAlpha(alpha);
+	p_force->SetHomotypicPerichondrialSpringConstantMultiplier(
+			homotypic_peri_multiplier);
+	p_force->SetHomotypicChondrocyteSpringConstantMultiplier(
+			homotypic_chondro_multiplier);
+	p_force->SetHeterotypicSpringConstantMultiplier(heterotypic_multiplier);
 	simulator.AddForce(p_force);
 
 	CellBasedEventHandler::Reset();
@@ -214,8 +225,8 @@ void SetupAndRunCartilageSheetSimulation(unsigned random_seed, bool random_birth
 			<< "\n";
 	sheet_params_file << "Maximum perturbation : " << maximum_perturbation
 			<< "\n";
-	sheet_params_file << "Spring stiffness : " << spring_stiffness << "\n";
-	sheet_params_file << "Attraction force decay : " << alpha << "\n";
+//	sheet_params_file << "Adhesion spring stiffness : " << spring_stiffness << "\n";
+//	sheet_params_file << "Attraction force decay : " << alpha << "\n";
 	sheet_params_file << "Simulation end time : " << simulation_endtime << "\n";
 	sheet_params_file << "Output directory : " << output_directory << "\n";
 	sheet_params_file.close();
