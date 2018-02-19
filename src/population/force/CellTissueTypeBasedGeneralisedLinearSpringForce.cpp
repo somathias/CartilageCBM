@@ -12,9 +12,10 @@
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 CellTissueTypeBasedGeneralisedLinearSpringForce<ELEMENT_DIM, SPACE_DIM>::CellTissueTypeBasedGeneralisedLinearSpringForce() :
-		IndividualSpringStiffnessGeneralisedLinearSpringForce<ELEMENT_DIM, SPACE_DIM>(), mHomotypicPerichondrialSpringConstantMultiplier(
+		IndividualSpringStiffnessGeneralisedLinearSpringForce<ELEMENT_DIM,
+				SPACE_DIM>(), mHomotypicPerichondrialSpringConstantMultiplier(
 				1.0), mHomotypicChondrocyteSpringConstantMultiplier(1.0), mHeterotypicSpringConstantMultiplier(
-				1.0){
+				1.0) {
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -283,8 +284,9 @@ c_vector<double, SPACE_DIM> CellTissueTypeBasedGeneralisedLinearSpringForce<
 			is_closer_than_rest_length);
 	double spring_stiffness_adhesion = GeneralisedLinearSpringForce<ELEMENT_DIM,
 			SPACE_DIM>::mMeinekeSpringStiffness;
-	double spring_stiffness_repulsion = IndividualSpringStiffnessGeneralisedLinearSpringForce<ELEMENT_DIM,
-			SPACE_DIM>::mRepulsionSpringStiffness;
+	double spring_stiffness_repulsion =
+			IndividualSpringStiffnessGeneralisedLinearSpringForce<ELEMENT_DIM,
+					SPACE_DIM>::mRepulsionSpringStiffness;
 
 	if (bool(
 			dynamic_cast<MeshBasedCellPopulation<ELEMENT_DIM, SPACE_DIM>*>(&rCellPopulation))) {
@@ -296,17 +298,23 @@ c_vector<double, SPACE_DIM> CellTissueTypeBasedGeneralisedLinearSpringForce<
 		{
 			//log(x+1) is undefined for x<=-1
 			assert(overlap > -rest_length_final);
-			c_vector<double, SPACE_DIM> temp = multiplication_factor
-					* spring_stiffness_repulsion * unit_difference
-					* rest_length_final
-					* log(1.0 + overlap / rest_length_final);
+//			c_vector<double, SPACE_DIM> temp = multiplication_factor
+//					* spring_stiffness_repulsion * unit_difference
+//					* rest_length_final
+//					* log(1.0 + overlap / rest_length_final);
+			c_vector<double, SPACE_DIM> temp = spring_stiffness_repulsion
+					* unit_difference * rest_length_final
+					* log(1.0 + overlap / rest_length_final); // the multiplication factor should not affect the repulsive part
 			return temp;
 		} else {
 			//double alpha = 5.0; we want to use our member variable instead
-			c_vector<double, SPACE_DIM> temp = multiplication_factor
-					* spring_stiffness_adhesion * unit_difference * overlap
-					* exp(-IndividualSpringStiffnessGeneralisedLinearSpringForce<ELEMENT_DIM,
-							SPACE_DIM>::mAlpha * overlap / rest_length_final);
+			c_vector<double, SPACE_DIM> temp =
+					multiplication_factor * spring_stiffness_adhesion
+							* unit_difference * overlap
+							* exp(
+									-IndividualSpringStiffnessGeneralisedLinearSpringForce<
+											ELEMENT_DIM, SPACE_DIM>::mAlpha
+											* overlap / rest_length_final);
 			return temp;
 		}
 	}
@@ -326,8 +334,7 @@ void CellTissueTypeBasedGeneralisedLinearSpringForce<ELEMENT_DIM, SPACE_DIM>::Ou
 			<< "</HeterotypicSpringConstantMultiplier>\n";
 
 	// Call direct parent class
-	IndividualSpringStiffnessGeneralisedLinearSpringForce<ELEMENT_DIM,
-				SPACE_DIM>::OutputForceParameters(
+	IndividualSpringStiffnessGeneralisedLinearSpringForce<ELEMENT_DIM, SPACE_DIM>::OutputForceParameters(
 			rParamsFile);
 }
 

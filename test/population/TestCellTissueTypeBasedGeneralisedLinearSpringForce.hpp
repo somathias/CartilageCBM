@@ -227,20 +227,34 @@ public:
 		CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 3> cells_generator;
 		cells_generator.GenerateBasicRandom(cells, mesh.GetNumNodes(), p_transit_type);
 
+
 		NodeBasedCellPopulation<3> cell_population(mesh, cells);
+
+		boost::shared_ptr<AbstractCellProperty> p_perichondrial(cell_population.GetCellPropertyRegistry()->Get<PerichondrialCellTissueType>());
+		boost::shared_ptr<AbstractCellProperty> p_chondrocyte(cell_population.GetCellPropertyRegistry()->Get<ChondrocyteCellTissueType>());
+
+		cell_population.GetCellUsingLocationIndex(0)->AddCellProperty(p_perichondrial); //the cell in the middle is perichondrial
+		cell_population.GetCellUsingLocationIndex(1)->AddCellProperty(p_chondrocyte); // the other two are chondrocytes
+		cell_population.GetCellUsingLocationIndex(2)->AddCellProperty(p_chondrocyte);
 
 		// Create force
 		CellTissueTypeBasedGeneralisedLinearSpringForce<3> force;
+		double heterotypic_multiplier = 4.0;
+		force.SetHeterotypicSpringConstantMultiplier(heterotypic_multiplier);
 
 		// Test set/get method
 		TS_ASSERT_DELTA(force.GetHomotypicPerichondrialSpringConstantMultiplier(), 1.0, 1e-6);
 		TS_ASSERT_DELTA(force.GetHomotypicChondrocyteSpringConstantMultiplier(), 1.0, 1e-6);
-		TS_ASSERT_DELTA(force.GetHeterotypicSpringConstantMultiplier(), 1.0, 1e-6);
+		TS_ASSERT_DELTA(force.GetHeterotypicSpringConstantMultiplier(), 4.0, 1e-6);
 		TS_ASSERT_DELTA(force.GetAlpha(), 5.0, 1e-6);
 
 		double alpha = 12.5;
 		force.SetAlpha(alpha);
 		TS_ASSERT_DELTA(force.GetAlpha(), alpha, 1e-6);
+
+		double repulsion_spring_stiffness = 1.0;
+		force.SetRepulsionSpringStiffness(repulsion_spring_stiffness);
+		TS_ASSERT_DELTA(force.GetRepulsionSpringStiffness(), repulsion_spring_stiffness, 1e-6);
 
 		// Initialise a vector of node forces
 		for (unsigned i=0; i<cell_population.GetNumNodes(); i++)
@@ -263,7 +277,8 @@ public:
 		TS_ASSERT_DELTA(cell_population.GetNode(0)->rGetLocation()[1], 0.0, 1e-4);
 		TS_ASSERT_DELTA(cell_population.GetNode(0)->rGetLocation()[2], 0.0, 1e-4);
 
-		double spring_stiffness = force.GetMeinekeSpringStiffness();
+		double spring_stiffness_adhesion = force.GetMeinekeSpringStiffness();
+		double spring_stiffness_repulsion = force.GetRepulsionSpringStiffness();
 
 		// Calculate the force between nodes 0 and 2
 		c_vector<double, 3> force_contribution = force.CalculateForceBetweenNodes(0, 2, cell_population);
@@ -272,7 +287,7 @@ public:
 			assert(!std::isnan(force_contribution[j]));
 		}
 
-		TS_ASSERT_DELTA(force_contribution[0], spring_stiffness*log(0.75), 1e-4);
+		TS_ASSERT_DELTA(force_contribution[0], spring_stiffness_repulsion*log(0.75), 1e-4); //repulsion force, hence no multiplier
 		TS_ASSERT_DELTA(force_contribution[1], 0.0, 1e-4);
 		TS_ASSERT_DELTA(force_contribution[2], 0.0, 1e-4);
 
@@ -283,7 +298,7 @@ public:
 			assert(!std::isnan(force_contribution[j]));
 		}
 
-		TS_ASSERT_DELTA(force_contribution[0], -0.25*spring_stiffness*exp(-alpha*0.25), 1e-4);
+		TS_ASSERT_DELTA(force_contribution[0], -0.25*heterotypic_multiplier*spring_stiffness_adhesion*exp(-alpha*0.25), 1e-4); //adhesion force, hence heterotypic multiplier
 		TS_ASSERT_DELTA(force_contribution[1], 0.0, 1e-4);
 		TS_ASSERT_DELTA(force_contribution[2], 0.0, 1e-4);
 
@@ -298,15 +313,13 @@ public:
 		}
 		force.AddForceContribution(cell_population);
 
-
-
-		TS_ASSERT_DELTA(cell_population.GetNode(0)->rGetAppliedForce()[0], spring_stiffness*log(0.75) - 0.25*spring_stiffness*exp(-alpha*0.25), 1e-4);
+		TS_ASSERT_DELTA(cell_population.GetNode(0)->rGetAppliedForce()[0], spring_stiffness_repulsion*log(0.75) - 0.25*heterotypic_multiplier*spring_stiffness_adhesion*exp(-alpha*0.25), 1e-4);
 		TS_ASSERT_DELTA(cell_population.GetNode(0)->rGetAppliedForce()[1], 0.0, 1e-4);
 		TS_ASSERT_DELTA(cell_population.GetNode(0)->rGetAppliedForce()[2], 0.0, 1e-4);
-		TS_ASSERT_DELTA(cell_population.GetNode(1)->rGetAppliedForce()[0], 0.25*spring_stiffness*exp(-alpha*0.25), 1e-4);
+		TS_ASSERT_DELTA(cell_population.GetNode(1)->rGetAppliedForce()[0], 0.25*heterotypic_multiplier*spring_stiffness_adhesion*exp(-alpha*0.25), 1e-4);
 		TS_ASSERT_DELTA(cell_population.GetNode(1)->rGetAppliedForce()[1], 0.0, 1e-4);
 		TS_ASSERT_DELTA(cell_population.GetNode(1)->rGetAppliedForce()[2], 0.0, 1e-4);
-		TS_ASSERT_DELTA(cell_population.GetNode(2)->rGetAppliedForce()[0], -spring_stiffness*log(0.75), 1e-4);
+		TS_ASSERT_DELTA(cell_population.GetNode(2)->rGetAppliedForce()[0], -spring_stiffness_repulsion*log(0.75), 1e-4);
 		TS_ASSERT_DELTA(cell_population.GetNode(2)->rGetAppliedForce()[1], 0.0, 1e-4);
 		TS_ASSERT_DELTA(cell_population.GetNode(2)->rGetAppliedForce()[2], 0.0, 1e-4);
 
