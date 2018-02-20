@@ -77,7 +77,7 @@ double CellTissueTypeBasedGeneralisedLinearSpringForce<ELEMENT_DIM, SPACE_DIM>::
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void CellTissueTypeBasedGeneralisedLinearSpringForce<ELEMENT_DIM, SPACE_DIM>::SetHomotypicPerichondrialSpringConstantMultiplier(
 		double perichondrialSpringConstantMultiplier) {
-	assert(perichondrialSpringConstantMultiplier > 0.0);
+	assert(perichondrialSpringConstantMultiplier >= 0.0);
 	mHomotypicPerichondrialSpringConstantMultiplier =
 			perichondrialSpringConstantMultiplier;
 }
@@ -90,7 +90,7 @@ double CellTissueTypeBasedGeneralisedLinearSpringForce<ELEMENT_DIM, SPACE_DIM>::
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void CellTissueTypeBasedGeneralisedLinearSpringForce<ELEMENT_DIM, SPACE_DIM>::SetHomotypicChondrocyteSpringConstantMultiplier(
 		double chondrocyteSpringConstantMultiplier) {
-	assert(chondrocyteSpringConstantMultiplier > 0.0);
+	assert(chondrocyteSpringConstantMultiplier >= 0.0);
 	mHomotypicChondrocyteSpringConstantMultiplier =
 			chondrocyteSpringConstantMultiplier;
 }
@@ -103,7 +103,7 @@ double CellTissueTypeBasedGeneralisedLinearSpringForce<ELEMENT_DIM, SPACE_DIM>::
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void CellTissueTypeBasedGeneralisedLinearSpringForce<ELEMENT_DIM, SPACE_DIM>::SetHeterotypicSpringConstantMultiplier(
 		double heterotypicSpringConstantMultiplier) {
-	assert(heterotypicSpringConstantMultiplier > 0.0);
+	assert(heterotypicSpringConstantMultiplier >= 0.0);
 	mHeterotypicSpringConstantMultiplier = heterotypicSpringConstantMultiplier;
 }
 
