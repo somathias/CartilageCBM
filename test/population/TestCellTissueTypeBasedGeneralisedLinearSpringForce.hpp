@@ -239,14 +239,29 @@ public:
 
 		// Create force
 		CellTissueTypeBasedGeneralisedLinearSpringForce<3> force;
+
+
+
+		// Test default values
+		TS_ASSERT_DELTA(force.GetHomotypicPerichondrialSpringConstantMultiplier(), 1.0, 1e-6);
+		TS_ASSERT_DELTA(force.GetHomotypicChondrocyteSpringConstantMultiplier(), 1.0, 1e-6);
+		TS_ASSERT_DELTA(force.GetHeterotypicSpringConstantMultiplier(), 1.0, 1e-6);
+		TS_ASSERT_DELTA(force.GetAlpha(), 5.0, 1e-6);
+
+		// Test set/get method
+		force.SetHeterotypicSpringConstantMultiplier(0.0);
+		force.SetHomotypicChondrocyteSpringConstantMultiplier(0.0);
+		force.SetHomotypicPerichondrialSpringConstantMultiplier(0.0);
+
+		TS_ASSERT_DELTA(force.GetHomotypicPerichondrialSpringConstantMultiplier(), 0.0, 1e-6);
+		TS_ASSERT_DELTA(force.GetHomotypicChondrocyteSpringConstantMultiplier(), 0.0, 1e-6);
+		TS_ASSERT_DELTA(force.GetHeterotypicSpringConstantMultiplier(), 0.0, 1e-6);
+
+		force.SetHeterotypicSpringConstantMultiplier(1.0);
+		force.SetHomotypicChondrocyteSpringConstantMultiplier(1.0);
 		double heterotypic_multiplier = 4.0;
 		force.SetHeterotypicSpringConstantMultiplier(heterotypic_multiplier);
 
-		// Test set/get method
-		TS_ASSERT_DELTA(force.GetHomotypicPerichondrialSpringConstantMultiplier(), 1.0, 1e-6);
-		TS_ASSERT_DELTA(force.GetHomotypicChondrocyteSpringConstantMultiplier(), 1.0, 1e-6);
-		TS_ASSERT_DELTA(force.GetHeterotypicSpringConstantMultiplier(), 4.0, 1e-6);
-		TS_ASSERT_DELTA(force.GetAlpha(), 5.0, 1e-6);
 
 		double alpha = 12.5;
 		force.SetAlpha(alpha);
@@ -255,6 +270,8 @@ public:
 		double repulsion_spring_stiffness = 1.0;
 		force.SetRepulsionSpringStiffness(repulsion_spring_stiffness);
 		TS_ASSERT_DELTA(force.GetRepulsionSpringStiffness(), repulsion_spring_stiffness, 1e-6);
+
+
 
 		// Initialise a vector of node forces
 		for (unsigned i=0; i<cell_population.GetNumNodes(); i++)
