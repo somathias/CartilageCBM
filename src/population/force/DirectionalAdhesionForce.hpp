@@ -10,9 +10,7 @@
 
 #include "CellTissueTypeBasedGeneralisedLinearSpringForce.hpp"
 
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM = ELEMENT_DIM>
-class DirectionalAdhesionForce: public CellTissueTypeBasedGeneralisedLinearSpringForce<
-		ELEMENT_DIM, SPACE_DIM> {
+class DirectionalAdhesionForce: public CellTissueTypeBasedGeneralisedLinearSpringForce<3> {
 
 private:
 
@@ -35,8 +33,7 @@ private:
 	void serialize(Archive & archive, const unsigned int version) {
 		archive
 				& boost::serialization::base_object<
-						CellTissueTypeBasedGeneralisedLinearSpringForce<
-								ELEMENT_DIM, SPACE_DIM> >(*this);
+						CellTissueTypeBasedGeneralisedLinearSpringForce<3> >(*this);
 		archive & mBaselineAdhesionMultiplier;
 	}
 
@@ -64,7 +61,7 @@ public:
 	 */
 	double VariableSpringConstantMultiplicationFactor(unsigned nodeAGlobalIndex,
 			unsigned nodeBGlobalIndex,
-			AbstractCellPopulation<ELEMENT_DIM, SPACE_DIM>& rCellPopulation,
+			AbstractCellPopulation<3>& rCellPopulation,
 			bool isCloserThanRestLength);
 	/**
 	 * Overridden OutputForceParameters() method.
@@ -75,6 +72,7 @@ public:
 };
 
 #include "SerializationExportWrapper.hpp"
-EXPORT_TEMPLATE_CLASS_ALL_DIMS(DirectionalAdhesionForce)
+//EXPORT_TEMPLATE_CLASS_ALL_DIMS(DirectionalAdhesionForce)
+CHASTE_CLASS_EXPORT(DirectionalAdhesionForce)
 
 #endif /* DIRECTIONALADHESIONFORCE_HPP_ */
