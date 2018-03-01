@@ -6,11 +6,26 @@
  */
 
 #include "DirectionalAdhesionForce.hpp"
+#include "PerichondrialCellTissueType.hpp"
+#include "ChondrocyteCellTissueType.hpp"
+#include "NodeBasedCellPopulation.hpp"
 
-void DirectionalAdhesionForce::DirectionalAdhesionForce() :
+DirectionalAdhesionForce::DirectionalAdhesionForce() :
 		CellTissueTypeBasedGeneralisedLinearSpringForce<3>(), mBaselineAdhesionMultiplier(
 				0.1) {
 
+}
+
+double DirectionalAdhesionForce::GetBaselineAdhesionMultiplier() {
+	return mBaselineAdhesionMultiplier;
+}
+
+
+void DirectionalAdhesionForce::SetBaselineAdhesionMultiplier(
+		double baselineAdhesionMultiplier) {
+	assert(baselineAdhesionMultiplier >= 0.0);
+	mBaselineAdhesionMultiplier =
+			baselineAdhesionMultiplier;
 }
 
 double DirectionalAdhesionForce::VariableSpringConstantMultiplicationFactor(
@@ -104,7 +119,7 @@ double DirectionalAdhesionForce::VariableSpringConstantMultiplicationFactor(
 				 * which should be strongest parallel to the x,y plane (abs_dot_product == 0.0)
 				 */
 				double directional_multiplier = (1.0-abs_dot_product) * (1-mBaselineAdhesionMultiplier) + mBaselineAdhesionMultiplier;
-				return mHomotypicPerichondrialSpringConstantMultiplier * directional_multiplier;
+				return CellTissueTypeBasedGeneralisedLinearSpringForce<3>::mHomotypicPerichondrialSpringConstantMultiplier * directional_multiplier;
 			} else if (cell_A_is_chondrocyte && cell_B_is_chondrocyte) {
 				/*
 				 * For homotypic interactions between chondrocyte cells, scale the spring constant
@@ -112,10 +127,10 @@ double DirectionalAdhesionForce::VariableSpringConstantMultiplicationFactor(
 				 * which should be strongest perpendicular to the x,y plane (abs_dot_product == 1.0)
 				 */
 				double directional_multiplier = abs_dot_product * (1-mBaselineAdhesionMultiplier) + mBaselineAdhesionMultiplier;
-				return mHomotypicChondrocyteSpringConstantMultiplier;
+				return CellTissueTypeBasedGeneralisedLinearSpringForce<3>::mHomotypicChondrocyteSpringConstantMultiplier*directional_multiplier;
 			} else {
 				// For heterotypic interactions, scale the spring constant by mHeterotypicSpringConstantMultiplier
-				return mHeterotypicSpringConstantMultiplier;
+				return CellTissueTypeBasedGeneralisedLinearSpringForce<3>::mHeterotypicSpringConstantMultiplier;
 			}
 		} else {
 			//leave the spring constant unchanged if one of them does not have a cell tissue type

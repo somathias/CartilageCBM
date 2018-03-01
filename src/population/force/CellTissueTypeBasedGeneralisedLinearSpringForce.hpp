@@ -20,6 +20,27 @@ class CellTissueTypeBasedGeneralisedLinearSpringForce: public IndividualSpringSt
 		ELEMENT_DIM, SPACE_DIM> {
 
 private:
+	/** Needed for serialization. */
+	friend class boost::serialization::access;
+	/**
+	 * Archive the object and its member variables.
+	 *
+	 * @param archive the archive
+	 * @param version the current version of this class
+	 */
+	template<class Archive>
+	void serialize(Archive & archive, const unsigned int version) {
+		archive
+				& boost::serialization::base_object<
+						IndividualSpringStiffnessGeneralisedLinearSpringForce<
+								ELEMENT_DIM, SPACE_DIM> >(*this);
+		archive & mHomotypicPerichondrialSpringConstantMultiplier;
+		archive & mHomotypicChondrocyteSpringConstantMultiplier;
+		archive & mHeterotypicSpringConstantMultiplier;
+		//archive & mAlpha;
+	}
+
+protected:
 
 	/**
 	 * A scalar determining the relative spring constant for homotypic
@@ -55,25 +76,6 @@ private:
 //	 */
 //	double mAlpha;
 
-	/** Needed for serialization. */
-	friend class boost::serialization::access;
-	/**
-	 * Archive the object and its member variables.
-	 *
-	 * @param archive the archive
-	 * @param version the current version of this class
-	 */
-	template<class Archive>
-	void serialize(Archive & archive, const unsigned int version) {
-		archive
-				& boost::serialization::base_object<
-						IndividualSpringStiffnessGeneralisedLinearSpringForce<ELEMENT_DIM, SPACE_DIM> >(
-						*this);
-		archive & mHomotypicPerichondrialSpringConstantMultiplier;
-		archive & mHomotypicChondrocyteSpringConstantMultiplier;
-		archive & mHeterotypicSpringConstantMultiplier;
-		//archive & mAlpha;
-	}
 public:
 	/**
 	 * Constructor.

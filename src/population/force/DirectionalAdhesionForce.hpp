@@ -41,6 +41,19 @@ public:
 	DirectionalAdhesionForce();
 
 	/**
+	 * @return #mBaselineAdhesionMultiplier.
+	 */
+	double GetBaselineAdhesionMultiplier();
+
+	/**
+	 * Set mBaselineAdhesionMultiplier.
+	 *
+	 * @param baselineAdhesionMultiplier the new value of mBaselineAdhesionMultiplier
+	 */
+	void SetBaselineAdhesionMultiplier(
+			double baselineAdhesionMultiplier);
+
+	/**
 	 * Overridden VariableSpringConstantMultiplicationFactor() method.
 	 *
 	 * This method takes account of the distinct spring constants present
