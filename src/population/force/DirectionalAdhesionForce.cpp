@@ -110,7 +110,7 @@ double DirectionalAdhesionForce::VariableSpringConstantMultiplicationFactor(
 //			c_vector<double, 3> unit_normal_z = zero_vector<double>(3);
 //			unit_normal_z[2] = 1.0;
 
-			double abs_dot_product  = abs(unit_difference[2]);
+			double abs_dot_product  = fabs(unit_difference[2]);
 
 			if (cell_A_is_perichondrial && cell_B_is_perichondrial) {
 				/*
@@ -118,7 +118,7 @@ double DirectionalAdhesionForce::VariableSpringConstantMultiplicationFactor(
 				 * by mHomotypicPerichondrialSpringConstantMultiplier times the directional influence
 				 * which should be strongest parallel to the x,y plane (abs_dot_product == 0.0)
 				 */
-				double directional_multiplier = (1.0-abs_dot_product) * (1-mBaselineAdhesionMultiplier) + mBaselineAdhesionMultiplier;
+				double directional_multiplier = (1.0-abs_dot_product) * (1.0-mBaselineAdhesionMultiplier) + mBaselineAdhesionMultiplier;
 				return CellTissueTypeBasedGeneralisedLinearSpringForce<3>::mHomotypicPerichondrialSpringConstantMultiplier * directional_multiplier;
 			} else if (cell_A_is_chondrocyte && cell_B_is_chondrocyte) {
 				/*
@@ -126,7 +126,7 @@ double DirectionalAdhesionForce::VariableSpringConstantMultiplicationFactor(
 				 * by mHomotypicChondrocyteSpringConstantMultiplier times the directional influence
 				 * which should be strongest perpendicular to the x,y plane (abs_dot_product == 1.0)
 				 */
-				double directional_multiplier = abs_dot_product * (1-mBaselineAdhesionMultiplier) + mBaselineAdhesionMultiplier;
+				double directional_multiplier = abs_dot_product * (1.0-mBaselineAdhesionMultiplier) + mBaselineAdhesionMultiplier;
 				return CellTissueTypeBasedGeneralisedLinearSpringForce<3>::mHomotypicChondrocyteSpringConstantMultiplier*directional_multiplier;
 			} else {
 				// For heterotypic interactions, scale the spring constant by mHeterotypicSpringConstantMultiplier
