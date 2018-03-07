@@ -39,7 +39,7 @@
 void SetupSingletons(unsigned randomSeed);
 void DestroySingletons();
 void SetupAndRunCartilageSheetSimulation(unsigned randomSeed, bool, unsigned,
-		unsigned, unsigned, double, double, double, double, double,
+		unsigned, unsigned, double, double, double, double, double, double,
 		std::string);
 
 int main(int argc, char *argv[]) {
@@ -63,7 +63,9 @@ int main(int argc, char *argv[]) {
 			boost::program_options::value<double>()->default_value(15.0),
 			"The adhesion spring stiffness")("c",
 			boost::program_options::value<double>()->default_value(1.0),
-			"The homotypic chondrocyte multiplier")("A",
+			"The homotypic chondrocyte multiplier")("b",
+			boost::program_options::value<double>()->default_value(0.1),
+			"The baseline directional adhesion multiplier")("A",
 			boost::program_options::value<double>()->default_value(0.5),
 			"The percentage of activated stem cells")("p",
 			boost::program_options::value<double>()->default_value(0.0),
@@ -100,6 +102,7 @@ int main(int argc, char *argv[]) {
 	double maximum_perturbation = variables_map["p"].as<double>();
 	double spring_stiffness = variables_map["mu"].as<double>();
 	double homotypic_chondro_multiplier = variables_map["c"].as<double>();
+	double baseline_adhesion_multiplier = variables_map["b"].as<double>();
 	double simulation_end_time = variables_map["T"].as<double>();
 	std::string output_directory =
 			variables_map["output-dir"].as<std::string>();
@@ -108,8 +111,8 @@ int main(int argc, char *argv[]) {
 	SetupAndRunCartilageSheetSimulation(random_seed, random_birth_times,
 			n_cells_wide, n_cells_deep, n_cells_high, activation_percentage,
 			maximum_perturbation, spring_stiffness,
-			homotypic_chondro_multiplier, simulation_end_time,
-			output_directory);
+			homotypic_chondro_multiplier, baseline_adhesion_multiplier,
+			simulation_end_time, output_directory);
 	DestroySingletons();
 }
 
@@ -134,7 +137,8 @@ void SetupAndRunCartilageSheetSimulation(unsigned random_seed,
 		bool random_birth_times, unsigned n_cells_wide, unsigned n_cells_deep,
 		unsigned n_cells_high, double activation_percentage,
 		double maximum_perturbation, double spring_stiffness,
-		double homotypic_chondro_multiplier, double simulation_endtime,
+		double homotypic_chondro_multiplier,
+		double baseline_adhesion_multiplier, double simulation_endtime,
 		std::string output_directory) {
 
 	//bool random_birth_times = true;
@@ -209,10 +213,10 @@ void SetupAndRunCartilageSheetSimulation(unsigned random_seed,
 	ss << "/home/kubuntu1404/Documents/scaling_cartilage_sheets/testoutput/"
 			<< output_directory << "/results_from_time_0/sheet.parameters";
 	std::string sheet_params_filename = ss.str();
-	std::cout << sheet_params_filename << std::endl;
+//	std::cout << sheet_params_filename << std::endl;
 	std::ofstream sheet_params_file;
 	sheet_params_file.open(sheet_params_filename.c_str());
-	std::cout << sheet_params_file.is_open() << std::endl;
+//	std::cout << sheet_params_file.is_open() << std::endl;
 	sheet_params_file << "---------------------------------\n";
 	sheet_params_file << "Parameters of current sheet simulation:\n";
 	sheet_params_file << "---------------------------------\n";
@@ -231,7 +235,7 @@ void SetupAndRunCartilageSheetSimulation(unsigned random_seed,
 	sheet_params_file << "Output directory : " << output_directory << "\n";
 	sheet_params_file.close();
 
-	std::cout << "Written sheet parameters to file." << std::endl;
+//	std::cout << "Written sheet parameters to file." << std::endl;
 
 	CellBasedEventHandler::Headings();
 	CellBasedEventHandler::Report();
