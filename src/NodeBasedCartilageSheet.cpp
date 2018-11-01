@@ -203,7 +203,7 @@ void NodeBasedCartilageSheet::InitialiseBulkStemCellConfiguration(
 }
 
 void NodeBasedCartilageSheet::InitialiseRandomStemCellConfiguration(
-		unsigned numberOfStemCellsPerLayer) throw (Exception) {
+		unsigned numberOfStemCells) throw (Exception) {
 
 	//check if the population is set up
 	if (!mCellPopulationSetup) {
@@ -211,18 +211,28 @@ void NodeBasedCartilageSheet::InitialiseRandomStemCellConfiguration(
 	}
 
 	// sanity check input parameter
+	unsigned n_cells_total = mNumberOfNodesPerXDimension
+			* mNumberOfNodesPerYDimension*mNumberOfNodesPerZDimension;
 	unsigned n_cells_total_per_layer = mNumberOfNodesPerXDimension
-			* mNumberOfNodesPerYDimension;
-	if (numberOfStemCellsPerLayer > n_cells_total_per_layer) {
+				* mNumberOfNodesPerYDimension;
+	if (numberOfStemCells > n_cells_total) {
 		EXCEPTION(
-				"Specified number of stem cells larger than total number of cells per layer.");
+				"Specified number of stem cells larger than total number of cells.");
 	}
+	unsigned numberOfStemCellsPerLayer;
+	if (mNumberOfNodesPerZDimension = 1){
+		numberOfStemCellsPerLayer = numberOfStemCells;
+	}
+	else {
+		numberOfStemCellsPerLayer = floor(numberOfStemCells / 2.0);
+	}
+	
 
 	MAKE_PTR(StemCellProliferativeType, p_stem_type);
 
 	//generate stem cell indices for both layers
 	unsigned i = 0;
-	while (i < 2*numberOfStemCellsPerLayer) {
+	while (i < numberOfStemCells) {
 		//choose a row
 		unsigned row = RandomNumberGenerator::Instance()->randMod(
 				mNumberOfNodesPerXDimension);
