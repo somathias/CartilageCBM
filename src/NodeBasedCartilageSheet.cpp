@@ -220,7 +220,7 @@ void NodeBasedCartilageSheet::InitialiseRandomStemCellConfiguration(
 				"Specified number of stem cells larger than total number of cells.");
 	}
 	unsigned numberOfStemCellsPerLayer;
-	if (mNumberOfNodesPerZDimension = 1){
+	if (mNumberOfNodesPerZDimension == 1){
 		numberOfStemCellsPerLayer = numberOfStemCells;
 	}
 	else {
