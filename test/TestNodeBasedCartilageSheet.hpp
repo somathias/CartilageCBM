@@ -58,7 +58,7 @@ public:
 		simulator.Solve();
 	}
 
-	void xTestRandomStemCellConfiguration() throw (Exception) {
+	void TestRandomStemCellConfiguration() throw (Exception) {
 
 		EXIT_IF_PARALLEL;
 
@@ -97,8 +97,52 @@ public:
 			}
 
 		}
-		TS_ASSERT_EQUALS(n_stem_cells, 10);//number of stem cells should be 2*5;
-		TS_ASSERT_EQUALS(n_diff_cells, 30);//number of differentiated cells should be 5*4*2-2*5;
+		TS_ASSERT_EQUALS(n_stem_cells, 5);//number of stem cells should be 5;
+		TS_ASSERT_EQUALS(n_diff_cells, 35);//number of differentiated cells should be 5*4*2-5;
+
+	}
+
+	void TestRandomStemCellConfigurationSingleLayer() throw (Exception) {
+
+		EXIT_IF_PARALLEL;
+
+		// Construct a new cartilage sheet
+		NodeBasedCartilageSheet* p_cartilage_sheet =
+		new NodeBasedCartilageSheet();
+
+		// set the sheet dimensions
+		p_cartilage_sheet->SetCartilageSheetDimensions(5, 4, 1);
+		// generate the nodes
+		p_cartilage_sheet->GenerateNodesOnHCPGrid();
+
+		// setup the cell population
+		p_cartilage_sheet->Setup();
+
+		// setup the cell tissue types and cell division directions
+		//p_cartilage_sheet->InitialiseTissueLayersAndCellDivisionDirections();
+		// setup the initial stem cell configuration
+		p_cartilage_sheet->InitialiseRandomStemCellConfiguration(5);
+
+		// get the cell population
+		boost::shared_ptr<NodeBasedCellPopulation<3> > cell_population =
+		p_cartilage_sheet->GetCellPopulation();
+
+
+		unsigned n_stem_cells = 0;
+		unsigned n_diff_cells = 0;
+		for (AbstractCellPopulation<3>::Iterator cell_iter =
+					cell_population->Begin(); cell_iter != cell_population->End();
+					++cell_iter) {
+			if (cell_iter->GetCellProliferativeType()->IsType<StemCellProliferativeType>()) {
+				n_stem_cells++;
+			}
+			else if (cell_iter->GetCellProliferativeType()->IsType<DifferentiatedCellProliferativeType>()){
+				n_diff_cells++;
+			}
+
+		}
+		TS_ASSERT_EQUALS(n_stem_cells, 5);//number of stem cells should be 5;
+		TS_ASSERT_EQUALS(n_diff_cells, 15);//number of differentiated cells should be 5*4*1-5;
 
 	}
 
