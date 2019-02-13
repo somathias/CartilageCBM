@@ -12,7 +12,6 @@
 #include <string>
 #include <sstream>
 #include <iostream>
-//#include <cxxtest/TestSuite.h>
 #include "CheckpointArchiveTypes.hpp"
 #include "Warnings.hpp"
 #include "SmartPointers.hpp"
@@ -23,6 +22,7 @@
 #include "DifferentiatedCellProliferativeType.hpp"
 #include "NodeBasedCellPopulation.hpp"
 #include "NodesOnlyMesh.hpp"
+#include "CellAncestor.hpp"
 #include "CellAncestorWriter.hpp"
 
 #include "CellTissueTypeBasedCellCycleModel.hpp"
@@ -63,15 +63,13 @@ public:
 	NodeBasedCartilageSheet();
 	virtual ~NodeBasedCartilageSheet();
 
-	void Setup() throw (Exception);
+	void Setup();
 	bool isCellPopulationSetup() const;
-	boost::shared_ptr<NodeBasedCellPopulation<3> > GetCellPopulation()
-			throw (Exception);
+	boost::shared_ptr<NodeBasedCellPopulation<3> > GetCellPopulation();
 
-	void InitialiseTissueLayersAndCellDivisionDirections() throw (Exception);
-	void InitialiseBulkStemCellConfiguration(unsigned, unsigned)
-			throw (Exception);
-	void InitialiseRandomStemCellConfiguration(unsigned) throw (Exception);
+	void InitialiseTissueLayersAndCellDivisionDirections();
+	void InitialiseBulkStemCellConfiguration(unsigned, unsigned);
+	void InitialiseRandomStemCellConfiguration(unsigned);
 
 	void SetCartilageSheetDimensions(unsigned, unsigned, unsigned);
 

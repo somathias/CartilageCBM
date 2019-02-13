@@ -12,7 +12,7 @@
 
 class TestNodeBasedCartilageSheet: public AbstractCellBasedTestSuite {
 public:
-	void TestSheet() throw (Exception) {
+	void TestSheet()  {
 
 		// Construct a new cartilage sheet
 		NodeBasedCartilageSheet* p_cartilage_sheet =
@@ -58,7 +58,7 @@ public:
 		simulator.Solve();
 	}
 
-	void TestRandomStemCellConfiguration() throw (Exception) {
+	void TestRandomStemCellConfiguration()  {
 
 		EXIT_IF_PARALLEL;
 
@@ -102,7 +102,7 @@ public:
 
 	}
 
-	void TestRandomStemCellConfigurationSingleLayer() throw (Exception) {
+	void TestRandomStemCellConfigurationSingleLayer()  {
 
 		EXIT_IF_PARALLEL;
 
@@ -149,7 +149,7 @@ public:
 	/**
 	 * Minimal testing for the generation of the node coordinates on a cartesian lattice
 	 */
-	void xTestCartesianNodeGeneration() throw (Exception) {
+	void TestCartesianNodeGeneration()  {
 		unsigned n_nodes_width = 3;
 		unsigned n_nodes_depth = 2;
 		unsigned n_nodes_height = 1;
@@ -196,7 +196,7 @@ public:
 	/**
 	 * Minimal testing for the generation of the node coordinates on a HCP lattice
 	 */
-	void xTestHCPNodeGeneration() throw (Exception) {
+	void TestHCPNodeGeneration()  {
 		unsigned n_nodes_width = 3;
 		unsigned n_nodes_depth = 3;
 		unsigned n_nodes_height = 3;

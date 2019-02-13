@@ -9,7 +9,7 @@
 #include "PerichondrialCellTissueType.hpp"
 #include "ChondrocyteCellTissueType.hpp"
 #include "CellsGenerator.hpp"
-#include "FixedDurationGenerationBasedCellCycleModel.hpp"
+#include "UniformG1GenerationalCellCycleModel.hpp"
 #include "MeshBasedCellPopulationWithGhostNodes.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
@@ -23,7 +23,7 @@ class TestCellTissueTypeBasedGeneralisedLinearSpringForce: public AbstractCellBa
 public:
 
 	void TestCellTissueTypeBasedGeneralisedLinearSpringForceWithMeshBasedCellPopulation()
-			throw (Exception) {
+			 {
 		EXIT_IF_PARALLEL;    // HoneycombMeshGenerator doesn't work in parallel.
 
 		unsigned cells_across = 7;
@@ -38,7 +38,7 @@ public:
 
 		// Create cells
 		std::vector<CellPtr> cells;
-		CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+		CellsGenerator<UniformG1GenerationalCellCycleModel, 2> cells_generator;
 		cells_generator.GenerateBasic(cells, location_indices.size(), location_indices);
 
 		// Create cell population
@@ -224,7 +224,7 @@ public:
 
 		std::vector<CellPtr> cells;
 		MAKE_PTR(TransitCellProliferativeType, p_transit_type);
-		CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 3> cells_generator;
+		CellsGenerator<UniformG1GenerationalCellCycleModel, 3> cells_generator;
 		cells_generator.GenerateBasicRandom(cells, mesh.GetNumNodes(), p_transit_type);
 
 
@@ -358,7 +358,7 @@ public:
 
 		{
 			FileFinder generated_file = output_file_handler.FindFile("tissue_type_based_results.parameters");
-			FileFinder reference_file("projects/scaling_cartilage_sheets/test/data/TestCellTissueTypeBasedGeneralisedLinearSpringForce/tissue_type_based_results.parameters",
+			FileFinder reference_file("projects/cartilage/test/data/TestCellTissueTypeBasedGeneralisedLinearSpringForce/tissue_type_based_results.parameters",
 					RelativeTo::ChasteSourceRoot);
 			FileComparison comparer(generated_file,reference_file);
 			TS_ASSERT(comparer.CompareFiles());
@@ -366,7 +366,7 @@ public:
 
 	}
 
-	void TestCellTissueTypeBasedGeneralisedLinearSpringForceArchiving() throw (Exception)
+	void TestCellTissueTypeBasedGeneralisedLinearSpringForceArchiving() 
 	{
 		EXIT_IF_PARALLEL; // Beware of processes overwriting the identical archives of other processes
 		OutputFileHandler handler("archive", false);

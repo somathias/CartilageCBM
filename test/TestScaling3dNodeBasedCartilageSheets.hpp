@@ -43,7 +43,7 @@ public:
 	/**
 	 * Tests the 3D node-based cartilage sheet simulation
 	 */
-	void Test3dNodeBasedCartilageSheet() throw (Exception) {
+	void Test3dNodeBasedCartilageSheet()  {
 
 		bool random_seed = true;
 		unsigned n_cells_wide = 3;
@@ -92,7 +92,7 @@ private:
 			double chondrocyte_spring_constant_multiplier,
 			double heterotypic_spring_constant_multiplier,
 			std::string output_directory, double simulation_endtime)
-					throw (Exception) {
+					 {
 		CellBasedEventHandler::Enable();
 
 		NodeBasedCartilageSheet* p_cartilage_sheet =

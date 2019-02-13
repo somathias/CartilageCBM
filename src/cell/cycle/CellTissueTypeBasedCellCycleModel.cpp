@@ -77,7 +77,7 @@ void CellTissueTypeBasedCellCycleModel::InitialiseDaughterCell() {
 		mpCell->AddCellProperty(p_chondrocyte_type);
 	}
 
-	StochasticDurationGenerationBasedCellCycleModel::InitialiseDaughterCell();
+	UniformG1GenerationalCellCycleModel::InitialiseDaughterCell();
 }
 
 void CellTissueTypeBasedCellCycleModel::OutputCellCycleModelParameters(
@@ -85,7 +85,7 @@ void CellTissueTypeBasedCellCycleModel::OutputCellCycleModelParameters(
 	// No new parameters to output
 
 	// Call method on direct parent class
-	StochasticDurationGenerationBasedCellCycleModel::OutputCellCycleModelParameters(
+	UniformG1GenerationalCellCycleModel::OutputCellCycleModelParameters(
 			rParamsFile);
 }
 

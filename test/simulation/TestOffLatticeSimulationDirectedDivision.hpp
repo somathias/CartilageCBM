@@ -4,7 +4,7 @@
 #include "SmartPointers.hpp"
 #include "CellsGenerator.hpp"
 #include "TransitCellProliferativeType.hpp"
-#include "StochasticDurationCellCycleModel.hpp"
+#include "UniformG1GenerationalCellCycleModel.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "OffLatticeSimulation.hpp"
 #include "NodesOnlyMesh.hpp"
@@ -26,7 +26,7 @@ public:
 	/**
 	 * If no CellDivisionDirection is selected, cells should divide randomly.
 	 */
-	void TestUnDirectedDivision() throw (Exception) {
+	void TestUnDirectedDivision()  {
 		/** The next line is needed because we cannot currently run node based simulations in parallel. */
 		EXIT_IF_PARALLEL;
 
@@ -43,7 +43,7 @@ public:
 
 		std::vector<CellPtr> cells;
 		MAKE_PTR(TransitCellProliferativeType, p_transit_type);
-		CellsGenerator<StochasticDurationCellCycleModel, 3> cells_generator;
+		CellsGenerator<UniformG1GenerationalCellCycleModel, 3> cells_generator;
 		cells_generator.GenerateBasicRandom(cells, mesh.GetNumNodes(), p_transit_type);
 
 		NodeBasedCellPopulation<3> cell_population(mesh, cells);
@@ -80,7 +80,7 @@ public:
 
 	}
 
-	void TestUpwardsDirectedDivision() throw(Exception)
+	void TestUpwardsDirectedDivision() 
 	{
 		/** The next line is needed because we cannot currently run node based simulations in parallel. */
 		EXIT_IF_PARALLEL;
@@ -96,7 +96,7 @@ public:
 
 		std::vector<CellPtr> cells;
 		MAKE_PTR(TransitCellProliferativeType, p_transit_type);
-		CellsGenerator<StochasticDurationCellCycleModel, 3> cells_generator;
+		CellsGenerator<UniformG1GenerationalCellCycleModel, 3> cells_generator;
 		cells_generator.GenerateBasicRandom(cells, mesh.GetNumNodes(), p_transit_type);
 
 		NodeBasedCellPopulation<3> cell_population(mesh, cells);
@@ -124,7 +124,7 @@ public:
 
 	}
 
-	void TestDownwardsDirectedDivision() throw(Exception)
+	void TestDownwardsDirectedDivision() 
 	{
 		/** The next line is needed because we cannot currently run node based simulations in parallel. */
 		EXIT_IF_PARALLEL;
@@ -140,7 +140,7 @@ public:
 
 		std::vector<CellPtr> cells;
 		MAKE_PTR(TransitCellProliferativeType, p_transit_type);
-		CellsGenerator<StochasticDurationCellCycleModel, 3> cells_generator;
+		CellsGenerator<UniformG1GenerationalCellCycleModel, 3> cells_generator;
 		cells_generator.GenerateBasicRandom(cells, mesh.GetNumNodes(), p_transit_type);
 
 		NodeBasedCellPopulation<3> cell_population(mesh, cells);

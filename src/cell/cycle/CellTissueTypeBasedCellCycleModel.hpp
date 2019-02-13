@@ -8,12 +8,12 @@
 #ifndef CELLTISSUETYPEBASEDCELLCYCLEMODEL_HPP_
 #define CELLTISSUETYPEBASEDCELLCYCLEMODEL_HPP_
 
-#include "StochasticDurationGenerationBasedCellCycleModel.hpp"
+#include "UniformG1GenerationalCellCycleModel.hpp"
 #include "AbstractCellTissueType.hpp"
 #include "PerichondrialCellTissueType.hpp"
 #include "ChondrocyteCellTissueType.hpp"
 
-class CellTissueTypeBasedCellCycleModel: public StochasticDurationGenerationBasedCellCycleModel {
+class CellTissueTypeBasedCellCycleModel: public UniformG1GenerationalCellCycleModel {
 private:
 
 	friend class TestCellTissueTypeBasedCellCycleModel;
@@ -30,7 +30,7 @@ private:
 	void serialize(Archive & archive, const unsigned int version) {
 		archive
 				& boost::serialization::base_object<
-						StochasticDurationGenerationBasedCellCycleModel>(*this);
+						UniformG1GenerationalCellCycleModel>(*this);
 	}
 public:
 	/**

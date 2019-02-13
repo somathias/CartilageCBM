@@ -4,7 +4,7 @@
 #include "SmartPointers.hpp"
 #include "CellsGenerator.hpp"
 #include "TransitCellProliferativeType.hpp"
-#include "StochasticDurationCellCycleModel.hpp"
+#include "UniformG1GenerationalCellCycleModel.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "OffLatticeSimulation.hpp"
 #include "MeshBasedCellPopulation.hpp"
@@ -20,14 +20,14 @@
 class TestOffLatticeSimulation2dDirectedDivision : public AbstractCellBasedTestSuite
 {
 public:
-  void TestUpwardsDirectedDivision() throw(Exception)
+  void TestUpwardsDirectedDivision() 
   {
     
     HoneycombMeshGenerator generator(1, 1);
     MutableMesh<2,2>* p_mesh = generator.GetMesh();
     
     std::vector<CellPtr> cells;
-    CellsGenerator<StochasticDurationCellCycleModel, 2> cells_generator;
+    CellsGenerator<UniformG1GenerationalCellCycleModel, 2> cells_generator;
     cells_generator.GenerateBasic(cells, p_mesh->GetNumNodes());
 
     MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);

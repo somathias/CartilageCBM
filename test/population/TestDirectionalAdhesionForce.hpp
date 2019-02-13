@@ -16,7 +16,7 @@
 #include "PerichondrialCellTissueType.hpp"
 #include "ChondrocyteCellTissueType.hpp"
 #include "CellsGenerator.hpp"
-#include "FixedDurationGenerationBasedCellCycleModel.hpp"
+#include "UniformG1GenerationalCellCycleModel.hpp"
 #include "MeshBasedCellPopulationWithGhostNodes.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
@@ -42,7 +42,7 @@ public:
 
 		std::vector<CellPtr> cells;
 		MAKE_PTR(TransitCellProliferativeType, p_transit_type);
-		CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 3> cells_generator;
+		CellsGenerator<UniformG1GenerationalCellCycleModel, 3> cells_generator;
 		cells_generator.GenerateBasicRandom(cells, mesh.GetNumNodes(),
 				p_transit_type);
 
@@ -189,7 +189,7 @@ public:
 
 		std::vector<CellPtr> cells;
 		MAKE_PTR(TransitCellProliferativeType, p_transit_type);
-		CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 3> cells_generator;
+		CellsGenerator<UniformG1GenerationalCellCycleModel, 3> cells_generator;
 		cells_generator.GenerateBasicRandom(cells, mesh.GetNumNodes(),
 				p_transit_type);
 
@@ -367,7 +367,7 @@ public:
 
 		std::vector<CellPtr> cells;
 		MAKE_PTR(TransitCellProliferativeType, p_transit_type);
-		CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 3> cells_generator;
+		CellsGenerator<UniformG1GenerationalCellCycleModel, 3> cells_generator;
 		cells_generator.GenerateBasicRandom(cells, mesh.GetNumNodes(),
 				p_transit_type);
 
@@ -546,7 +546,7 @@ public:
 
 		{
 			FileFinder generated_file = output_file_handler.FindFile("directional_adhesion_results.parameters");
-			FileFinder reference_file("projects/scaling_cartilage_sheets/test/data/TestDirectionalAdhesionForce/directional_adhesion_results.parameters",
+			FileFinder reference_file("projects/cartilage/test/data/TestDirectionalAdhesionForce/directional_adhesion_results.parameters",
 					RelativeTo::ChasteSourceRoot);
 			FileComparison comparer(generated_file,reference_file);
 			TS_ASSERT(comparer.CompareFiles());
@@ -554,7 +554,7 @@ public:
 
 	}
 
-	void TestDirectionalAdhesionForceArchiving() throw (Exception)
+	void TestDirectionalAdhesionForceArchiving() 
 	{
 		EXIT_IF_PARALLEL; // Beware of processes overwriting the identical archives of other processes
 		OutputFileHandler handler("archive", false);

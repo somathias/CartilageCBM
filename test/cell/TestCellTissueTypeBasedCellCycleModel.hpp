@@ -30,7 +30,7 @@
 class TestCellTissueTypeBasedCellCycleModel: public AbstractCellBasedTestSuite {
 public:
 
-	void TestProgressionThroughCellCycle() throw (Exception) {
+	void TestProgressionThroughCellCycle()  {
 		TS_ASSERT_THROWS_NOTHING(CellTissueTypeBasedCellCycleModel cell_model);
 
 		MAKE_PTR(WildTypeCellMutationState, p_state);
@@ -64,7 +64,7 @@ public:
 		RandomNumberGenerator::Instance()->Reseed(0);
 
 		double g1_duration =
-				p_my_cell->GetCellCycleModel()->GetStemCellG1Duration()
+				static_cast<CellTissueTypeBasedCellCycleModel*>(p_my_cell->GetCellCycleModel())->GetStemCellG1Duration()
 						+ 4 * RandomNumberGenerator::Instance()->ranf();
 		for (unsigned i = 0; i < num_steps; i++) {
 			SimulationTime::Instance()->IncrementTimeOneStep();
@@ -114,7 +114,7 @@ public:
 	}
 
 
-	void TestArchiveCellTissueTypeBasedCellCycleModel() throw (Exception) {
+	void TestArchiveCellTissueTypeBasedCellCycleModel()  {
 
 		MAKE_PTR(WildTypeCellMutationState, p_state);
 		MAKE_PTR(StemCellProliferativeType, p_stem_type);
@@ -168,7 +168,7 @@ public:
 
 			input_arch >> p_cell;
 
-			AbstractCellCycleModel* p_model = p_cell->GetCellCycleModel();
+			AbstractPhaseBasedCellCycleModel* p_model = static_cast<AbstractPhaseBasedCellCycleModel*>(p_cell->GetCellCycleModel());
 
 			TS_ASSERT_DELTA(p_model->GetBirthTime(), -1.0, 1e-12);
 			TS_ASSERT_DELTA(p_model->GetAge(), 6.0, 1e-12);

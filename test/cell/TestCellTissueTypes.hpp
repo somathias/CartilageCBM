@@ -23,7 +23,7 @@ class TestCellTissueTypes : public AbstractCellBasedTestSuite
 {
 public:
 
-    void TestCellTissueTypeMethods() throw(Exception)
+    void TestCellTissueTypeMethods() 
     {
         MAKE_PTR(PerichondrialCellTissueType, p_type);
         TS_ASSERT_EQUALS(p_type->GetCellCount(), 0u);
@@ -59,7 +59,7 @@ public:
         TS_ASSERT(const_stem_type.IsSame(p_perichondrial_type.get()));
     }
 
-    void TestArchivePerichondrialCellTissueType() throw(Exception)
+    void TestArchivePerichondrialCellTissueType() 
     {
         OutputFileHandler handler("archive", false);
         std::string archive_filename = handler.GetOutputDirectoryFullPath() + "PerichondrialCellTissueType.arch";
@@ -104,7 +104,7 @@ public:
         }
     }
 
-    void TestArchiveChondrocyteCellTissueType() throw(Exception)
+    void TestArchiveChondrocyteCellTissueType() 
     {
         OutputFileHandler handler("archive", false);
         std::string archive_filename = handler.GetOutputDirectoryFullPath() + "ChondrocyteCellTissueType.arch";

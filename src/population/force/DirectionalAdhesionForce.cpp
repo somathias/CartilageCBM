@@ -75,15 +75,15 @@ double DirectionalAdhesionForce::VariableSpringConstantMultiplicationFactor(
 			c_vector<double, 3> node_b_location =
 					p_node_b->rGetLocation();
 
-			// Get the node radii for a NodeBasedCellPopulation
-			double node_a_radius = 0.0;
-			double node_b_radius = 0.0;
+			// // Get the node radii for a NodeBasedCellPopulation
+			// double node_a_radius = 0.0;
+			// double node_b_radius = 0.0;
 
-			if (bool(
-					dynamic_cast<NodeBasedCellPopulation<3>*>(&rCellPopulation))) {
-				node_a_radius = p_node_a->GetRadius();
-				node_b_radius = p_node_b->GetRadius();
-			}
+			// if (bool(
+			// 		dynamic_cast<NodeBasedCellPopulation<3>*>(&rCellPopulation))) {
+			// 	node_a_radius = p_node_a->GetRadius();
+			// 	node_b_radius = p_node_b->GetRadius();
+			// }
 
 			// Get the unit vector parallel to the line joining the two nodes
 			c_vector<double, 3> unit_difference;

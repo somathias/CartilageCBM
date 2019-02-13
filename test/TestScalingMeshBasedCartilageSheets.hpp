@@ -11,7 +11,7 @@
 #include "StemCellProliferativeType.hpp"
 #include "DifferentiatedCellProliferativeType.hpp"
 #include "WildTypeCellMutationState.hpp"
-#include "StochasticDurationGenerationBasedCellCycleModel.hpp"
+#include "UniformG1GenerationalCellCycleModel.hpp"
 #include "HoneycombMeshGenerator.hpp"
 //#include "CylindricalHoneycombMeshGenerator.hpp"
 //#include "OffLatticeSimulation.hpp"
@@ -20,6 +20,7 @@
 #include "GeneralisedLinearSpringForce.hpp"
 #include "PlaneBoundaryCondition.hpp"
 #include "VoronoiDataWriter.hpp"
+#include "CellAncestor.hpp"
 #include "CellAncestorWriter.hpp"
 #include "CellAgesWriter.hpp"
 #include "FakePetscSetup.hpp"
@@ -31,7 +32,7 @@
 class TestScalingMeshBasedCartilageSheets : public AbstractCellBasedTestSuite
 {
 public:
-  void TestMeshBasedCartilageSheet() throw(Exception)
+  void TestMeshBasedCartilageSheet() 
   {
     CellBasedEventHandler::Enable();
     
@@ -53,7 +54,7 @@ public:
     MAKE_PTR(StemCellProliferativeType, p_stem_type); 
     MAKE_PTR(DifferentiatedCellProliferativeType, p_diff_type); 
     MAKE_PTR(WildTypeCellMutationState, p_state); 
-    CellsGenerator<StochasticDurationGenerationBasedCellCycleModel, 2> cells_generator;
+    CellsGenerator<UniformG1GenerationalCellCycleModel, 2> cells_generator;
     
     unsigned n_cells = location_indices.size();
     unsigned n_cells_per_layer = n_cells/n_layers;
@@ -66,7 +67,7 @@ public:
     //layer of differentiated and stem cells
     for (unsigned i=0; i<n_cells_per_layer; i++)
     {
-      StochasticDurationGenerationBasedCellCycleModel* p_cell_cycle_model = new  StochasticDurationGenerationBasedCellCycleModel;
+      UniformG1GenerationalCellCycleModel* p_cell_cycle_model = new  UniformG1GenerationalCellCycleModel;
       //p_cell_cycle_model->SetMaxTransitGenerations(4);
       // we could set maxTransitGenerations here.
       CellPtr p_cell(new Cell(p_state, p_cell_cycle_model));

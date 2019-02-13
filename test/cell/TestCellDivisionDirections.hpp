@@ -24,7 +24,7 @@
 class TestCellDivisionDirections: public AbstractCellBasedTestSuite {
 public:
 
-	void TestCellDivisionDirectionMethods() throw (Exception) {
+	void TestCellDivisionDirectionMethods()  {
 		//Test increment/decrement
 		MAKE_PTR(UpwardsCellDivisionDirection<3>, p_direction);
 		TS_ASSERT_EQUALS(p_direction->GetCellCount(), 0u);
@@ -80,7 +80,7 @@ public:
 
     }
 
-    void TestArchiveUpwardsCellDivisionDirection() throw(Exception)
+    void TestArchiveUpwardsCellDivisionDirection() 
     {
         OutputFileHandler handler("archive", false);
         std::string archive_filename = handler.GetOutputDirectoryFullPath() + "UpwardsCellDivisionDirection.arch";
@@ -125,7 +125,7 @@ public:
         }
     }
 
-    void TestArchiveDownwardsCellDivisionDirection() throw(Exception)
+    void TestArchiveDownwardsCellDivisionDirection() 
     {
         OutputFileHandler handler("archive", false);
         std::string archive_filename = handler.GetOutputDirectoryFullPath() + "DownwardsCellDivisionDirection.arch";

@@ -11,7 +11,7 @@
 #include "StemCellProliferativeType.hpp"
 #include "DifferentiatedCellProliferativeType.hpp"
 #include "WildTypeCellMutationState.hpp"
-#include "StochasticDurationGenerationBasedCellCycleModel.hpp"
+#include "UniformG1GenerationalCellCycleModel.hpp"
 #include "HoneycombMeshGenerator.hpp"
 //#include "CylindricalHoneycombMeshGenerator.hpp"
 //#include "OffLatticeSimulation.hpp"
@@ -21,6 +21,7 @@
 #include "GeneralisedLinearSpringForce.hpp"
 #include "PlaneBoundaryCondition.hpp"
 #include "VoronoiDataWriter.hpp"
+#include "CellAncestor.hpp"
 #include "CellAncestorWriter.hpp"
 #include "CellAgesWriter.hpp"
 #include "FakePetscSetup.hpp"
@@ -33,7 +34,7 @@ class TestScalingNodeBasedCartilageSheets : public AbstractCellBasedTestSuite
 {
 public:
   
-  void TestNodeBasedCartilageSheet() throw(Exception)
+  void TestNodeBasedCartilageSheet() 
   {
 
     bool random_seed = true;
@@ -69,7 +70,7 @@ private:
 				    double spring_stiffness,
 				    double upper_boundary_plane,
 				    std::string output_directory,
-				    double simulation_endtime ) throw(Exception)
+				    double simulation_endtime )
   {
     CellBasedEventHandler::Enable();
     std::stringstream ss;
@@ -98,15 +99,15 @@ private:
     MAKE_PTR(StemCellProliferativeType, p_stem_type); 
     MAKE_PTR(DifferentiatedCellProliferativeType, p_diff_type); 
     MAKE_PTR(WildTypeCellMutationState, p_state); 
-    CellsGenerator<StochasticDurationGenerationBasedCellCycleModel, 2> cells_generator;
+    CellsGenerator<UniformG1GenerationalCellCycleModel, 2> cells_generator;
     
-    unsigned n_cells = location_indices.size();
+    //unsigned n_cells = location_indices.size();
     std::vector<CellPtr> cells_current_layer;
 
     //layer of differentiated and stem cells
     for (unsigned i=0; i<n_cells_per_layer; i++)
     {
-      StochasticDurationGenerationBasedCellCycleModel* p_cell_cycle_model = new StochasticDurationGenerationBasedCellCycleModel;
+      UniformG1GenerationalCellCycleModel* p_cell_cycle_model = new UniformG1GenerationalCellCycleModel;
       // we could set maxTransitGenerations here.
       //p_cell_cycle_model->SetMaxTransitGenerations(4);
       CellPtr p_cell(new Cell(p_state, p_cell_cycle_model));
