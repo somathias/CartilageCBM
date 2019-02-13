@@ -12,7 +12,7 @@
 #include <string>
 #include <sstream>
 #include <iostream>
-#include <cxxtest/TestSuite.h>
+//#include <cxxtest/TestSuite.h>
 #include "CheckpointArchiveTypes.hpp"
 #include "Warnings.hpp"
 #include "SmartPointers.hpp"
