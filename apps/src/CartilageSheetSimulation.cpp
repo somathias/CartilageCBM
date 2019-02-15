@@ -107,12 +107,14 @@ int main(int argc, char *argv[]) {
 	std::string output_directory =
 			variables_map["output-dir"].as<std::string>();
 
+
 	SetupSingletons(random_seed);
 	SetupAndRunCartilageSheetSimulation(random_seed, random_birth_times,
 			n_cells_wide, n_cells_deep, n_cells_high, activation_percentage,
 			maximum_perturbation, spring_stiffness,
 			homotypic_chondro_multiplier, baseline_adhesion_multiplier,
-			simulation_end_time, output_directory);
+			simulation_end_time, output_directory);	
+
 	DestroySingletons();
 }
 
@@ -140,6 +142,7 @@ void SetupAndRunCartilageSheetSimulation(unsigned random_seed,
 		double homotypic_chondro_multiplier,
 		double baseline_adhesion_multiplier, double simulation_endtime,
 		std::string output_directory) {
+	
 
 	//bool random_birth_times = true;
 	output_directory.append(boost::lexical_cast<std::string>(random_seed));
@@ -187,6 +190,8 @@ void SetupAndRunCartilageSheetSimulation(unsigned random_seed,
 	boost::shared_ptr<NodeBasedCellPopulation<3> > cell_population =
 			p_cartilage_sheet->GetCellPopulation();
 
+
+
 	OffLatticeSimulationDirectedDivision<3> simulator(*cell_population);
 	//OffLatticeSimulation<3> simulator(cell_population);
 	simulator.SetOutputDirectory(output_directory);
@@ -205,13 +210,15 @@ void SetupAndRunCartilageSheetSimulation(unsigned random_seed,
 	p_force->SetHeterotypicSpringConstantMultiplier(heterotypic_multiplier);
 	simulator.AddForce(p_force);
 
+
 	CellBasedEventHandler::Reset();
 	simulator.Solve();
+	
+
 
 	// write sheet parameters to file
 	std::stringstream ss;
-	ss << "/home/kubuntu1404/Documents/scaling_cartilage_sheets/testoutput/"
-			<< output_directory << "/results_from_time_0/sheet.parameters";
+	ss << "/home/kubuntu1804/Documents/sf_simulation_results/" << output_directory << "/results_from_time_0/sheet.parameters";
 	std::string sheet_params_filename = ss.str();
 //	std::cout << sheet_params_filename << std::endl;
 	std::ofstream sheet_params_file;

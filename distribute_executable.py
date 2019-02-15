@@ -10,13 +10,14 @@ import os
 import subprocess
 import sys
 
-sys.path.append('/home/kubuntu1404/Documents/sheet_metrics')
+sys.path.append('/home/kubuntu1804/Documents/sheet_metrics_python')
 
 import evaluate_cartilage_sheet
 
 #import numpy as np
 
-executable = '/home/kubuntu1404/Documents/scaling_cartilage_sheets/apps/src/CartilageSheetSimulation'
+executable = '/home/kubuntu1804/Documents/chaste_build/projects/cartilage/apps/CartilageSheetSimulation'
+output_path = '/home/kubuntu1804/Documents/sf_simulation_results/'
 
 if not(os.path.isfile(executable)):
     raise Exception('Could not find executable: ' + executable)
@@ -24,10 +25,10 @@ if not(os.path.isfile(executable)):
 number_of_simulations = 3
 
 def main():
-    output_directory = '3dNodeBasedCartilageSheet/dev-extended_GLS_force/'
+    output_directory = 'master/'
     run_simulations(output_directory)
     
-    run_postprocessing('testoutput/'+output_directory)
+    run_postprocessing(output_path+output_directory)
     
     print('Done.')
 
