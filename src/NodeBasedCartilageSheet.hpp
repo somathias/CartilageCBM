@@ -32,6 +32,7 @@
 #include "DownwardsCellDivisionDirection.hpp"
 #include "CellTissueTypesWriter.hpp"
 #include "CellDivisionDirectionsWriter.hpp"
+#include "OrientationBasedDivisionRule.hpp"
 
 
 class NodeBasedCartilageSheet {

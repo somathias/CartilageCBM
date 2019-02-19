@@ -50,6 +50,11 @@ void NodeBasedCartilageSheet::Setup()
 
 	//generate the cell population
 	mpCellPopulation.reset(new NodeBasedCellPopulation<3>(mMesh, mCells));
+
+	//set the division rule
+    boost::shared_ptr<AbstractCentreBasedDivisionRule<3,3> > p_division_rule_to_set(new OrientationBasedDivisionRule<3,3>());
+    mpCellPopulation->SetCentreBasedDivisionRule(p_division_rule_to_set);  
+
 	mCellPopulationSetup = true;
 }
 

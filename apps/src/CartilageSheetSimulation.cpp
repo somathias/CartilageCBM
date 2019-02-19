@@ -190,9 +190,7 @@ void SetupAndRunCartilageSheetSimulation(unsigned random_seed,
 	boost::shared_ptr<NodeBasedCellPopulation<3> > cell_population =
 			p_cartilage_sheet->GetCellPopulation();
 
-
-
-	OffLatticeSimulationDirectedDivision<3> simulator(*cell_population);
+	OffLatticeSimulation<3> simulator(*cell_population);
 	//OffLatticeSimulation<3> simulator(cell_population);
 	simulator.SetOutputDirectory(output_directory);
 	simulator.SetEndTime(simulation_endtime); //hours

@@ -11,13 +11,14 @@ import subprocess
 import sys
 import time
 
-sys.path.append('/home/kubuntu1404/Documents/sheet_metrics')
+sys.path.append('/home/kubuntu1804/Documents/sheet_metrics_python')
 
 import evaluate_cartilage_sheet
 
 #import numpy as np
 
-executable = '/home/kubuntu1404/Documents/scaling_cartilage_sheets/apps/src/CartilageSheetSimulation'
+executable = '/home/kubuntu1804/Documents/chaste_build/projects/cartilage/apps/CartilageSheetSimulation'
+output_path = '/home/kubuntu1804/Documents/sf_simulation_results/'
 
 if not(os.path.isfile(executable)):
     raise Exception('Could not find executable: ' + executable)
@@ -27,19 +28,13 @@ number_of_simulations = 5
 def main():
     
     #spring_stiffness_values = [1.0, 5.0, 12.5, 25, 50]
-    activation_percentage_values = [0.05, 0.25, 0.5, 0.75, 1.0]
-    spring_stiffness_values = [0.01, 0.1, 0.5]
+    activation_percentage_values = [0.5, 0.75]
+    spring_stiffness_values = [0.0]
     #activation_percentage_values = [0.05]
     
-    output_directory = 'OnlyPerichondrialLayers/'
+    output_directory = 'exp-repulsion_force/20190215-153933'
     random_seed = 0   
-    run_postprocessing('testoutput/'+output_directory, spring_stiffness_values, activation_percentage_values, random_seed)    
-    random_seed = 1
-    run_postprocessing('testoutput/'+output_directory, spring_stiffness_values, activation_percentage_values, random_seed) 
-    random_seed = 2   
-    run_postprocessing('testoutput/'+output_directory, spring_stiffness_values, activation_percentage_values, random_seed)    
-    random_seed = 3
-    run_postprocessing('testoutput/'+output_directory, spring_stiffness_values, activation_percentage_values, random_seed) 
+    run_postprocessing(output_path+output_directory, spring_stiffness_values, activation_percentage_values, random_seed)    
     print('Done. '+time.strftime("%Y%m%d-%H%M%S"))
 
 

@@ -4,7 +4,9 @@
 #include "SmartPointers.hpp"
 #include "CellsGenerator.hpp"
 #include "TransitCellProliferativeType.hpp"
+#include "FixedG1GenerationalCellCycleModel.hpp"
 #include "UniformG1GenerationalCellCycleModel.hpp"
+#include "AbstractCentreBasedDivisionRule.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "OffLatticeSimulation.hpp"
 #include "NodesOnlyMesh.hpp"
@@ -43,21 +45,21 @@ public:
 
 		std::vector<CellPtr> cells;
 		MAKE_PTR(TransitCellProliferativeType, p_transit_type);
-		CellsGenerator<UniformG1GenerationalCellCycleModel, 3> cells_generator;
+		CellsGenerator<FixedG1GenerationalCellCycleModel, 3> cells_generator;
 		cells_generator.GenerateBasicRandom(cells, mesh.GetNumNodes(), p_transit_type);
 
 		NodeBasedCellPopulation<3> cell_population(mesh, cells);
 
-		CellPtr my_cell = cell_population.rGetCells().front();
+		CellPtr my_cell = cell_population.GetCellUsingLocationIndex(0);
 		c_vector<double, 3> my_coords = cell_population.GetLocationOfCellCentre(my_cell);
-
-		double separation = static_cast<AbstractCentreBasedCellPopulation<3>*>(&(cell_population))->GetMeinekeDivisionSeparation();
-
-		OffLatticeSimulationDirectedDivision<3> simulator(cell_population);
+	
+		boost::shared_ptr<AbstractCentreBasedDivisionRule<3,3> > p_division_rule = cell_population.GetCentreBasedDivisionRule();
 		RandomNumberGenerator::Instance()->Reseed(0);
-		c_vector<double, 3> your_coords = simulator.CalculateCellDivisionVector(my_cell);
+		std::pair<c_vector<double, 3>, c_vector<double, 3> > positions = p_division_rule->CalculateCellDivisionVector(my_cell, cell_population);
 
-		c_vector<double, 3> my_new_coords = cell_population.GetLocationOfCellCentre(my_cell);
+		c_vector<double, 3> your_coords = positions.second;
+
+		c_vector<double, 3> my_new_coords = positions.first;
 
 		RandomNumberGenerator::Instance()->Reseed(0);
 		double u = RandomNumberGenerator::Instance()->ranf();
@@ -65,6 +67,8 @@ public:
 
 		double random_azimuth_angle = 2 * M_PI * u;
 		double random_zenith_angle = std::acos(2 * v - 1);
+
+		double separation = static_cast<AbstractCentreBasedCellPopulation<3>*>(&(cell_population))->GetMeinekeDivisionSeparation();
 
 		TS_ASSERT_EQUALS(my_coords(0)+0.5 * separation * cos(random_azimuth_angle)
 				* sin(random_zenith_angle), your_coords(0));
