@@ -5,6 +5,7 @@ TestNodeBasedCartilageSheet.hpp
 simulation/TestOffLatticeSimulation2dDirectedDivision.hpp
 simulation/TestOffLatticeSimulation3dDirectedDivision.hpp
 simulation/TestOffLatticeSimulationDirectedDivision.hpp
+simulation/TestOrientationBasedDivisionRule.hpp
 cell/TestCellTissueTypes.hpp
 cell/TestCellTissueTypeBasedCellCycleModel.hpp
 cell/TestCellDivisionDirections.hpp
