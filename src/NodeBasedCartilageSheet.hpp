@@ -50,6 +50,7 @@ private:
 	unsigned mSeed;
 
 	bool mSynchronizeCellCycles;
+	bool mDivisionDirections;
 
 	std::vector<Node<3>*> mNodes;
 	bool mNodesGenerated;

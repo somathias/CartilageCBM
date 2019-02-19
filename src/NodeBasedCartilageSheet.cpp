@@ -7,11 +7,12 @@
 
 #include "NodeBasedCartilageSheet.hpp"
 
-NodeBasedCartilageSheet::NodeBasedCartilageSheet() : mNumberOfNodesPerXDimension(3), mNumberOfNodesPerYDimension(3), mNumberOfNodesPerZDimension(
-																														 3),
-													 mMaxCoordinatePerturbation(0), mSeed(0), mSynchronizeCellCycles(
-																								  false),
-													 mNodesGenerated(false), mCellPopulationSetup(false)
+NodeBasedCartilageSheet::NodeBasedCartilageSheet() : mNumberOfNodesPerXDimension(3), mNumberOfNodesPerYDimension(3),
+													 mNumberOfNodesPerZDimension(3), mMaxCoordinatePerturbation(0), 
+													 mSeed(0), mSynchronizeCellCycles(false),
+													 mDivisionDirections(true)
+													 mNodesGenerated(false),
+													 mCellPopulationSetup(false)
 {
 }
 
@@ -52,8 +53,8 @@ void NodeBasedCartilageSheet::Setup()
 	mpCellPopulation.reset(new NodeBasedCellPopulation<3>(mMesh, mCells));
 
 	//set the division rule
-    boost::shared_ptr<AbstractCentreBasedDivisionRule<3,3> > p_division_rule_to_set(new OrientationBasedDivisionRule<3,3>());
-    mpCellPopulation->SetCentreBasedDivisionRule(p_division_rule_to_set);  
+	boost::shared_ptr<AbstractCentreBasedDivisionRule<3, 3>> p_division_rule_to_set(new OrientationBasedDivisionRule<3, 3>());
+	mpCellPopulation->SetCentreBasedDivisionRule(p_division_rule_to_set);
 
 	mCellPopulationSetup = true;
 }
@@ -109,12 +110,17 @@ void NodeBasedCartilageSheet::InitialiseTissueLayersAndCellDivisionDirections()
 		if (layer_index == 0)
 		{
 			cell_iter->AddCellProperty(p_perichondrial);
-			cell_iter->AddCellProperty(p_upwards);
+			if(mDivisionDirections){
+				cell_iter->AddCellProperty(p_upwards);
+			}
+			
 		}
 		else if (layer_index == (mNumberOfNodesPerZDimension - 1))
 		{
 			cell_iter->AddCellProperty(p_perichondrial);
-			cell_iter->AddCellProperty(p_downwards);
+			if (mDivisionDirections) {
+				cell_iter->AddCellProperty(p_downwards);
+			}
 		}
 		else
 		{
@@ -366,6 +372,12 @@ void NodeBasedCartilageSheet::setSynchronizeCellCycles(
 	bool synchronizeCellCycles)
 {
 	mSynchronizeCellCycles = synchronizeCellCycles;
+}
+
+void NodeBasedCartilageSheet::setDivisionDirections(
+	bool divisionDirections)
+{
+	mDivisionDirections = divisionDirections;
 }
 
 void NodeBasedCartilageSheet::UseRandomSeed()
