@@ -187,7 +187,7 @@ void SetupAndRunCartilageSheetSimulation(unsigned random_seed,
 	boost::shared_ptr<NodeBasedCellPopulation<3> > cell_population =
 			p_cartilage_sheet->GetCellPopulation();
 
-	OffLatticeSimulationDirectedDivision<3> simulator(*cell_population);
+	OffLatticeSimulation<3> simulator(*cell_population);
 	//OffLatticeSimulation<3> simulator(cell_population);
 	simulator.SetOutputDirectory(output_directory);
 	simulator.SetEndTime(simulation_endtime); //hours
@@ -210,7 +210,7 @@ void SetupAndRunCartilageSheetSimulation(unsigned random_seed,
 
 	// write sheet parameters to file
 	std::stringstream ss;
-	ss << "/home/kubuntu1404/Documents/scaling_cartilage_sheets/testoutput/"
+	ss << "/home/kubuntu1804/Documents/sf_simulation_results/"
 			<< output_directory << "/results_from_time_0/sheet.parameters";
 	std::string sheet_params_filename = ss.str();
 //	std::cout << sheet_params_filename << std::endl;

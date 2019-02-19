@@ -53,7 +53,7 @@ void NodeBasedCartilageSheet::Setup()
 
 	//set the division rule
     boost::shared_ptr<AbstractCentreBasedDivisionRule<3,3> > p_division_rule_to_set(new OrientationBasedDivisionRule<3,3>());
-    mpCellPopulation.SetCentreBasedDivisionRule(p_division_rule_to_set);  
+    mpCellPopulation->SetCentreBasedDivisionRule(p_division_rule_to_set);  
 
 	mCellPopulationSetup = true;
 }
