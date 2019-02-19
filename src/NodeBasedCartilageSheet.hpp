@@ -90,6 +90,7 @@ public:
 	unsigned getSeed() const;
 
 	void setSynchronizeCellCycles(bool synchronizeCellCycles);
+	void setDivisionDirections(bool divisionDirections);
 };
 
 #endif /* NODEBASEDCARTILAGESHEET_HPP_ */

@@ -10,7 +10,7 @@
 NodeBasedCartilageSheet::NodeBasedCartilageSheet() : mNumberOfNodesPerXDimension(3), mNumberOfNodesPerYDimension(3),
 													 mNumberOfNodesPerZDimension(3), mMaxCoordinatePerturbation(0), 
 													 mSeed(0), mSynchronizeCellCycles(false),
-													 mDivisionDirections(true)
+													 mDivisionDirections(true),
 													 mNodesGenerated(false),
 													 mCellPopulationSetup(false)
 {

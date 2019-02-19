@@ -8,11 +8,14 @@
 #include "OffLatticeSimulation.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
 
+#include "UpwardsCellDivisionDirection.hpp"
+#include "DownwardsCellDivisionDirection.hpp"
+
 #include "FakePetscSetup.hpp"
 
 class TestNodeBasedCartilageSheet: public AbstractCellBasedTestSuite {
 public:
-	void TestSheet()  {
+	void xTestSheet()  {
 
 		// Construct a new cartilage sheet
 		NodeBasedCartilageSheet* p_cartilage_sheet =
@@ -277,6 +280,79 @@ public:
 		TS_ASSERT_LESS_THAN_EQUALS(coordinates_last[0], 2.1);
 		TS_ASSERT_DELTA(coordinates_last[1], 1.7320, 1e-1);
 		TS_ASSERT_DELTA(coordinates_last[2], 1.6329, 1e-1);
+	}
+
+	void TestDivisionDirections()  {
+
+		// Construct a new cartilage sheet
+		NodeBasedCartilageSheet* p_cartilage_sheet =
+				new NodeBasedCartilageSheet();
+
+		// set the sheet dimensions
+		p_cartilage_sheet->SetCartilageSheetDimensions(2, 2, 2); //two layers, so that all cells get a cell division directions set to upwards or downwards
+
+		// generate the nodes
+		p_cartilage_sheet->GenerateNodesOnHCPGrid();
+
+		// setup the cell population
+		if (!p_cartilage_sheet->isCellPopulationSetup()) {
+			p_cartilage_sheet->Setup();
+		}
+
+
+		// setup the cell tissue types and cell division directions
+		p_cartilage_sheet->InitialiseTissueLayersAndCellDivisionDirections();
+
+		// get the cell population
+		boost::shared_ptr<NodeBasedCellPopulation<3> > cell_population =
+		p_cartilage_sheet->GetCellPopulation();
+
+		for (AbstractCellPopulation<3>::Iterator cell_iter =
+					cell_population->Begin(); cell_iter != cell_population->End();
+					++cell_iter) {
+
+			TS_ASSERT(cell_iter->HasCellProperty<UpwardsCellDivisionDirection<3>>() || cell_iter->HasCellProperty<DownwardsCellDivisionDirection<3>>())
+
+		}
+
+	}
+
+	void TestUnSetDivisionDirections()  {
+
+		// Construct a new cartilage sheet
+		NodeBasedCartilageSheet* p_cartilage_sheet =
+				new NodeBasedCartilageSheet();
+
+		// set the sheet dimensions
+		p_cartilage_sheet->SetCartilageSheetDimensions(2, 2, 2);
+
+		// generate the nodes
+		p_cartilage_sheet->GenerateNodesOnHCPGrid();
+
+		// setup the cell population
+		if (!p_cartilage_sheet->isCellPopulationSetup()) {
+			p_cartilage_sheet->Setup();
+		}
+
+		// set division directions flag to false
+		p_cartilage_sheet->setDivisionDirections(false);
+
+		// setup the cell tissue types and cell division directions
+		p_cartilage_sheet->InitialiseTissueLayersAndCellDivisionDirections();
+
+		// get the cell population
+		boost::shared_ptr<NodeBasedCellPopulation<3> > cell_population =
+		p_cartilage_sheet->GetCellPopulation();
+
+		for (AbstractCellPopulation<3>::Iterator cell_iter =
+					cell_population->Begin(); cell_iter != cell_population->End();
+					++cell_iter) {
+
+			TS_ASSERT(!cell_iter->HasCellProperty<UpwardsCellDivisionDirection<3>>())
+			TS_ASSERT(!cell_iter->HasCellProperty<DownwardsCellDivisionDirection<3>>())
+
+		}
+
 	}
 
 };
