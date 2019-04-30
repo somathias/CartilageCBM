@@ -8,3 +8,4 @@ cell/TestCellDivisionDirections.hpp
 population/TestCellTissueTypeBasedGeneralisedLinearSpringForce.hpp
 population/TestDirectionalAdhesionForce.hpp
 population/TestIndividualSpringStiffnessGeneralisedLinearSpringForce.hpp
+population/TestCubicGeneralisedLinearSpringForce.hpp
