@@ -45,6 +45,10 @@ private:
 	unsigned mNumberOfNodesPerXDimension;
 	unsigned mNumberOfNodesPerYDimension;
 	unsigned mNumberOfNodesPerZDimension;
+
+	unsigned mNumberOfPerichondrialLayersAbove;
+	unsigned mNumberOfPerichondrialLayersBelow;
+
 	double mMaxCoordinatePerturbation;
 
 	unsigned mSeed;
@@ -86,6 +90,12 @@ public:
 	unsigned getNumberOfNodesPerXDimension() const;
 	unsigned getNumberOfNodesPerYDimension() const;
 	unsigned getNumberOfNodesPerZDimension() const;
+
+	void setNumberOfPerichondrialLayersAbove(unsigned);
+	void setNumberOfPerichondrialLayersBelow(unsigned);
+
+	unsigned getNumberOfPerichondrialLayersAbove() const;
+	unsigned getNumberOfPerichondrialLayersBelow() const;
 
 	unsigned getSeed() const;
 
