@@ -26,6 +26,7 @@
 #include "OffLatticeSimulationDirectedDivision.hpp"
 #include "CellTissueTypeBasedGeneralisedLinearSpringForce.hpp"
 #include "IndividualSpringStiffnessGeneralisedLinearSpringForce.hpp"
+#include "CubicGeneralisedLinearSpringForce.hpp"
 
 // Program option includes for handling command line arguments
 #include <boost/program_options/options_description.hpp>
@@ -153,17 +154,17 @@ void SetupAndRunCartilageSheetSimulation(unsigned random_seed,
 	//bool random_birth_times = true;
 	output_directory.append(boost::lexical_cast<std::string>(random_seed));
 
-	double alpha;
-	if (spring_stiffness == 0) {
-		alpha = 1.0; // magic number, doesn't matter anyway
-	} else {
-		alpha = -2.0 * log(2.0 / spring_stiffness * 0.001); //not defined if spring_stiffness == 0
-	}
+	// double alpha;
+	// if (spring_stiffness == 0) {
+	// 	alpha = 1.0; // magic number, doesn't matter anyway
+	// } else {
+	// 	alpha = -2.0 * log(2.0 / spring_stiffness * 0.001); //not defined if spring_stiffness == 0
+	// }
 
-	double homotypic_peri_multiplier = 1.0;
-	//double homotypic_chondro_multiplier = 1.0;
-	double heterotypic_multiplier = 0.5
-			* (homotypic_peri_multiplier + homotypic_chondro_multiplier);
+	// double homotypic_peri_multiplier = 1.0;
+	// //double homotypic_chondro_multiplier = 1.0;
+	// double heterotypic_multiplier = 0.5
+	// 		* (homotypic_peri_multiplier + homotypic_chondro_multiplier);
 
 	CellBasedEventHandler::Enable();
 
