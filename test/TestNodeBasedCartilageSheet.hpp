@@ -78,7 +78,7 @@ public:
 		p_cartilage_sheet->Setup();
 
 		// setup the cell tissue types and cell division directions
-		//p_cartilage_sheet->InitialiseTissueLayersAndCellDivisionDirections();
+		p_cartilage_sheet->InitialiseTissueLayersAndCellDivisionDirections();
 		// setup the initial stem cell configuration
 		p_cartilage_sheet->InitialiseRandomStemCellConfiguration(5);
 
@@ -89,6 +89,8 @@ public:
 
 		unsigned n_stem_cells = 0;
 		unsigned n_diff_cells = 0;
+		unsigned n_perichondrial_cells = 0;
+		unsigned n_chondrocytes = 0;
 		for (AbstractCellPopulation<3>::Iterator cell_iter =
 					cell_population->Begin(); cell_iter != cell_population->End();
 					++cell_iter) {
@@ -99,9 +101,76 @@ public:
 				n_diff_cells++;
 			}
 
+			if (cell_iter->HasCellProperty<PerichondrialCellTissueType>()) {
+				n_perichondrial_cells++;
+			}
+			else if (cell_iter->HasCellProperty<ChondrocyteCellTissueType>()){
+				n_chondrocytes++;
+			}
+			
+
 		}
 		TS_ASSERT_EQUALS(n_stem_cells, 5);//number of stem cells should be 5;
 		TS_ASSERT_EQUALS(n_diff_cells, 35);//number of differentiated cells should be 5*4*2-5;
+		TS_ASSERT_EQUALS(n_perichondrial_cells, 20);//number of perichondrial cells should be 5*4 (one layer);
+		TS_ASSERT_EQUALS(n_chondrocytes, 20);//number of chondrocytes should be 5*4 (also one layer);
+
+	}
+
+	void TestAdditionalPerichondrialLayers()  {
+
+		EXIT_IF_PARALLEL;
+
+		// Construct a new cartilage sheet
+		NodeBasedCartilageSheet* p_cartilage_sheet =
+		new NodeBasedCartilageSheet();
+
+		// set the sheet dimensions
+		p_cartilage_sheet->SetCartilageSheetDimensions(5, 4, 5);
+		p_cartilage_sheet->setNumberOfPerichondrialLayersAbove(2);
+		// generate the nodes
+		p_cartilage_sheet->GenerateNodesOnHCPGrid();
+
+		// setup the cell population
+		p_cartilage_sheet->Setup();
+
+		// setup the cell tissue types and cell division directions
+		p_cartilage_sheet->InitialiseTissueLayersAndCellDivisionDirections();
+		// setup the initial stem cell configuration
+		p_cartilage_sheet->InitialiseRandomStemCellConfiguration(5);
+
+		// get the cell population
+		boost::shared_ptr<NodeBasedCellPopulation<3> > cell_population =
+		p_cartilage_sheet->GetCellPopulation();
+
+
+		unsigned n_stem_cells = 0;
+		unsigned n_diff_cells = 0;
+		unsigned n_perichondrial_cells = 0;
+		unsigned n_chondrocytes = 0;
+		for (AbstractCellPopulation<3>::Iterator cell_iter =
+					cell_population->Begin(); cell_iter != cell_population->End();
+					++cell_iter) {
+			if (cell_iter->GetCellProliferativeType()->IsType<StemCellProliferativeType>()) {
+				n_stem_cells++;
+			}
+			else if (cell_iter->GetCellProliferativeType()->IsType<DifferentiatedCellProliferativeType>()){
+				n_diff_cells++;
+			}
+
+			if (cell_iter->HasCellProperty<PerichondrialCellTissueType>()) {
+				n_perichondrial_cells++;
+			}
+			else if (cell_iter->HasCellProperty<ChondrocyteCellTissueType>()){
+				n_chondrocytes++;
+			}
+			
+
+		}
+		TS_ASSERT_EQUALS(n_stem_cells, 5);//number of stem cells should be 5;
+		TS_ASSERT_EQUALS(n_diff_cells, 95);//number of differentiated cells should be 5*4*5-5;
+		TS_ASSERT_EQUALS(n_perichondrial_cells, 60);//number of perichondrial cells should be 3*5*4 (three layers (1 below and 2 above));
+		TS_ASSERT_EQUALS(n_chondrocytes, 40);//number of chondrocytes should be 2*5*4 (two layers);
 
 	}
 
@@ -290,6 +359,7 @@ public:
 
 		// set the sheet dimensions
 		p_cartilage_sheet->SetCartilageSheetDimensions(2, 2, 2); //two layers, so that all cells get a cell division directions set to upwards or downwards
+		p_cartilage_sheet->setNumberOfPerichondrialLayersAbove(1); // set the upper layer to be perichondrial as well.
 
 		// generate the nodes
 		p_cartilage_sheet->GenerateNodesOnHCPGrid();
