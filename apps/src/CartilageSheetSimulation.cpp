@@ -27,6 +27,7 @@
 #include "CellTissueTypeBasedGeneralisedLinearSpringForce.hpp"
 #include "IndividualSpringStiffnessGeneralisedLinearSpringForce.hpp"
 #include "CubicGeneralisedLinearSpringForce.hpp"
+#include "RepulsionCubicForce.hpp"
 
 // Program option includes for handling command line arguments
 #include <boost/program_options/options_description.hpp>
@@ -41,7 +42,8 @@ void SetupSingletons(unsigned randomSeed);
 void DestroySingletons();
 void SetupAndRunCartilageSheetSimulation(unsigned randomSeed, bool, unsigned,
 		unsigned, unsigned, double, double, double, double, double, double,
-		std::string);
+		std::string, std::string);
+void SetForceFunction(OffLatticeSimulation<3>, std::string, double, double, double, double, double);
 
 int main(int argc, char *argv[]) {
 	// This sets up PETSc and prints out copyright information, etc.
@@ -140,6 +142,39 @@ void DestroySingletons() {
 	CellPropertyRegistry::Instance()->Clear();
 }
 
+void SetForceFunction(OffLatticeSimulation<3> simulator, std::string forceFunction,  double spring_stiffness, double alpha,
+		double homotypic_peri_multiplier, double homotypic_chondro_multiplier, double heterotypic_multiplier){
+
+
+	if (forceFunction.compare("cubic")==0){
+		MAKE_PTR(CubicGeneralisedLinearSpringForce<3>, p_force);
+		p_force->SetCutOffLength(1.5);
+		p_force->SetMeinekeSpringStiffness(spring_stiffness);
+		simulator.AddForce(p_force);
+	}
+	else if (forceFunction.compare("cubic_repulsion_only")==0){
+		MAKE_PTR(RepulsionCubicForce<3>, p_force);
+		p_force->SetCutOffLength(1.5);
+		p_force->SetMeinekeSpringStiffness(spring_stiffness);
+		simulator.AddForce(p_force);
+	}
+	else {
+		// default is CellTissueTypeBasedGeneralisedSpringForce
+		MAKE_PTR(CellTissueTypeBasedGeneralisedLinearSpringForce<3>, p_force);
+		p_force->SetCutOffLength(1.5);
+		p_force->SetMeinekeSpringStiffness(spring_stiffness);
+		p_force->SetRepulsionSpringStiffness(1.4); // our default value fixed by experiments on optimal relative column height
+		p_force->SetAlpha(alpha);
+		p_force->SetHomotypicPerichondrialSpringConstantMultiplier(
+			homotypic_peri_multiplier);
+		p_force->SetHomotypicChondrocyteSpringConstantMultiplier(
+			homotypic_chondro_multiplier);
+		p_force->SetHeterotypicSpringConstantMultiplier(heterotypic_multiplier);
+		simulator.AddForce(p_force);
+	}
+
+}
+
 void SetupAndRunCartilageSheetSimulation(unsigned random_seed,
 		bool random_birth_times, unsigned n_cells_wide, unsigned n_cells_deep,
 		unsigned n_cells_high, double activation_percentage,
@@ -154,17 +189,17 @@ void SetupAndRunCartilageSheetSimulation(unsigned random_seed,
 	//bool random_birth_times = true;
 	output_directory.append(boost::lexical_cast<std::string>(random_seed));
 
-	// double alpha;
-	// if (spring_stiffness == 0) {
-	// 	alpha = 1.0; // magic number, doesn't matter anyway
-	// } else {
-	// 	alpha = -2.0 * log(2.0 / spring_stiffness * 0.001); //not defined if spring_stiffness == 0
-	// }
+	double alpha;
+	if (spring_stiffness == 0) {
+		alpha = 1.0; // magic number, doesn't matter anyway
+	} else {
+		alpha = -2.0 * log(2.0 / spring_stiffness * 0.001); //not defined if spring_stiffness == 0
+	}
 
-	// double homotypic_peri_multiplier = 1.0;
-	// //double homotypic_chondro_multiplier = 1.0;
-	// double heterotypic_multiplier = 0.5
-	// 		* (homotypic_peri_multiplier + homotypic_chondro_multiplier);
+	double homotypic_peri_multiplier = 1.0;
+	//double homotypic_chondro_multiplier = 1.0;
+	double heterotypic_multiplier = 0.5
+			* (homotypic_peri_multiplier + homotypic_chondro_multiplier);
 
 	CellBasedEventHandler::Enable();
 
@@ -204,8 +239,7 @@ void SetupAndRunCartilageSheetSimulation(unsigned random_seed,
 	simulator.SetSamplingTimestepMultiple(12);
 
 	// call helper function to set force function
-	SetForceFunction(simulator, force_function);
-
+	SetForceFunction(simulator, force_function, spring_stiffness, alpha, homotypic_peri_multiplier, homotypic_chondro_multiplier, heterotypic_multiplier);
 
 	CellBasedEventHandler::Reset();
 	simulator.Solve();
@@ -245,35 +279,5 @@ void SetupAndRunCartilageSheetSimulation(unsigned random_seed,
 	CellBasedEventHandler::Report();
 }
 
-void SetForceFunction(OffLatticeSimulation<3> simulator, std::string forceFunction){
 
-
-	if (strcmp(forceFunction, "cubic")==0){
-		MAKE_PTR(CubicGeneralisedLinearSpringForce<3>, p_force);
-		p_force->SetCutOffLength(1.5);
-		p_force->SetMeinekeSpringStiffness(spring_stiffness);
-		simulator.AddForce(p_force);
-	}
-	else if (strcmp(forceFunction, "cubic_repulsion_only")==0){
-		MAKE_PTR(RepulsionCubicForce<3>, p_force);
-		p_force->SetCutOffLength(1.5);
-		p_force->SetMeinekeSpringStiffness(spring_stiffness);
-		simulator.AddForce(p_force);
-	}
-	else {
-		// default is CellTissueTypeBasedGeneralisedSpringForce
-		MAKE_PTR(CellTissueTypeBasedGeneralisedLinearSpringForce<3>, p_force);
-		p_force->SetCutOffLength(1.5);
-		p_force->SetMeinekeSpringStiffness(spring_stiffness);
-		p_force->SetRepulsionSpringStiffness(1.4); // our default value fixed by experiments on optimal relative column height
-		p_force->SetAlpha(alpha);
-		p_force->SetHomotypicPerichondrialSpringConstantMultiplier(
-			homotypic_peri_multiplier);
-		p_force->SetHomotypicChondrocyteSpringConstantMultiplier(
-			homotypic_chondro_multiplier);
-		p_force->SetHeterotypicSpringConstantMultiplier(heterotypic_multiplier);
-		simulator.AddForce(p_force);
-	}
-
-}
 

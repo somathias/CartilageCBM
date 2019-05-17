@@ -43,7 +43,7 @@ def run_simulations(output_directory):
 
     for random_seed in range(number_of_simulations):
 
-        command = base_command + ' --output-dir ' + output_directory + ' --S ' + str(random_seed) + ' --sbt ' 
+        command = base_command + ' --output-dir ' + output_directory + ' --S ' + str(random_seed) + ' --sbt '   
         command_list.append(command)
 
     # Use processes equal to the number of cpus available
