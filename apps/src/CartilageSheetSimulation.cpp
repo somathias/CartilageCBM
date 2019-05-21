@@ -43,7 +43,7 @@ void DestroySingletons();
 void SetupAndRunCartilageSheetSimulation(unsigned randomSeed, bool, unsigned,
 		unsigned, unsigned, double, double, double, double, double, double,
 		std::string, std::string);
-void SetForceFunction(OffLatticeSimulation<3>, std::string, double, double, double, double, double);
+void SetForceFunction(OffLatticeSimulation<3>&, std::string, double, double, double, double, double);
 
 int main(int argc, char *argv[]) {
 	// This sets up PETSc and prints out copyright information, etc.
@@ -142,7 +142,7 @@ void DestroySingletons() {
 	CellPropertyRegistry::Instance()->Clear();
 }
 
-void SetForceFunction(OffLatticeSimulation<3> simulator, std::string forceFunction,  double spring_stiffness, double alpha,
+void SetForceFunction(OffLatticeSimulation<3>& simulator, std::string forceFunction,  double spring_stiffness, double alpha,
 		double homotypic_peri_multiplier, double homotypic_chondro_multiplier, double heterotypic_multiplier){
 
 
@@ -269,7 +269,7 @@ void SetupAndRunCartilageSheetSimulation(unsigned random_seed,
 //	sheet_params_file << "Adhesion spring stiffness : " << spring_stiffness << "\n";
 //	sheet_params_file << "Attraction force decay : " << alpha << "\n";
 	sheet_params_file << "Simulation end time : " << simulation_endtime << "\n";
-	sheet_params_file << "Force Function: " << force_function << "\n";
+//	sheet_params_file << "Force Function: " << force_function << "\n";
 	sheet_params_file << "Output directory : " << output_directory << "\n";
 	sheet_params_file.close();
 
