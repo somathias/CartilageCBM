@@ -242,8 +242,6 @@ void SetupAndRunCartilageSheetSimulation(unsigned random_seed,
 	// call helper function to set force function
 	SetForceFunction(simulator, force_function, spring_stiffness, alpha, homotypic_peri_multiplier, homotypic_chondro_multiplier, heterotypic_multiplier);
 
-	
-
 	//bottom plane
     c_vector<double,3> point = zero_vector<double>(3);
     c_vector<double,3> normal = zero_vector<double>(3);
