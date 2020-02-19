@@ -25,7 +25,7 @@ if not(os.path.isfile(executable)):
 number_of_simulations = 3
 
 def main():
-    output_directory = 'master/'
+    output_directory = 'dev-force_function_flag/'
     run_simulations(output_directory)
     
     run_postprocessing(output_path+output_directory)
@@ -43,7 +43,7 @@ def run_simulations(output_directory):
 
     for random_seed in range(number_of_simulations):
 
-        command = base_command + ' --output-dir ' + output_directory + ' --S ' + str(random_seed) + ' --sbt ' 
+        command = base_command + ' --output-dir ' + output_directory + ' --S ' + str(random_seed) + ' --sbt '  + '--F cubic_repulsion_only' 
         command_list.append(command)
 
     # Use processes equal to the number of cpus available

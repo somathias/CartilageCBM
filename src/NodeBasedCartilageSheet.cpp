@@ -8,7 +8,10 @@
 #include "NodeBasedCartilageSheet.hpp"
 
 NodeBasedCartilageSheet::NodeBasedCartilageSheet() : mNumberOfNodesPerXDimension(3), mNumberOfNodesPerYDimension(3),
-													 mNumberOfNodesPerZDimension(3), mMaxCoordinatePerturbation(0), 
+													 mNumberOfNodesPerZDimension(3), 
+													 mNumberOfPerichondrialLayersAbove(0),
+													 mNumberOfPerichondrialLayersBelow(1),
+													 mMaxCoordinatePerturbation(0), 
 													 mSeed(0), mSynchronizeCellCycles(false),
 													 mDivisionDirections(true),
 													 mNodesGenerated(false),
@@ -107,7 +110,7 @@ void NodeBasedCartilageSheet::InitialiseTissueLayersAndCellDivisionDirections()
 																										 //		unsigned row_index = layer_local_index % mNumberOfNodesPerXDimension;// i = (i + j* n_cells_wide) % n_cells_wide
 
 		// set the cell tissue type and cell division direction based on the layer index
-		if (layer_index == 0)
+		if (layer_index <= mNumberOfPerichondrialLayersBelow - 1)
 		{
 			cell_iter->AddCellProperty(p_perichondrial);
 			if(mDivisionDirections){
@@ -115,7 +118,7 @@ void NodeBasedCartilageSheet::InitialiseTissueLayersAndCellDivisionDirections()
 			}
 			
 		}
-		else if (layer_index == (mNumberOfNodesPerZDimension - 1))
+		else if (layer_index >= mNumberOfNodesPerZDimension - mNumberOfPerichondrialLayersAbove)
 		{
 			cell_iter->AddCellProperty(p_perichondrial);
 			if (mDivisionDirections) {
@@ -226,12 +229,14 @@ void NodeBasedCartilageSheet::InitialiseRandomStemCellConfiguration(
 	}
 	else
 	{
-		numberOfStemCellsPerLayer = floor(numberOfStemCells / 2.0);
+		unsigned numberOfPerichondrialLayers = mNumberOfPerichondrialLayersAbove + mNumberOfPerichondrialLayersBelow;
+		numberOfStemCellsPerLayer = floor(numberOfStemCells / static_cast<double>(numberOfPerichondrialLayers));
 	}
 
 	MAKE_PTR(StemCellProliferativeType, p_stem_type);
 
-	//generate stem cell indices for both layers
+	// generate stem cell indices for all layers
+	// This evenly distributes the specified total number of stem cells among all layers of perichondrial cells
 	unsigned i = 0;
 	while (i < numberOfStemCells)
 	{
@@ -361,6 +366,26 @@ unsigned NodeBasedCartilageSheet::getNumberOfNodesPerYDimension() const
 unsigned NodeBasedCartilageSheet::getNumberOfNodesPerZDimension() const
 {
 	return mNumberOfNodesPerZDimension;
+}
+
+unsigned NodeBasedCartilageSheet::getNumberOfPerichondrialLayersAbove() const
+{
+	return mNumberOfPerichondrialLayersAbove;
+}
+
+unsigned NodeBasedCartilageSheet::getNumberOfPerichondrialLayersBelow() const
+{
+	return mNumberOfPerichondrialLayersBelow;
+}
+
+void NodeBasedCartilageSheet::setNumberOfPerichondrialLayersAbove(unsigned numberOfPerichondrialLayersAbove)
+{
+	mNumberOfPerichondrialLayersAbove = numberOfPerichondrialLayersAbove;
+}
+
+void NodeBasedCartilageSheet::setNumberOfPerichondrialLayersBelow(unsigned numberOfPerichondrialLayersBelow)
+{
+	mNumberOfPerichondrialLayersBelow = numberOfPerichondrialLayersBelow;
 }
 
 unsigned NodeBasedCartilageSheet::getSeed() const

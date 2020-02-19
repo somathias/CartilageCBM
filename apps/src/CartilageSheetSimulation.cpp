@@ -27,6 +27,8 @@
 #include "OffLatticeSimulationDirectedDivision.hpp"
 #include "CellTissueTypeBasedGeneralisedLinearSpringForce.hpp"
 #include "IndividualSpringStiffnessGeneralisedLinearSpringForce.hpp"
+#include "CubicGeneralisedLinearSpringForce.hpp"
+#include "RepulsionCubicForce.hpp"
 
 // Program option includes for handling command line arguments
 #include <boost/program_options/options_description.hpp>
@@ -41,7 +43,8 @@ void SetupSingletons(unsigned randomSeed);
 void DestroySingletons();
 void SetupAndRunCartilageSheetSimulation(unsigned randomSeed, bool, unsigned,
 		unsigned, unsigned, double, double, double, double, double, double,
-		std::string);
+		std::string, std::string);
+void SetForceFunction(OffLatticeSimulation<3>&, std::string, double, double, double, double, double);
 
 int main(int argc, char *argv[]) {
 	// This sets up PETSc and prints out copyright information, etc.
@@ -72,7 +75,9 @@ int main(int argc, char *argv[]) {
 			boost::program_options::value<double>()->default_value(0.0),
 			"The maximum perturbation of the initial coordinates.")("T",
 			boost::program_options::value<double>()->default_value(10.0),
-			"The simulation end time")("output-dir",
+			"The simulation end time")("F",
+			boost::program_options::value<std::string>()->default_value(
+					"CellTissueTypeBasedGLS"), "The force function used")("output-dir",
 			boost::program_options::value<std::string>()->default_value(
 					"3dNodeBasedCartilageSheet/"), "The output directory");
 
@@ -105,6 +110,8 @@ int main(int argc, char *argv[]) {
 	double homotypic_chondro_multiplier = variables_map["c"].as<double>();
 	double baseline_adhesion_multiplier = variables_map["b"].as<double>();
 	double simulation_end_time = variables_map["T"].as<double>();
+	std::string force_function =
+			variables_map["F"].as<std::string>();
 	std::string output_directory =
 			variables_map["output-dir"].as<std::string>();
 
@@ -114,7 +121,7 @@ int main(int argc, char *argv[]) {
 			n_cells_wide, n_cells_deep, n_cells_high, activation_percentage,
 			maximum_perturbation, spring_stiffness,
 			homotypic_chondro_multiplier, baseline_adhesion_multiplier,
-			simulation_end_time, output_directory);	
+			simulation_end_time, force_function, output_directory);	
 
 	DestroySingletons();
 }
@@ -136,12 +143,47 @@ void DestroySingletons() {
 	CellPropertyRegistry::Instance()->Clear();
 }
 
+void SetForceFunction(OffLatticeSimulation<3>& simulator, std::string forceFunction,  double spring_stiffness, double alpha,
+		double homotypic_peri_multiplier, double homotypic_chondro_multiplier, double heterotypic_multiplier){
+
+
+	if (forceFunction.compare("cubic")==0){
+		MAKE_PTR(CubicGeneralisedLinearSpringForce<3>, p_force);
+		p_force->SetCutOffLength(1.5);
+		p_force->SetMeinekeSpringStiffness(spring_stiffness);
+		simulator.AddForce(p_force);
+	}
+	else if (forceFunction.compare("cubic_repulsion_only")==0){
+		MAKE_PTR(RepulsionCubicForce<3>, p_force);
+		p_force->SetCutOffLength(1.5);
+		p_force->SetMeinekeSpringStiffness(spring_stiffness);
+		simulator.AddForce(p_force);
+	}
+	else {
+		// default is CellTissueTypeBasedGeneralisedSpringForce
+		MAKE_PTR(CellTissueTypeBasedGeneralisedLinearSpringForce<3>, p_force);
+		p_force->SetCutOffLength(1.5);
+		p_force->SetMeinekeSpringStiffness(spring_stiffness);
+		p_force->SetRepulsionSpringStiffness(1.4); // our default value fixed by experiments on optimal relative column height
+		p_force->SetAlpha(alpha);
+		p_force->SetHomotypicPerichondrialSpringConstantMultiplier(
+			homotypic_peri_multiplier);
+		p_force->SetHomotypicChondrocyteSpringConstantMultiplier(
+			homotypic_chondro_multiplier);
+		p_force->SetHeterotypicSpringConstantMultiplier(heterotypic_multiplier);
+		simulator.AddForce(p_force);
+	}
+
+}
+
 void SetupAndRunCartilageSheetSimulation(unsigned random_seed,
 		bool random_birth_times, unsigned n_cells_wide, unsigned n_cells_deep,
 		unsigned n_cells_high, double activation_percentage,
 		double maximum_perturbation, double spring_stiffness,
 		double homotypic_chondro_multiplier,
-		double baseline_adhesion_multiplier, double simulation_endtime,
+		double baseline_adhesion_multiplier, 
+		double simulation_endtime,
+		std::string force_function,
 		std::string output_directory) {
 	
 
@@ -197,17 +239,8 @@ void SetupAndRunCartilageSheetSimulation(unsigned random_seed,
 	simulator.SetEndTime(simulation_endtime); //hours
 	simulator.SetSamplingTimestepMultiple(12);
 
-	MAKE_PTR(CellTissueTypeBasedGeneralisedLinearSpringForce<3>, p_force);
-	p_force->SetCutOffLength(1.5);
-	p_force->SetMeinekeSpringStiffness(spring_stiffness);
-	p_force->SetRepulsionSpringStiffness(1.4); // our default value fixed by experiments on optimal relative column height
-	p_force->SetAlpha(alpha);
-	p_force->SetHomotypicPerichondrialSpringConstantMultiplier(
-			homotypic_peri_multiplier);
-	p_force->SetHomotypicChondrocyteSpringConstantMultiplier(
-			homotypic_chondro_multiplier);
-	p_force->SetHeterotypicSpringConstantMultiplier(heterotypic_multiplier);
-	simulator.AddForce(p_force);
+	// call helper function to set force function
+	SetForceFunction(simulator, force_function, spring_stiffness, alpha, homotypic_peri_multiplier, homotypic_chondro_multiplier, heterotypic_multiplier);
 
 	//bottom plane
     c_vector<double,3> point = zero_vector<double>(3);
@@ -217,7 +250,6 @@ void SetupAndRunCartilageSheetSimulation(unsigned random_seed,
     p_bc->SetUseJiggledNodesOnPlane(true);
     simulator.AddCellPopulationBoundaryCondition(p_bc);
     
-
 
 	CellBasedEventHandler::Reset();
 	simulator.Solve();
@@ -247,6 +279,7 @@ void SetupAndRunCartilageSheetSimulation(unsigned random_seed,
 //	sheet_params_file << "Adhesion spring stiffness : " << spring_stiffness << "\n";
 //	sheet_params_file << "Attraction force decay : " << alpha << "\n";
 	sheet_params_file << "Simulation end time : " << simulation_endtime << "\n";
+//	sheet_params_file << "Force Function: " << force_function << "\n";
 	sheet_params_file << "Output directory : " << output_directory << "\n";
 	sheet_params_file.close();
 
@@ -255,4 +288,6 @@ void SetupAndRunCartilageSheetSimulation(unsigned random_seed,
 	CellBasedEventHandler::Headings();
 	CellBasedEventHandler::Report();
 }
+
+
 
