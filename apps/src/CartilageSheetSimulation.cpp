@@ -21,6 +21,7 @@
 
 #include "CellBasedEventHandler.hpp"
 #include "NodeBasedCellPopulation.hpp"
+#include "PlaneBoundaryCondition.hpp"
 
 #include "NodeBasedCartilageSheet.hpp"
 #include "OffLatticeSimulationDirectedDivision.hpp"
@@ -207,6 +208,15 @@ void SetupAndRunCartilageSheetSimulation(unsigned random_seed,
 			homotypic_chondro_multiplier);
 	p_force->SetHeterotypicSpringConstantMultiplier(heterotypic_multiplier);
 	simulator.AddForce(p_force);
+
+	//bottom plane
+    c_vector<double,3> point = zero_vector<double>(3);
+    c_vector<double,3> normal = zero_vector<double>(3);
+    normal(2) = -1.0;
+    MAKE_PTR_ARGS(PlaneBoundaryCondition<3>, p_bc, (&cell_population, point, normal));
+    p_bc->SetUseJiggledNodesOnPlane(true);
+    simulator.AddCellPopulationBoundaryCondition(p_bc);
+    
 
 
 	CellBasedEventHandler::Reset();
