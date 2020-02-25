@@ -10,3 +10,4 @@ population/TestDirectionalAdhesionForce.hpp
 population/TestIndividualSpringStiffnessGeneralisedLinearSpringForce.hpp
 population/TestCubicGeneralisedLinearSpringForce.hpp
 population/TestRepulsionCubicForce.hpp
+population/TestPWQGeneralisedLinearSpringForce.hpp
