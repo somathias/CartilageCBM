@@ -22,7 +22,7 @@ import evaluate_cartilage_sheet
 
 
 
-number_of_simulations = 3
+#number_of_simulations = 3
 
 def main():
     output_directory = 'dev-cartilage_sheet_class/'
@@ -34,7 +34,7 @@ def main():
 
 
 # Create a list of commands and pass them to separate processes
-def run_simulations(output_directory, flags='', executable='/home/kubuntu1804/Documents/chaste_build/projects/cartilage/apps/CartilageSheetSimulation'):
+def run_simulations_multiple_random_seeds(output_directory, flags='',  number_of_simulations=3, executable='/home/kubuntu1804/Documents/chaste_build/projects/cartilage/apps/CartilageSheetSimulation'):
     
     if not(os.path.isfile(executable)):
         raise Exception('Could not find executable: ' + executable)
@@ -45,6 +45,33 @@ def run_simulations(output_directory, flags='', executable='/home/kubuntu1804/Do
     base_command = 'nice -n 19 ' + executable
 
     for random_seed in range(number_of_simulations):
+        command = base_command + ' --output-dir ' + output_directory + ' --S ' + str(random_seed) + flags 
+        command_list.append(command)
+        print(command)
+
+    # Use processes equal to the number of cpus available
+    count = multiprocessing.cpu_count()
+
+    print("Starting simulations with " + str(count) + " processes")
+
+    # Generate a pool of workers
+    pool = multiprocessing.Pool(processes=count)
+
+    # Pass the list of bash commands to the pool
+    pool.map_async(execute_command, command_list).get(86400)
+    
+# Create a list of commands and pass them to separate processes
+def run_simulations_list(output_directory, list_of_flags=[''], random_seed=0, executable='/home/kubuntu1804/Documents/chaste_build/projects/cartilage/apps/CartilageSheetSimulation'):
+    
+    if not(os.path.isfile(executable)):
+        raise Exception('Could not find executable: ' + executable)
+
+    # Make a list of calls to a Chaste executable
+    command_list = []
+
+    base_command = 'nice -n 19 ' + executable
+
+    for flags in list_of_flags:
 
         command = base_command + ' --output-dir ' + output_directory + ' --S ' + str(random_seed) + flags 
         command_list.append(command)
@@ -61,7 +88,7 @@ def run_simulations(output_directory, flags='', executable='/home/kubuntu1804/Do
     # Pass the list of bash commands to the pool
     pool.map_async(execute_command, command_list).get(86400)
 
-def run_postprocessing(output_directory, output_path='/home/kubuntu1804/Documents/sf_simulation_results/'):
+def run_postprocessing_multiple_random_seeds(number_of_simulations, output_directory, output_path='/home/kubuntu1804/Documents/sf_simulation_results/'):
     
     # Make a list of output_directories
     directory_list = []
