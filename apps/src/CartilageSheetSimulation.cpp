@@ -44,9 +44,9 @@
 void SetupSingletons(unsigned randomSeed);
 void DestroySingletons();
 void SetupAndRunCartilageSheetSimulation(unsigned randomSeed, bool, unsigned,
-		unsigned, unsigned, double, double, double, double, double, double,
+		unsigned, unsigned, double, double, double, double, double, double, double,
 		std::string, std::string);
-void SetForceFunction(OffLatticeSimulation<3>&, std::string, double, double, double, double, double);
+void SetForceFunction(OffLatticeSimulation<3>&, std::string, double, double, double, double, double, double);
 
 int main(int argc, char *argv[]) {
 	// This sets up PETSc and prints out copyright information, etc.
@@ -67,7 +67,9 @@ int main(int argc, char *argv[]) {
 			boost::program_options::value<unsigned>()->default_value(2),
 			"The number of cells in z direction")("mu",
 			boost::program_options::value<double>()->default_value(15.0),
-			"The adhesion spring stiffness")("c",
+			"The adhesion spring stiffness")("mu_R",
+			boost::program_options::value<double>()->default_value(1.4),
+			"The repulsion spring stiffness")("c",
 			boost::program_options::value<double>()->default_value(1.0),
 			"The homotypic chondrocyte multiplier")("b",
 			boost::program_options::value<double>()->default_value(0.1),
@@ -109,6 +111,7 @@ int main(int argc, char *argv[]) {
 	double activation_percentage = variables_map["A"].as<double>();
 	double maximum_perturbation = variables_map["p"].as<double>();
 	double spring_stiffness = variables_map["mu"].as<double>();
+	double spring_stiffness_repulsion = variables_map["mu_R"].as<double>();
 	double homotypic_chondro_multiplier = variables_map["c"].as<double>();
 	double baseline_adhesion_multiplier = variables_map["b"].as<double>();
 	double simulation_end_time = variables_map["T"].as<double>();
@@ -121,7 +124,7 @@ int main(int argc, char *argv[]) {
 	SetupSingletons(random_seed);
 	SetupAndRunCartilageSheetSimulation(random_seed, random_birth_times,
 			n_cells_wide, n_cells_deep, n_cells_high, activation_percentage,
-			maximum_perturbation, spring_stiffness,
+			maximum_perturbation, spring_stiffness, spring_stiffness_repulsion,
 			homotypic_chondro_multiplier, baseline_adhesion_multiplier,
 			simulation_end_time, force_function, output_directory);	
 
@@ -145,7 +148,8 @@ void DestroySingletons() {
 	CellPropertyRegistry::Instance()->Clear();
 }
 
-void SetForceFunction(OffLatticeSimulation<3>& simulator, std::string forceFunction,  double spring_stiffness, double alpha,
+void SetForceFunction(OffLatticeSimulation<3>& simulator, std::string forceFunction,  
+		double spring_stiffness, double spring_stiffness_repulsion, double alpha,
 		double homotypic_peri_multiplier, double homotypic_chondro_multiplier, double heterotypic_multiplier){
 
 
@@ -165,7 +169,7 @@ void SetForceFunction(OffLatticeSimulation<3>& simulator, std::string forceFunct
 		MAKE_PTR(PWQGeneralisedLinearSpringForce<3>, p_force);
 		p_force->SetCutOffLength(1.5);
 		p_force->SetMeinekeSpringStiffness(spring_stiffness);
-		p_force->SetRepulsionSpringStiffness(1.4); // our default value fixed by experiments on optimal relative column height
+		p_force->SetRepulsionSpringStiffness(spring_stiffness_repulsion); // our default value fixed by experiments on optimal relative column height
 		simulator.AddForce(p_force);
 	}
 	else {
@@ -173,7 +177,7 @@ void SetForceFunction(OffLatticeSimulation<3>& simulator, std::string forceFunct
 		MAKE_PTR(CellTissueTypeBasedGeneralisedLinearSpringForce<3>, p_force);
 		p_force->SetCutOffLength(1.5);
 		p_force->SetMeinekeSpringStiffness(spring_stiffness);
-		p_force->SetRepulsionSpringStiffness(1.4); // our default value fixed by experiments on optimal relative column height
+		p_force->SetRepulsionSpringStiffness(spring_stiffness_repulsion); // our default value fixed by experiments on optimal relative column height
 		p_force->SetAlpha(alpha);
 		p_force->SetHomotypicPerichondrialSpringConstantMultiplier(
 			homotypic_peri_multiplier);
@@ -189,6 +193,7 @@ void SetupAndRunCartilageSheetSimulation(unsigned random_seed,
 		bool random_birth_times, unsigned n_cells_wide, unsigned n_cells_deep,
 		unsigned n_cells_high, double activation_percentage,
 		double maximum_perturbation, double spring_stiffness,
+		double spring_stiffness_repulsion,
 		double homotypic_chondro_multiplier,
 		double baseline_adhesion_multiplier, 
 		double simulation_endtime,
@@ -249,7 +254,10 @@ void SetupAndRunCartilageSheetSimulation(unsigned random_seed,
 	simulator.SetSamplingTimestepMultiple(12);
 
 	// call helper function to set force function
-	SetForceFunction(simulator, force_function, spring_stiffness, alpha, homotypic_peri_multiplier, homotypic_chondro_multiplier, heterotypic_multiplier);
+	SetForceFunction(simulator, force_function, 
+						spring_stiffness, spring_stiffness_repulsion, 
+						alpha, homotypic_peri_multiplier, 
+						homotypic_chondro_multiplier, heterotypic_multiplier);
 
 	//bottom plane
     c_vector<double,3> point = zero_vector<double>(3);
