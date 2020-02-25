@@ -29,6 +29,8 @@
 #include "IndividualSpringStiffnessGeneralisedLinearSpringForce.hpp"
 #include "CubicGeneralisedLinearSpringForce.hpp"
 #include "RepulsionCubicForce.hpp"
+#include "PWQGeneralisedLinearSpringForce.hpp"
+
 
 // Program option includes for handling command line arguments
 #include <boost/program_options/options_description.hpp>
@@ -157,6 +159,13 @@ void SetForceFunction(OffLatticeSimulation<3>& simulator, std::string forceFunct
 		MAKE_PTR(RepulsionCubicForce<3>, p_force);
 		p_force->SetCutOffLength(1.5);
 		p_force->SetMeinekeSpringStiffness(spring_stiffness);
+		simulator.AddForce(p_force);
+	}
+	else if (forceFunction.compare("pwq")==0){
+		MAKE_PTR(PWQGeneralisedLinearSpringForce<3>, p_force);
+		p_force->SetCutOffLength(1.5);
+		p_force->SetMeinekeSpringStiffness(spring_stiffness);
+		p_force->SetRepulsionSpringStiffness(1.4); // our default value fixed by experiments on optimal relative column height
 		simulator.AddForce(p_force);
 	}
 	else {
