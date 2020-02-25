@@ -61,7 +61,7 @@ def run_simulations_multiple_random_seeds(output_directory, flags='',  number_of
     pool.map_async(execute_command, command_list).get(86400)
     
 # Create a list of commands and pass them to separate processes
-def run_simulations_list(output_directory, list_of_flags=[''], random_seed=0, executable='/home/kubuntu1804/Documents/chaste_build/projects/cartilage/apps/CartilageSheetSimulation'):
+def run_simulations_list(list_of_flags=[''], random_seed=0, executable='/home/kubuntu1804/Documents/chaste_build/projects/cartilage/apps/CartilageSheetSimulation'):
     
     if not(os.path.isfile(executable)):
         raise Exception('Could not find executable: ' + executable)
@@ -73,7 +73,7 @@ def run_simulations_list(output_directory, list_of_flags=[''], random_seed=0, ex
 
     for flags in list_of_flags:
 
-        command = base_command + ' --output-dir ' + output_directory + ' --S ' + str(random_seed) + flags 
+        command = base_command + ' --S ' + str(random_seed) + flags 
         command_list.append(command)
         print(command)
 
@@ -97,6 +97,26 @@ def run_postprocessing_multiple_random_seeds(number_of_simulations, output_direc
 
         directory = output_path + output_directory + str(random_seed) +'/results_from_time_0/'
         directory_list.append(directory)
+    print(directory_list)
+
+    # Use processes equal to the number of cpus available
+    count = multiprocessing.cpu_count()
+
+    print("Starting postprocessing with " + str(count) + " processes")
+
+    # Generate a pool of workers
+    pool = multiprocessing.Pool(processes=count)
+
+    # Pass the list of bash commands to the pool
+    pool.map_async(evaluate_cartilage_sheet.main, directory_list).get(86400)
+
+def run_postprocessing_list(list_of_directories, random_seed=0, output_path='/home/kubuntu1804/Documents/sf_simulation_results/'):
+    
+    # Make a list of output_directories
+    directory_list = []
+
+    for direc in list_of_directories:
+        directory_list.append(output_path + direc + str(random_seed) +'/results_from_time_0/')
     print(directory_list)
 
     # Use processes equal to the number of cpus available
