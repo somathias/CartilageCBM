@@ -43,7 +43,7 @@
  */
 void SetupSingletons(unsigned randomSeed);
 void DestroySingletons();
-void SetupAndRunCartilageSheetSimulation(unsigned randomSeed, bool, unsigned,
+void SetupAndRunCartilageSheetSimulation(unsigned randomSeed, bool, bool, unsigned,
 		unsigned, unsigned, double, double, double, double, double, double, double,
 		std::string, std::string);
 void SetForceFunction(OffLatticeSimulation<3>&, std::string, double, double, double, double, double, double);
@@ -57,7 +57,8 @@ int main(int argc, char *argv[]) {
 	boost::program_options::options_description general_options(
 			"This is a Chaste executable.\n");
 	general_options.add_options()("help", "Produce help message")("sbt",
-			"Synchronized birth times")("S",
+			"Synchronized birth times")("rdd",
+			"Random division directions")("S",
 			boost::program_options::value<unsigned>()->default_value(0),
 			"The random seed")("sw",
 			boost::program_options::value<unsigned>()->default_value(5),
@@ -102,6 +103,10 @@ int main(int argc, char *argv[]) {
 	if (variables_map.count("sbt")) {
 		random_birth_times = false;
 	}
+	bool random_division_directions = false;
+	if (variables_map.count("rdd")) {
+		random_division_directions = true;
+	}
 
 	// Get ID and name from command line
 	unsigned random_seed = variables_map["S"].as<unsigned>();
@@ -122,7 +127,7 @@ int main(int argc, char *argv[]) {
 
 
 	SetupSingletons(random_seed);
-	SetupAndRunCartilageSheetSimulation(random_seed, random_birth_times,
+	SetupAndRunCartilageSheetSimulation(random_seed, random_birth_times, random_division_directions,
 			n_cells_wide, n_cells_deep, n_cells_high, activation_percentage,
 			maximum_perturbation, spring_stiffness, spring_stiffness_repulsion,
 			homotypic_chondro_multiplier, baseline_adhesion_multiplier,
@@ -190,7 +195,8 @@ void SetForceFunction(OffLatticeSimulation<3>& simulator, std::string forceFunct
 }
 
 void SetupAndRunCartilageSheetSimulation(unsigned random_seed,
-		bool random_birth_times, unsigned n_cells_wide, unsigned n_cells_deep,
+		bool random_birth_times, bool random_division_directions, 
+		unsigned n_cells_wide, unsigned n_cells_deep,
 		unsigned n_cells_high, double activation_percentage,
 		double maximum_perturbation, double spring_stiffness,
 		double spring_stiffness_repulsion,
@@ -227,6 +233,9 @@ void SetupAndRunCartilageSheetSimulation(unsigned random_seed,
 
 	if (!random_birth_times) {
 		p_cartilage_sheet->setSynchronizeCellCycles(true);
+	}
+	if (random_division_directions){
+		p_cartilage_sheet->setDivisionDirections(false);
 	}
 	// generate the nodes
 	p_cartilage_sheet->GenerateNodesOnHCPGrid();
