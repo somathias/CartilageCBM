@@ -30,6 +30,7 @@
 #include "CubicGeneralisedLinearSpringForce.hpp"
 #include "RepulsionCubicForce.hpp"
 #include "PWQGeneralisedLinearSpringForce.hpp"
+#include "RepulsionForce.hpp"
 
 
 // Program option includes for handling command line arguments
@@ -175,6 +176,12 @@ void SetForceFunction(OffLatticeSimulation<3>& simulator, std::string forceFunct
 		p_force->SetCutOffLength(1.5);
 		p_force->SetMeinekeSpringStiffness(spring_stiffness);
 		p_force->SetRepulsionSpringStiffness(spring_stiffness_repulsion); // our default value fixed by experiments on optimal relative column height
+		simulator.AddForce(p_force);
+	}
+	else if (forceFunction.compare("GLS_repulsion_only")==0){
+		MAKE_PTR(RepulsionForce<3>, p_force);
+		p_force->SetCutOffLength(1.5);
+		p_force->SetMeinekeSpringStiffness(spring_stiffness);
 		simulator.AddForce(p_force);
 	}
 	else {
