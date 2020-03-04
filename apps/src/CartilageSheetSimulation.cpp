@@ -282,7 +282,7 @@ void SetupAndRunCartilageSheetSimulation(unsigned random_seed,
 	NodeBasedCellPopulation<3> nCellPop = *cell_population;
 	//PlaneBoundaryCondition<3>* mypc = new PlaneBoundaryCondition<3>(&nCellPop, point, normal);
     MAKE_PTR_ARGS(PlaneBoundaryCondition<3>, p_bc, (cell_population.get(), point, normal));
-    p_bc->SetUseJiggledNodesOnPlane(true);
+    //p_bc->SetUseJiggledNodesOnPlane(true);
     simulator.AddCellPopulationBoundaryCondition(p_bc);
 
     
