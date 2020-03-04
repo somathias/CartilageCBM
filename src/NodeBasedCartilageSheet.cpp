@@ -47,10 +47,22 @@ void NodeBasedCartilageSheet::Setup()
 	mNodesGenerated = false;
 
 	//generate the cells
+	mCells.clear(); //this code is copied from the CellsGenerator class - not sure if needed
+	mCells.reserve(mMesh.GetNumNodes());  //this code is copied from the CellsGenerator class - not sure if needed
+	MAKE_PTR(WildTypeCellMutationState, p_state);
 	MAKE_PTR(DifferentiatedCellProliferativeType, p_diff_type);
-	CellsGenerator<CellTissueTypeBasedCellCycleModel, 3> cells_generator;
-	cells_generator.GenerateBasicRandom(mCells, mMesh.GetNumNodes(),
-										p_diff_type);
+	for (unsigned i=0; i<mMesh.GetNumNodes(); i++)
+    {
+		CellTissueTypeBasedCellCycleModel* p_model = new CellTissueTypeBasedCellCycleModel();
+		p_model->SetStemCellG1Duration(50.0);
+		CellPtr p_cell(new Cell(p_state, p_model));
+        p_cell->SetCellProliferativeType(p_diff_type);
+		// setting of the birth time will be done later when initialising the random stem cell configuration
+		mCells.push_back(p_cell);
+	}
+
+	//CellsGenerator<CellTissueTypeBasedCellCycleModel, 3> cells_generator;
+	//cells_generator.GenerateBasicRandom(mCells, mMesh.GetNumNodes(), p_diff_type);
 
 	//generate the cell population
 	mpCellPopulation.reset(new NodeBasedCellPopulation<3>(mMesh, mCells));
@@ -196,7 +208,7 @@ void NodeBasedCartilageSheet::InitialiseBulkStemCellConfiguration(
 			}
 			else
 			{
-				cell_iter->SetBirthTime(-20.0); //Average stem cell cycle time is 24.0 with default values
+				cell_iter->SetBirthTime(-56.0); //Average stem cell cycle time is 60.0 with current values
 												//Now we don't have to wait forever for cell divisions to start
 			}
 		}
@@ -274,7 +286,7 @@ void NodeBasedCartilageSheet::InitialiseRandomStemCellConfiguration(
 			}
 			else
 			{
-				cell->SetBirthTime(-20.0); //Average stem cell cycle time is 24.0 with default values
+				cell->SetBirthTime(-56.0); //Average stem cell cycle time is 60.0 with current values
 										   //Now we don't have to wait forever for cell divisions to start
 			}
 			//increase counter
