@@ -24,6 +24,8 @@
 #include "NodesOnlyMesh.hpp"
 #include "CellAncestor.hpp"
 #include "CellAncestorWriter.hpp"
+#include "WildTypeCellMutationState.hpp"
+
 
 #include "CellTissueTypeBasedCellCycleModel.hpp"
 #include "PerichondrialCellTissueType.hpp"
