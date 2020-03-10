@@ -8,12 +8,16 @@
 #ifndef CELLTISSUETYPEBASEDCELLCYCLEMODEL_HPP_
 #define CELLTISSUETYPEBASEDCELLCYCLEMODEL_HPP_
 
-#include "UniformG1GenerationalCellCycleModel.hpp"
+#include "AbstractSimpleGenerationalCellCycleModel.hpp"
+#include "StemCellProliferativeType.hpp"
+#include "TransitCellProliferativeType.hpp"
+#include "DifferentiatedCellProliferativeType.hpp"
 #include "AbstractCellTissueType.hpp"
 #include "PerichondrialCellTissueType.hpp"
 #include "ChondrocyteCellTissueType.hpp"
+#include "RandomNumberGenerator.hpp"
 
-class CellTissueTypeBasedCellCycleModel: public UniformG1GenerationalCellCycleModel {
+class CellTissueTypeBasedCellCycleModel: public AbstractSimpleGenerationalCellCycleModel {
 private:
 
 	friend class TestCellTissueTypeBasedCellCycleModel;
@@ -28,9 +32,11 @@ private:
 	 */
 	template<class Archive>
 	void serialize(Archive & archive, const unsigned int version) {
-		archive
-				& boost::serialization::base_object<
-						UniformG1GenerationalCellCycleModel>(*this);
+		archive & boost::serialization::base_object<
+						AbstractSimpleGenerationalCellCycleModel>(*this);
+		RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
+        archive & *p_gen;
+        archive & p_gen;
 	}
 public:
 	/**
@@ -50,6 +56,8 @@ public:
      * Set the new cell's tissue type once it has been created after division.
      */
     void InitialiseDaughterCell();
+
+	void SetG1Duration();
 
 	/**
 	 * Outputs cell cycle model parameters to file.

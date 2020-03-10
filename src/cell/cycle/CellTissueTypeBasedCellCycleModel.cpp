@@ -7,6 +7,7 @@
 
 #include "CellTissueTypeBasedCellCycleModel.hpp"
 
+
 CellTissueTypeBasedCellCycleModel::CellTissueTypeBasedCellCycleModel() {
 
 }
@@ -46,6 +47,30 @@ AbstractCellCycleModel* CellTissueTypeBasedCellCycleModel::CreateCellCycleModel(
 	return p_model;
 }
 
+void CellTissueTypeBasedCellCycleModel::SetG1Duration()
+{
+    assert(mpCell != NULL);
+
+    double uniform_random_number = RandomNumberGenerator::Instance()->ranf();
+
+    if (mpCell->GetCellProliferativeType()->IsType<StemCellProliferativeType>())
+    {
+        mG1Duration = -log(uniform_random_number)*GetStemCellG1Duration();
+    }
+    else if (mpCell->GetCellProliferativeType()->IsType<TransitCellProliferativeType>())
+    {
+        mG1Duration = -log(uniform_random_number)*GetTransitCellG1Duration();
+    }
+    else if (mpCell->GetCellProliferativeType()->IsType<DifferentiatedCellProliferativeType>())
+    {
+        mG1Duration = DBL_MAX;
+    }
+    else
+    {
+        NEVER_REACHED;
+    }
+}
+
 void CellTissueTypeBasedCellCycleModel::InitialiseDaughterCell() {
 
 	/*
@@ -77,7 +102,7 @@ void CellTissueTypeBasedCellCycleModel::InitialiseDaughterCell() {
 		mpCell->AddCellProperty(p_chondrocyte_type);
 	}
 
-	UniformG1GenerationalCellCycleModel::InitialiseDaughterCell();
+	AbstractSimpleGenerationalCellCycleModel::InitialiseDaughterCell();
 }
 
 void CellTissueTypeBasedCellCycleModel::OutputCellCycleModelParameters(
@@ -85,7 +110,7 @@ void CellTissueTypeBasedCellCycleModel::OutputCellCycleModelParameters(
 	// No new parameters to output
 
 	// Call method on direct parent class
-	UniformG1GenerationalCellCycleModel::OutputCellCycleModelParameters(
+	AbstractSimpleGenerationalCellCycleModel::OutputCellCycleModelParameters(
 			rParamsFile);
 }
 
