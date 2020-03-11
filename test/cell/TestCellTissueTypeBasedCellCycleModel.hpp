@@ -33,10 +33,30 @@ public:
 	void TestProgressionThroughCellCycle()  {
 		TS_ASSERT_THROWS_NOTHING(CellTissueTypeBasedCellCycleModel cell_model);
 
-		MAKE_PTR(WildTypeCellMutationState, p_state);
-		MAKE_PTR(StemCellProliferativeType, p_stem_type);
-		MAKE_PTR(TransitCellProliferativeType, p_transit_type);
+		unsigned num_cells = (unsigned) 1e5;
+        std::vector<CellPtr> cells;
+        MAKE_PTR(WildTypeCellMutationState, p_state);
+        MAKE_PTR(StemCellProliferativeType, p_stem_type);
+        MAKE_PTR(TransitCellProliferativeType, p_transit_type);
 		MAKE_PTR(PerichondrialCellTissueType, p_perichondrial_type);
+        for (unsigned i=0; i<num_cells; i++)
+        {
+            CellTissueTypeBasedCellCycleModel* p_cell_cycle_model = new CellTissueTypeBasedCellCycleModel;
+            CellPtr p_cell(new Cell(p_state, p_cell_cycle_model));
+            p_cell->SetCellProliferativeType(p_stem_type);
+            p_cell->InitialiseCellCycleModel();
+            cells.push_back(p_cell);
+        }
+
+		double expected_mean_g1_duration = static_cast<CellTissueTypeBasedCellCycleModel*>(cells[0]->GetCellCycleModel())->GetStemCellG1Duration();
+        double sample_mean_g1_duration = 0.0;
+
+        for (unsigned i=0; i<num_cells; i++)
+        {
+            sample_mean_g1_duration += static_cast<CellTissueTypeBasedCellCycleModel*>(cells[i]->GetCellCycleModel())->GetG1Duration()/ (double) num_cells;
+        }
+
+        TS_ASSERT_DELTA(sample_mean_g1_duration, expected_mean_g1_duration, 0.1);
 
 		RandomNumberGenerator::Instance()->Reseed(0);
 		CellTissueTypeBasedCellCycleModel* p_my_model =
@@ -49,27 +69,22 @@ public:
 		p_my_cell->AddCellProperty(p_perichondrial_type);
 		p_my_cell->InitialiseCellCycleModel();
 
-//		TS_ASSERT_EQUALS(p_my_cell->rGetCellPropertyCollection().GetCellPropertyRegistry()->Get<
-//											PerichondrialCellTissueType>()->GetCellCount(), 1u);
-//		TS_ASSERT_EQUALS(p_my_cell->rGetCellPropertyCollection().GetCellPropertyRegistry()->Get<
-//											StemCellProliferativeType>()->GetCellCount(), 1u);
+		// TS_ASSERT_EQUALS(p_my_cell->rGetCellPropertyCollection().GetCellPropertyRegistry()->Get<
+		// 									PerichondrialCellTissueType>()->GetCellCount(), 1u);
+		// TS_ASSERT_EQUALS(p_my_cell->rGetCellPropertyCollection().GetCellPropertyRegistry()->Get<
+		// 									StemCellProliferativeType>()->GetCellCount(), 1u);
 
 		unsigned num_steps = 100;
 		double mean_cell_cycle_time =
-				p_my_cell->GetCellCycleModel()->GetAverageStemCellCycleTime();
+				p_my_model->GetTransitCellG1Duration() + p_my_model->GetSG2MDuration();
 
 		SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(
-				2*mean_cell_cycle_time, num_steps);
+				mean_cell_cycle_time, num_steps);
 
-		RandomNumberGenerator::Instance()->Reseed(0);
-
-		double g1_duration =
-				static_cast<CellTissueTypeBasedCellCycleModel*>(p_my_cell->GetCellCycleModel())->GetStemCellG1Duration()
-						+ 4 * RandomNumberGenerator::Instance()->ranf();
 		for (unsigned i = 0; i < num_steps; i++) {
 			SimulationTime::Instance()->IncrementTimeOneStep();
 
-			CheckReadyToDivideAndPhaseIsUpdated(p_my_model, g1_duration);
+			//CheckReadyToDivideAndPhaseIsUpdated(p_my_model, 2.35762);
 			//std::cout << "Waiting to divide" <<std::endl;
 
 			if (p_my_cell->ReadyToDivide()) {
