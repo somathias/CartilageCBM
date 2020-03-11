@@ -38,6 +38,7 @@ public:
         MAKE_PTR(WildTypeCellMutationState, p_state);
         MAKE_PTR(StemCellProliferativeType, p_stem_type);
         MAKE_PTR(TransitCellProliferativeType, p_transit_type);
+		MAKE_PTR(PerichondrialCellTissueType, p_perichondrial_type);
         for (unsigned i=0; i<num_cells; i++)
         {
             CellTissueTypeBasedCellCycleModel* p_cell_cycle_model = new CellTissueTypeBasedCellCycleModel;
@@ -68,62 +69,62 @@ public:
 		p_my_cell->AddCellProperty(p_perichondrial_type);
 		p_my_cell->InitialiseCellCycleModel();
 
-//		TS_ASSERT_EQUALS(p_my_cell->rGetCellPropertyCollection().GetCellPropertyRegistry()->Get<
-//											PerichondrialCellTissueType>()->GetCellCount(), 1u);
-//		TS_ASSERT_EQUALS(p_my_cell->rGetCellPropertyCollection().GetCellPropertyRegistry()->Get<
-//											StemCellProliferativeType>()->GetCellCount(), 1u);
+		// TS_ASSERT_EQUALS(p_my_cell->rGetCellPropertyCollection().GetCellPropertyRegistry()->Get<
+		// 									PerichondrialCellTissueType>()->GetCellCount(), 1u);
+		// TS_ASSERT_EQUALS(p_my_cell->rGetCellPropertyCollection().GetCellPropertyRegistry()->Get<
+		// 									StemCellProliferativeType>()->GetCellCount(), 1u);
 
-// 		unsigned num_steps = 100;
-// 		double mean_cell_cycle_time =
-// 				p_my_model->GetTransitCellG1Duration() + p_my_model->GetSG2MDuration();
+		unsigned num_steps = 100;
+		double mean_cell_cycle_time =
+				p_my_model->GetTransitCellG1Duration() + p_my_model->GetSG2MDuration();
 
-// 		SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(
-// 				mean_cell_cycle_time, num_steps);
+		SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(
+				mean_cell_cycle_time, num_steps);
 
-// 		for (unsigned i = 0; i < num_steps; i++) {
-// 			SimulationTime::Instance()->IncrementTimeOneStep();
+		for (unsigned i = 0; i < num_steps; i++) {
+			SimulationTime::Instance()->IncrementTimeOneStep();
 
-// 			CheckReadyToDivideAndPhaseIsUpdated(p_my_model, 2.35762);
-// 			//std::cout << "Waiting to divide" <<std::endl;
+			//CheckReadyToDivideAndPhaseIsUpdated(p_my_model, 2.35762);
+			//std::cout << "Waiting to divide" <<std::endl;
 
-// 			if (p_my_cell->ReadyToDivide()) {
+			if (p_my_cell->ReadyToDivide()) {
 
-// 				std::cout << "Ready to divide" <<std::endl;
-// 				TS_ASSERT_EQUALS(p_perichondrial_type->GetCellCount(), 1u);
+				std::cout << "Ready to divide" <<std::endl;
+				TS_ASSERT_EQUALS(p_perichondrial_type->GetCellCount(), 1u);
 
-// 				TS_ASSERT_EQUALS(p_my_cell->rGetCellPropertyCollection().GetCellPropertyRegistry()->Get<
-// 						ChondrocyteCellTissueType>()->GetCellCount(), 0u);
+				TS_ASSERT_EQUALS(p_my_cell->rGetCellPropertyCollection().GetCellPropertyRegistry()->Get<
+						ChondrocyteCellTissueType>()->GetCellCount(), 0u);
 
 
-// 				CellPtr p_daughter_cell = p_my_cell->Divide();
-// 				TS_ASSERT_EQUALS(
-// 						p_daughter_cell->HasCellProperty<
-// 								PerichondrialCellTissueType>(), false);
-// 				TS_ASSERT_EQUALS(
-// 						p_my_cell->HasCellProperty<
-// 								PerichondrialCellTissueType>(), true);
-// 				TS_ASSERT_EQUALS(
-// 						p_daughter_cell->HasCellProperty<
-// 								ChondrocyteCellTissueType>(), true);
-// 				TS_ASSERT_EQUALS(
-// 						p_my_cell->HasCellProperty<
-// 								ChondrocyteCellTissueType>(), false);
+				CellPtr p_daughter_cell = p_my_cell->Divide();
+				TS_ASSERT_EQUALS(
+						p_daughter_cell->HasCellProperty<
+								PerichondrialCellTissueType>(), false);
+				TS_ASSERT_EQUALS(
+						p_my_cell->HasCellProperty<
+								PerichondrialCellTissueType>(), true);
+				TS_ASSERT_EQUALS(
+						p_daughter_cell->HasCellProperty<
+								ChondrocyteCellTissueType>(), true);
+				TS_ASSERT_EQUALS(
+						p_my_cell->HasCellProperty<
+								ChondrocyteCellTissueType>(), false);
 
-// 				TS_ASSERT_EQUALS(
-// 						p_daughter_cell->HasCellProperty<
-// 								StemCellProliferativeType>(), false);
-// 				TS_ASSERT_EQUALS(
-// 						p_daughter_cell->HasCellProperty<
-// 								TransitCellProliferativeType>(), true);
+				TS_ASSERT_EQUALS(
+						p_daughter_cell->HasCellProperty<
+								StemCellProliferativeType>(), false);
+				TS_ASSERT_EQUALS(
+						p_daughter_cell->HasCellProperty<
+								TransitCellProliferativeType>(), true);
 
-// 				TS_ASSERT_EQUALS(p_perichondrial_type->GetCellCount(), 1u);
-// //				TS_ASSERT_EQUALS(p_daughter_cell->rGetCellPropertyCollection().GetCellPropertyRegistry()->Get<
-// //													PerichondrialCellTissueType>()->GetCellCount(), 1u);
-// 				TS_ASSERT_EQUALS(p_my_cell->rGetCellPropertyCollection().GetCellPropertyRegistry()->Get<
-// 						ChondrocyteCellTissueType>()->GetCellCount(), 1u);
-// 			}
+				TS_ASSERT_EQUALS(p_perichondrial_type->GetCellCount(), 1u);
+//				TS_ASSERT_EQUALS(p_daughter_cell->rGetCellPropertyCollection().GetCellPropertyRegistry()->Get<
+//													PerichondrialCellTissueType>()->GetCellCount(), 1u);
+				TS_ASSERT_EQUALS(p_my_cell->rGetCellPropertyCollection().GetCellPropertyRegistry()->Get<
+						ChondrocyteCellTissueType>()->GetCellCount(), 1u);
+			}
 
-// 		}
+		}
 
 	}
 
