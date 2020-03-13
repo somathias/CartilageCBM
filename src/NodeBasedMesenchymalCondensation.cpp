@@ -36,6 +36,8 @@ void NodeBasedMesenchymalCondensation::Setup()
 	}
 	mMesh.ConstructNodesWithoutMesh(mNodes, 1.5);
 
+
+
 	//nodes themselves can be deleted (the mesh copies them)
 	for (unsigned i = 0; i < mNodes.size(); i++)
 	{
@@ -49,22 +51,17 @@ void NodeBasedMesenchymalCondensation::Setup()
 	MAKE_PTR(WildTypeCellMutationState, p_state);
 	MAKE_PTR(DifferentiatedCellProliferativeType, p_diff_type);
 
-    boost::shared_ptr<AbstractCellProperty> p_upwards(
-		mpCellPopulation->GetCellPropertyRegistry()->Get<UpwardsCellDivisionDirection<3>>());
-
+    	
 	for (unsigned i=0; i<mMesh.GetNumNodes(); i++)
     {
 		ChondrocytesOnlyCellCycleModel* p_model = new ChondrocytesOnlyCellCycleModel();
 		p_model->SetTransitCellG1Duration(50.0);
 		CellPtr p_cell(new Cell(p_state, p_model));
         p_cell->SetCellProliferativeType(p_diff_type);
-        if(mDivisionDirections){
-			p_cell->AddCellProperty(p_upwards);
-		}
+
 		// setting of the birth time will be done later when initialising the random transit cell configuration
 		mCells.push_back(p_cell);
 	}
-
 
 	//generate the cell population
 	mpCellPopulation.reset(new NodeBasedCellPopulation<3>(mMesh, mCells));
@@ -113,6 +110,9 @@ void NodeBasedMesenchymalCondensation::InitialiseRandomConfiguration(
 	}
 
 	MAKE_PTR(TransitCellProliferativeType, p_transit_type);
+	boost::shared_ptr<AbstractCellProperty> p_upwards(
+		mpCellPopulation->GetCellPropertyRegistry()->Get<UpwardsCellDivisionDirection<3>>());
+
 
 	// generate transit cell indices for all layers
 	// This evenly distributes the specified total number of transit cells among all layers of perichondrial cells
@@ -139,6 +139,10 @@ void NodeBasedMesenchymalCondensation::InitialiseRandomConfiguration(
 
 			MAKE_PTR_ARGS(CellAncestor, p_cell_ancestor, (node_index));
 			cell->SetAncestor(p_cell_ancestor);
+
+			if(mDivisionDirections){
+			cell->AddCellProperty(p_upwards);
+		}
 
 			// set random birth times if required
 			if (!mSynchronizeCellCycles)

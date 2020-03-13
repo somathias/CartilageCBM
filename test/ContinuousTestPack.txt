@@ -1,5 +1,6 @@
 TestScaling3dNodeBasedCartilageSheets.hpp
 TestNodeBasedCartilageSheet.hpp
+TestNodeBasedMesenchymalCondensation.hpp
 simulation/TestOffLatticeSimulationDirectedDivision.hpp
 population/TestOrientationBasedDivisionRule.hpp
 cell/TestCellTissueTypes.hpp
