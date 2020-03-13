@@ -34,7 +34,7 @@ public:
 
         std::cout <<"Before generating the nodes"<< std::endl;
 		// generate the nodes
-		p_condensation->GenerateNodes();
+		p_condensation->GenerateNodesOnCartesianGrid();
 
         std::cout <<"After generating the nodes"<< std::endl;
 
@@ -80,7 +80,7 @@ public:
 		// set the sheet dimensions
 		p_condensation->SetDimensions(5, 4);
 		// generate the nodes
-		p_condensation->GenerateNodes();
+		p_condensation->GenerateNodesOnCartesianGrid();
 
 		// setup the cell population
 		p_condensation->Setup();
@@ -131,7 +131,7 @@ public:
 		//p_condensation->setMaxCoordinatePerturbation(0.1);
 		//p_condensation->UseRandomSeed();
 		// generate the nodes
-		p_condensation->GenerateNodes();
+		p_condensation->GenerateNodesOnCartesianGrid();
 
 		TS_ASSERT_EQUALS(p_condensation->mNodes.size(),
 				n_nodes_width * n_nodes_depth);
@@ -147,7 +147,7 @@ public:
 
 		// now with perturbation
 		p_condensation->setMaxCoordinatePerturbation(0.5);
-		p_condensation->GenerateNodes();
+		p_condensation->GenerateNodesOnCartesianGrid();
 
 		for (unsigned i = 0; i < p_condensation->mNodes.size(); i++) {
 			c_vector<double, 3> coordinates =
@@ -160,5 +160,89 @@ public:
 
 	}
 
+    /**
+	 * Minimal testing for the generation of the node coordinates on a HCP lattice
+	 */
+	void TestHCPNodeGeneration()  {
+		unsigned n_nodes_width = 3;
+		unsigned n_nodes_depth = 3;
+
+		// Construct a new cartilage sheet
+		NodeBasedMesenchymalCondensation* p_condensation =
+		new NodeBasedMesenchymalCondensation();
+
+		// set the sheet dimensions
+		p_condensation->SetDimensions(n_nodes_width,
+				n_nodes_depth);
+		//p_condensation->setMaxCoordinatePerturbation(0.1);
+		//p_condensation->UseRandomSeed();
+		// generate the nodes
+		p_condensation->GenerateNodesOnHCPGrid();
+
+		TS_ASSERT_EQUALS(p_condensation->mNodes.size(),
+				n_nodes_width * n_nodes_depth);
+
+		c_vector<double, 3> coordinates_first =
+		p_condensation->mNodes[0]->rGetLocation();
+		c_vector<double, 3> coordinates_second =
+		p_condensation->mNodes[1]->rGetLocation();
+		c_vector<double, 3> coordinates_last =
+		p_condensation->mNodes[p_condensation->mNodes.size() - 1]->rGetLocation();
+
+		//check that first node is in origin
+		TS_ASSERT_EQUALS(coordinates_first[0], 0);
+		TS_ASSERT_EQUALS(coordinates_first[1], 0);
+		TS_ASSERT_LESS_THAN_EQUALS(coordinates_first[2], 7.0);
+
+		// //check that first two have distance 1 cell diameter
+		// double distance =
+		// sqrt(
+		// 		(coordinates_first[0] - coordinates_second[0])
+		// 		* (coordinates_first[0] - coordinates_second[0])
+		// 		+ (coordinates_first[1] - coordinates_second[1])
+		// 		* (coordinates_first[1]
+		// 				- coordinates_second[1])
+		// 		+ (coordinates_first[2] - coordinates_second[2])
+		// 		* (coordinates_first[2]
+		// 				- coordinates_second[2]));
+		// TS_ASSERT_DELTA(distance, 1, 1e-4);
+
+		// //check the coordinates of the last node
+		// TS_ASSERT_EQUALS(coordinates_last[0], 2);
+		// TS_ASSERT_DELTA(coordinates_last[1], 1.7320, 1e-4);
+		// TS_ASSERT_DELTA(coordinates_last[2], 1.6329, 1e-4);
+
+		// now check with perturbation
+		p_condensation->setMaxCoordinatePerturbation(0.1);
+		p_condensation->GenerateNodesOnHCPGrid();
+
+		// coordinates_first = p_condensation->mNodes[0]->rGetLocation();
+		// coordinates_second = p_condensation->mNodes[1]->rGetLocation();
+		// coordinates_last =
+		// p_condensation->mNodes[p_condensation->mNodes.size() - 1]->rGetLocation();
+
+		// //check that first node is in origin (+perturbation)
+		// TS_ASSERT_LESS_THAN_EQUALS(coordinates_first[0], 0.1);
+		// TS_ASSERT_LESS_THAN_EQUALS(coordinates_first[1], 0.1);
+		// TS_ASSERT_LESS_THAN_EQUALS(coordinates_first[2], 7.1);
+
+		// //check that first two have distance 1 cell diameter
+		// distance =
+		// sqrt(
+		// 		(coordinates_first[0] - coordinates_second[0])
+		// 		* (coordinates_first[0] - coordinates_second[0])
+		// 		+ (coordinates_first[1] - coordinates_second[1])
+		// 		* (coordinates_first[1]
+		// 				- coordinates_second[1])
+		// 		+ (coordinates_first[2] - coordinates_second[2])
+		// 		* (coordinates_first[2]
+		// 				- coordinates_second[2]));
+		// TS_ASSERT_LESS_THAN_EQUALS(abs(distance - 1), 0.2);
+
+		// //check the coordinates of the last node
+		// TS_ASSERT_LESS_THAN_EQUALS(coordinates_last[0], 2.1);
+		// TS_ASSERT_DELTA(coordinates_last[1], 1.7320, 1e-1);
+		// TS_ASSERT_DELTA(coordinates_last[2], 1.6329, 1e-1);
+	}
 
 };

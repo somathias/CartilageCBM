@@ -27,7 +27,7 @@ void NodeBasedMesenchymalCondensation::Setup()
 	// mesh generation
 	if (!mNodesGenerated)
 	{
-		GenerateNodes();
+		GenerateNodesOnCartesianGrid();
 	}
 	else if (mNodes.size() != mNumberOfNodesPerXDimension * mNumberOfNodesPerYDimension)
 	{
@@ -56,6 +56,7 @@ void NodeBasedMesenchymalCondensation::Setup()
     {
 		ChondrocytesOnlyCellCycleModel* p_model = new ChondrocytesOnlyCellCycleModel();
 		p_model->SetTransitCellG1Duration(50.0);
+		p_model->SetMaxTransitGenerations(2);
 		CellPtr p_cell(new Cell(p_state, p_model));
         p_cell->SetCellProliferativeType(p_diff_type);
 
@@ -176,7 +177,7 @@ void NodeBasedMesenchymalCondensation::SetDimensions(
  * Generates random node coordinates for a 3D cell sheet a given number of cells wide and deep.
  * Arrangement of the nodes will be on a Cartesian grid.
  */
-void NodeBasedMesenchymalCondensation::GenerateNodes()
+void NodeBasedMesenchymalCondensation::GenerateNodesOnCartesianGrid()
 {
 
 	mNodes.clear();
@@ -219,6 +220,55 @@ void NodeBasedMesenchymalCondensation::GenerateNodes()
 	
 	mNodesGenerated = true;
 }
+
+/**
+ * Generates random node coordinates for a 3D cell sheet a given number of cells wide, deep and high.
+ * Arrangement of the nodes will be on a hcp lattice.
+ */
+void NodeBasedMesenchymalCondensation::GenerateNodesOnHCPGrid()
+{
+
+	mNodes.clear();
+	unsigned n_nodes_width = mNumberOfNodesPerXDimension;
+	unsigned n_nodes_depth = mNumberOfNodesPerYDimension;
+	unsigned n_nodes = n_nodes_width * n_nodes_depth;
+	mNodes.reserve(n_nodes);
+
+	unsigned id = 0;
+	unsigned k = 0;
+
+	for (unsigned j = 0; j < n_nodes_depth; j++)
+	{
+			for (unsigned i = 0; i < n_nodes_width; i++)
+			{
+				/*
+				 * Note that to pick a random point on the surface of a sphere, it is incorrect
+				 * to select spherical coordinates from uniform distributions on [0, 2*pi) and
+				 * [0, pi) respectively, since points picked in this way will be 'bunched' near
+				 * the poles.
+				 */
+				double u = RandomNumberGenerator::Instance()->ranf();
+				double v = RandomNumberGenerator::Instance()->ranf();
+
+				double noise = mMaxCoordinatePerturbation * RandomNumberGenerator::Instance()->ranf();
+
+				double z_offset = 7.0 *RandomNumberGenerator::Instance()->ranf();
+
+				double random_azimuth_angle = 2 * M_PI * u;
+				double random_zenith_angle = std::acos(2 * v - 1);
+
+				double x_coordinate = (2 * i + ((j + k) % 2)) * 0.5 + noise * cos(random_azimuth_angle) * sin(random_zenith_angle);
+				double y_coordinate = (sqrt(3) * (j + (k % 2) / 3.0)) * 0.5 + noise * sin(random_azimuth_angle) * sin(random_zenith_angle);
+				double z_coordinate = z_offset + (2 * sqrt(6) * k / 3.0) * 0.5 + noise * cos(random_zenith_angle);
+				mNodes.push_back(
+					new Node<3>(id, false, x_coordinate, y_coordinate,
+								z_coordinate));
+				id++;
+			}
+	}
+	mNodesGenerated = true;
+}
+
 
 double NodeBasedMesenchymalCondensation::getMaxCoordinatePerturbation() const
 {

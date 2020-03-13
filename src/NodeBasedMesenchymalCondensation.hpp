@@ -72,7 +72,8 @@ public:
 
 	void SetDimensions(unsigned, unsigned);
 
-	void GenerateNodes();
+	void GenerateNodesOnCartesianGrid();
+	void GenerateNodesOnHCPGrid();
 
 	void UseRandomSeed();
 

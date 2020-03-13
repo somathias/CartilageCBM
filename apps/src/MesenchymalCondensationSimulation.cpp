@@ -45,7 +45,7 @@
 void SetupSingletons(unsigned randomSeed);
 void DestroySingletons();
 void SetupAndRunMesenchymalCondensationSimulation(unsigned randomSeed, bool, bool, unsigned,
-		unsigned, double, double, double, double, double, std::string, std::string);
+		unsigned, double, double, double, double, double, double, std::string, std::string);
 void SetForceFunction(OffLatticeSimulation<3>&, std::string, double, double, double, double, double, double);
 
 int main(int argc, char *argv[]) {
@@ -64,7 +64,9 @@ int main(int argc, char *argv[]) {
 			boost::program_options::value<unsigned>()->default_value(5),
 			"The number of cells in x direction")("sd",
 			boost::program_options::value<unsigned>()->default_value(5),
-			"The number of cells in y direction")("mu",
+			"The number of cells in y direction")("u",
+			boost::program_options::value<double>()->default_value(7.0),
+			"The distance of the upper boundary to the lower one")("mu",
 			boost::program_options::value<double>()->default_value(15.0),
 			"The adhesion spring stiffness")("mu_R",
 			boost::program_options::value<double>()->default_value(1.4),
@@ -106,6 +108,7 @@ int main(int argc, char *argv[]) {
 	unsigned random_seed = variables_map["S"].as<unsigned>();
 	unsigned n_cells_wide = variables_map["sw"].as<unsigned>();
 	unsigned n_cells_deep = variables_map["sd"].as<unsigned>();
+	double upper_boundary = variables_map["u"].as<double>();
 	double activation_percentage = variables_map["A"].as<double>();
 	double maximum_perturbation = variables_map["p"].as<double>();
 	double spring_stiffness = variables_map["mu"].as<double>();
@@ -119,7 +122,7 @@ int main(int argc, char *argv[]) {
 
 	SetupSingletons(random_seed);
 	SetupAndRunMesenchymalCondensationSimulation(random_seed, random_birth_times, random_division_directions,
-			n_cells_wide, n_cells_deep, activation_percentage,
+			n_cells_wide, n_cells_deep, upper_boundary, activation_percentage,
 			maximum_perturbation, spring_stiffness, spring_stiffness_repulsion,
 			simulation_end_time, force_function, output_directory);	
 
@@ -184,7 +187,8 @@ void SetForceFunction(OffLatticeSimulation<3>& simulator, std::string forceFunct
 
 void SetupAndRunMesenchymalCondensationSimulation(unsigned random_seed,
 		bool random_birth_times, bool random_division_directions, 
-		unsigned n_cells_wide, unsigned n_cells_deep, double activation_percentage,
+		unsigned n_cells_wide, unsigned n_cells_deep, double, upper_boundary, 
+		double activation_percentage,
 		double maximum_perturbation, double spring_stiffness,
 		double spring_stiffness_repulsion,
 		double simulation_endtime,
@@ -257,7 +261,7 @@ void SetupAndRunMesenchymalCondensationSimulation(unsigned random_seed,
 
     //upper plane
     c_vector<double,3> point_up = zero_vector<double>(3);
-    point_up(2) = 7.0;
+    point_up(2) = upper_boundary;
     c_vector<double,3> normal_up = zero_vector<double>(3);
     normal_up(2) = 1.0;
     MAKE_PTR_ARGS(PlaneBoundaryCondition<3>, p_bc_up, (cell_population.get(), point_up, normal_up));
