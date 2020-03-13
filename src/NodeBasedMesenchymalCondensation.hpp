@@ -68,8 +68,7 @@ public:
 	bool isCellPopulationSetup() const;
 	boost::shared_ptr<NodeBasedCellPopulation<3> > GetCellPopulation();
 
-	void InitialiseTissueLayersAndCellDivisionDirections();
-	void InitialiseRandomStemCellConfiguration(unsigned);
+	void InitialiseRandomConfiguration(unsigned);
 
 	void SetDimensions(unsigned, unsigned);
 
