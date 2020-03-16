@@ -187,7 +187,7 @@ void SetForceFunction(OffLatticeSimulation<3>& simulator, std::string forceFunct
 
 void SetupAndRunMesenchymalCondensationSimulation(unsigned random_seed,
 		bool random_birth_times, bool random_division_directions, 
-		unsigned n_cells_wide, unsigned n_cells_deep, double, upper_boundary, 
+		unsigned n_cells_wide, unsigned n_cells_deep, double upper_boundary, 
 		double activation_percentage,
 		double maximum_perturbation, double spring_stiffness,
 		double spring_stiffness_repulsion,
@@ -211,7 +211,7 @@ void SetupAndRunMesenchymalCondensationSimulation(unsigned random_seed,
 	NodeBasedMesenchymalCondensation* p_condensation = new NodeBasedMesenchymalCondensation();
 
 	// set the sheet dimensions
-	p_condensation->SetMesenchymalCondensationDimensions(n_cells_wide, n_cells_deep);
+	p_condensation->SetDimensions(n_cells_wide, n_cells_deep);
 	p_condensation->setMaxCoordinatePerturbation(maximum_perturbation);
 	p_condensation->setDistanceBetweeenBoundaries(upper_boundary);
 
@@ -228,12 +228,11 @@ void SetupAndRunMesenchymalCondensationSimulation(unsigned random_seed,
 	if (!p_condensation->isCellPopulationSetup()) {
 		p_condensation->Setup();
 	}
-	// setup the cell tissue types and cell division directions
-	p_condensation->InitialiseTissueLayersAndCellDivisionDirections();
+
 	// setup the initial stem cell configuration
 	unsigned n_activated_stem_cells = floor(
 			n_cells_wide * n_cells_deep * activation_percentage);
-	p_condensation->InitialiseRandomStemCellConfiguration(
+	p_condensation->InitialiseRandomConfiguration(
 			n_activated_stem_cells);
 
 	// get the cell population
