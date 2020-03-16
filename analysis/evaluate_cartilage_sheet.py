@@ -52,56 +52,56 @@ def main(path):
     
     
     ### Boundary ################################################################
-    boundary_layers = sm.get_border_layers(path)
-    
-    for index, boundary in enumerate(boundary_layers):
-        
-        boundary_layers = ['lower', 'upper']
-        
-        assert boundary.shape == coordinates.shape
-        boundary_coordinates = coordinates.copy()
-        boundary_coordinates[~boundary] = np.nan
-        #assert np.count_nonzero(~np.isnan(boundary_coordinates[0,:])) == 60
-        
-        bw = sm.calculate_width(boundary_coordinates)
-        # normalize to initial width
-        initial_width = bw[0,:] 
-        bw_deviation = bw - initial_width*np.ones(bw.shape)
-        # save to file
-        np.savetxt(results_path + 'data_'+ boundary_layers[index] + '_boundary.txt', bw_deviation, fmt='%f') 
-        
-        plt.figure()
-        lineObj = plt.plot(times, bw_deviation)
-        plt.legend(lineObj, ('x', 'y', 'z'))
-        plt.title('Deviation from initial width of '+ boundary_layers[index]+' boundary layer')
-        ax = plt.gca()
-        ttl = ax.title
-        ttl.set_position([.5, 1.03])
-        plt.xlabel('Time in hours')
-        plt.ylabel('Width in cell diameters')
-        #plt.show()
-        plt.savefig(results_path + boundary_layers[index] +'boundary.png')
-        plt.savefig(results_path + boundary_layers[index] +'boundary.pdf')
-        plt.close()
-        
-        bs = sm.calculate_boundary_quality(boundary_coordinates)
-        np.savetxt(results_path + 'data_'+ boundary_layers[index] + '_boundary_std.txt', bs, fmt='%f')
-        
-        plt.figure()
-        lineObj = plt.plot(times, bs)
-        plt.title('Standard deviation of the z values of the '+ boundary_layers[index]+' boundary layer')
-        ax = plt.gca()
-        ttl = ax.title
-        ttl.set_position([.5, 1.03])
-        plt.xlabel('Time in hours')
-        plt.ylabel('Width in cell diameters')
-        #plt.show()
-        plt.savefig(results_path + boundary_layers[index] +'boundary_std.png')
-        plt.savefig(results_path + boundary_layers[index] +'boundary_std.pdf')
-        plt.close()
-    
-    plt.close('all')
-    
+#    boundary_layers = sm.get_border_layers(path)
+#    
+#    for index, boundary in enumerate(boundary_layers):
+#        
+#        boundary_layers = ['lower', 'upper']
+#        
+#        assert boundary.shape == coordinates.shape
+#        boundary_coordinates = coordinates.copy()
+#        boundary_coordinates[~boundary] = np.nan
+#        #assert np.count_nonzero(~np.isnan(boundary_coordinates[0,:])) == 60
+#        
+#        bw = sm.calculate_width(boundary_coordinates)
+#        # normalize to initial width
+#        initial_width = bw[0,:] 
+#        bw_deviation = bw - initial_width*np.ones(bw.shape)
+#        # save to file
+#        np.savetxt(results_path + 'data_'+ boundary_layers[index] + '_boundary.txt', bw_deviation, fmt='%f') 
+#        
+#        plt.figure()
+#        lineObj = plt.plot(times, bw_deviation)
+#        plt.legend(lineObj, ('x', 'y', 'z'))
+#        plt.title('Deviation from initial width of '+ boundary_layers[index]+' boundary layer')
+#        ax = plt.gca()
+#        ttl = ax.title
+#        ttl.set_position([.5, 1.03])
+#        plt.xlabel('Time in hours')
+#        plt.ylabel('Width in cell diameters')
+#        #plt.show()
+#        plt.savefig(results_path + boundary_layers[index] +'boundary.png')
+#        plt.savefig(results_path + boundary_layers[index] +'boundary.pdf')
+#        plt.close()
+#        
+#        bs = sm.calculate_boundary_quality(boundary_coordinates)
+#        np.savetxt(results_path + 'data_'+ boundary_layers[index] + '_boundary_std.txt', bs, fmt='%f')
+#        
+#        plt.figure()
+#        lineObj = plt.plot(times, bs)
+#        plt.title('Standard deviation of the z values of the '+ boundary_layers[index]+' boundary layer')
+#        ax = plt.gca()
+#        ttl = ax.title
+#        ttl.set_position([.5, 1.03])
+#        plt.xlabel('Time in hours')
+#        plt.ylabel('Width in cell diameters')
+#        #plt.show()
+#        plt.savefig(results_path + boundary_layers[index] +'boundary_std.png')
+#        plt.savefig(results_path + boundary_layers[index] +'boundary_std.pdf')
+#        plt.close()
+#    
+#    plt.close('all')
+#    
     ## Clonal Envelopes ########################################################
     clp = sm.get_clonal_patches(path)
     
