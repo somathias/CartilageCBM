@@ -1,9 +1,11 @@
 TestScaling3dNodeBasedCartilageSheets.hpp
 TestNodeBasedCartilageSheet.hpp
+TestNodeBasedMesenchymalCondensation.hpp
 simulation/TestOffLatticeSimulationDirectedDivision.hpp
 population/TestOrientationBasedDivisionRule.hpp
 cell/TestCellTissueTypes.hpp
 cell/TestCellTissueTypeBasedCellCycleModel.hpp
+cell/TestChondrocytesOnlyCellCycleModel.hpp
 cell/TestCellDivisionDirections.hpp
 population/TestCellTissueTypeBasedGeneralisedLinearSpringForce.hpp
 population/TestDirectionalAdhesionForce.hpp
