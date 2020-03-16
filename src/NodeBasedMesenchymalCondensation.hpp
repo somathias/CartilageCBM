@@ -46,6 +46,8 @@ private:
 
 	double mMaxCoordinatePerturbation;
 
+	double mDistanceBetweeenBoundaries;
+
 	unsigned mSeed;
 
 	bool mSynchronizeCellCycles;
@@ -82,11 +84,14 @@ public:
 
 	unsigned getNumberOfNodesPerXDimension() const;
 	unsigned getNumberOfNodesPerYDimension() const;
+	double getDistanceBetweeenBoundaries() const;
 
 	unsigned getSeed() const;
 
 	void setSynchronizeCellCycles(bool synchronizeCellCycles);
 	void setDivisionDirections(bool divisionDirections);
+
+	void setDistanceBetweeenBoundaries(double distance);
 };
 
 #endif /* NODEBASEDMESENCHYMALCONDENSATION_HPP_ */

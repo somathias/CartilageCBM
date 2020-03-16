@@ -213,6 +213,7 @@ void SetupAndRunMesenchymalCondensationSimulation(unsigned random_seed,
 	// set the sheet dimensions
 	p_condensation->SetMesenchymalCondensationDimensions(n_cells_wide, n_cells_deep);
 	p_condensation->setMaxCoordinatePerturbation(maximum_perturbation);
+	p_condensation->setDistanceBetweeenBoundaries(upper_boundary);
 
 	if (!random_birth_times) {
 		p_condensation->setSynchronizeCellCycles(true);
@@ -293,6 +294,8 @@ void SetupAndRunMesenchymalCondensationSimulation(unsigned random_seed,
 	sheet_params_file << "Activation percentage : " << activation_percentage
 			<< "\n";
 	sheet_params_file << "Maximum perturbation : " << maximum_perturbation
+			<< "\n";
+	sheet_params_file << "Distance between upper and lower boundary : " << upper_boundary
 			<< "\n";
 //	sheet_params_file << "Adhesion spring stiffness : " << spring_stiffness << "\n";
 //	sheet_params_file << "Attraction force decay : " << alpha << "\n";

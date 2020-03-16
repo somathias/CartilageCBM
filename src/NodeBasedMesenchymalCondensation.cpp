@@ -8,7 +8,7 @@
 #include "NodeBasedMesenchymalCondensation.hpp"
 
 NodeBasedMesenchymalCondensation::NodeBasedMesenchymalCondensation() : mNumberOfNodesPerXDimension(3), mNumberOfNodesPerYDimension(3),
-													 mMaxCoordinatePerturbation(0), 
+													 mMaxCoordinatePerturbation(0), mDistanceBetweeenBoundaries(7.0),
 													 mSeed(0), mSynchronizeCellCycles(false),
 													 mDivisionDirections(true),
 													 mNodesGenerated(false),
@@ -203,7 +203,7 @@ void NodeBasedMesenchymalCondensation::GenerateNodesOnCartesianGrid()
 
 				double noise = mMaxCoordinatePerturbation * RandomNumberGenerator::Instance()->ranf();
 
-                double z_offset = 7.0 *RandomNumberGenerator::Instance()->ranf();
+                double z_offset = mDistanceBetweeenBoundaries *RandomNumberGenerator::Instance()->ranf();
 
 				double random_azimuth_angle = 2 * M_PI * u;
 				double random_zenith_angle = std::acos(2 * v - 1);
@@ -252,7 +252,7 @@ void NodeBasedMesenchymalCondensation::GenerateNodesOnHCPGrid()
 
 				double noise = mMaxCoordinatePerturbation * RandomNumberGenerator::Instance()->ranf();
 
-				double z_offset = 7.0 *RandomNumberGenerator::Instance()->ranf();
+				double z_offset = mDistanceBetweeenBoundaries *RandomNumberGenerator::Instance()->ranf();
 
 				double random_azimuth_angle = 2 * M_PI * u;
 				double random_zenith_angle = std::acos(2 * v - 1);
@@ -279,6 +279,17 @@ void NodeBasedMesenchymalCondensation::setMaxCoordinatePerturbation(
 	double maxCoordinatePerturbation)
 {
 	mMaxCoordinatePerturbation = maxCoordinatePerturbation;
+}
+
+double NodeBasedMesenchymalCondensation::getDistanceBetweeenBoundaries() const
+{
+	return mDistanceBetweeenBoundaries;
+}
+
+void NodeBasedMesenchymalCondensation::setDistanceBetweeenBoundaries(
+	double distance)
+{
+	mDistanceBetweeenBoundaries = distance;
 }
 
 unsigned NodeBasedMesenchymalCondensation::getNumberOfNodesPerXDimension() const
