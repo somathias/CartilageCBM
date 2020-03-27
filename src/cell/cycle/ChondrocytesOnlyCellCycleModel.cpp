@@ -6,6 +6,7 @@
  */
 
 #include "ChondrocytesOnlyCellCycleModel.hpp"
+#include <iostream>
 
 
 ChondrocytesOnlyCellCycleModel::ChondrocytesOnlyCellCycleModel() {
@@ -69,6 +70,31 @@ void ChondrocytesOnlyCellCycleModel::SetG1Duration()
     {
         NEVER_REACHED;
     }
+}
+
+
+bool ChondrocytesOnlyCellCycleModel::ReadyToDivide()
+{
+    assert(mpCell != nullptr);
+
+    if (!mReadyToDivide)
+    {
+        UpdateCellCyclePhase();
+        if ((mCurrentCellCyclePhase != G_ZERO_PHASE) &&
+            (GetAge() >= GetMDuration() + GetG1Duration() + GetSDuration() + GetG2Duration()))
+        {
+            mReadyToDivide = true;
+        }
+    }
+	//check size of clonal patch before dividing - this fails if "patch size" has not been set - not sure why
+	try {
+		if (mpCell->GetCellData()->GetItem("patch size") >= 6){
+			mReadyToDivide = false;
+		}
+	} catch (const std::exception& e){
+		std::cout << "PatchSizeTrackingModifier has not been enabled." << std::endl;
+	}
+    return mReadyToDivide;
 }
 
 

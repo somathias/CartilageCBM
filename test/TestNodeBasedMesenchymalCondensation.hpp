@@ -11,6 +11,8 @@
 #include "UpwardsCellDivisionDirection.hpp"
 #include "DownwardsCellDivisionDirection.hpp"
 
+#include "PatchSizeTrackingModifier.hpp"
+
 #include "FakePetscSetup.hpp"
 
 class TestNodeBasedMesenchymalCondensation: public AbstractCellBasedTestSuite {
@@ -66,7 +68,19 @@ public:
 		p_force->SetMeinekeSpringStiffness(1.0);
 		simulator.AddForce(p_force);
 
+		std::cout <<"After adding force"<< std::endl;
+
+		// Add the PatchSizeTracker to ensure that patches have maximum 6 cells
+		MAKE_PTR(PatchSizeTrackingModifier<3>, p_modifier);
+    	simulator.AddSimulationModifier(p_modifier);
+
+		std::cout <<"After adding modifier"<< std::endl;
+
+
+
 		simulator.Solve();
+		std::cout <<"After solve"<< std::endl;
+
 	}
 
 	void TestRandomTransitCellConfiguration()  {
@@ -112,7 +126,63 @@ public:
 
 	}
 
+	void TestPatchSizeTrackingModifier(){
+		EXIT_IF_PARALLEL;
 
+		// Construct a new mesenchymal condensation
+		NodeBasedMesenchymalCondensation* p_condensation =
+				new NodeBasedMesenchymalCondensation();
+
+		// set the sheet dimensions
+		p_condensation->SetDimensions(5, 4);
+		p_condensation->setMaxCoordinatePerturbation(0.1);
+		p_condensation->UseRandomSeed();
+		unsigned seed = p_condensation->getSeed();
+		std::stringstream ss;
+		ss << "/" << seed;
+		std::string seed_string = ss.str();
+
+        std::cout <<"Before generating the nodes"<< std::endl;
+		// generate the nodes
+		p_condensation->GenerateNodesOnCartesianGrid();
+
+        std::cout <<"After generating the nodes"<< std::endl;
+
+
+		// setup the cell population
+		if (!p_condensation->isCellPopulationSetup()) {
+			p_condensation->Setup();
+		}
+
+        std::cout <<"After setting up the population"<< std::endl;
+
+
+		// setup the initial transit cell configuration
+		//p_condensation->InitialiseBulktransitCellConfiguration(2, 1);
+		p_condensation->InitialiseRandomConfiguration(5);
+
+		// get the cell population
+		boost::shared_ptr<NodeBasedCellPopulation<3> > cell_population =
+				p_condensation->GetCellPopulation();
+
+		//pass it to the simulator
+		OffLatticeSimulation<3> simulator(*cell_population);
+		simulator.SetOutputDirectory("NodeBasedMesenchymalCondensation" + seed_string);
+		simulator.SetSamplingTimestepMultiple(12);
+		simulator.SetEndTime(150.0);
+
+		MAKE_PTR(GeneralisedLinearSpringForce<3>, p_force);
+		p_force->SetCutOffLength(1.5);
+		p_force->SetMeinekeSpringStiffness(1.0);
+		simulator.AddForce(p_force);
+
+	
+		// Add the PatchSizeTracker to ensure that patches have maximum 6 cells
+		MAKE_PTR(PatchSizeTrackingModifier<3>, p_modifier);
+    	simulator.AddSimulationModifier(p_modifier);
+
+		simulator.Solve();
+	}
 
 	/**
 	 * Minimal testing for the generation of the node coordinates on a cartesian lattice

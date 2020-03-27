@@ -52,6 +52,7 @@ public:
 	 */
 	AbstractCellCycleModel* CreateCellCycleModel();
 
+	bool ReadyToDivide();
 
 	void SetG1Duration();
 
