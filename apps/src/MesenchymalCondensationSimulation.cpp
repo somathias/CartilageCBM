@@ -31,6 +31,7 @@
 #include "RepulsionCubicForce.hpp"
 #include "PWQGeneralisedLinearSpringForce.hpp"
 #include "RepulsionForce.hpp"
+#include "PatchSizeTrackingModifier.hpp"
 
 
 // Program option includes for handling command line arguments
