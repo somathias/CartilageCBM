@@ -56,6 +56,9 @@ void NodeBasedMesenchymalCondensation::Setup()
     {
 		ChondrocytesOnlyCellCycleModel* p_model = new ChondrocytesOnlyCellCycleModel();
 		p_model->SetTransitCellG1Duration(10.0);
+		p_model->SetSDuration(3.0);
+		p_model->SetMDuration(1e-12);
+		p_model->SetG2Duration(1e-12);
 		p_model->SetMaxTransitGenerations(2);
 		CellPtr p_cell(new Cell(p_state, p_model));
         p_cell->SetCellProliferativeType(p_diff_type);

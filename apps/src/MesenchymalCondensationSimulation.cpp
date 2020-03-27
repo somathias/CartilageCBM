@@ -31,6 +31,7 @@
 #include "RepulsionCubicForce.hpp"
 #include "PWQGeneralisedLinearSpringForce.hpp"
 #include "RepulsionForce.hpp"
+#include "PatchSizeTrackingModifier.hpp"
 
 
 // Program option includes for handling command line arguments
@@ -267,6 +268,10 @@ void SetupAndRunMesenchymalCondensationSimulation(unsigned random_seed,
     MAKE_PTR_ARGS(PlaneBoundaryCondition<3>, p_bc_up, (cell_population.get(), point_up, normal_up));
     //p_bc->SetUseJiggledNodesOnPlane(true);
     simulator.AddCellPopulationBoundaryCondition(p_bc_up);
+
+	// Add the PatchSizeTracker to ensure that patches have maximum 6 cells
+	MAKE_PTR(PatchSizeTrackingModifier<3>, p_modifier);
+    simulator.AddSimulationModifier(p_modifier);
    
 
 	CellBasedEventHandler::Reset();
