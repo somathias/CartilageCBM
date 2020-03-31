@@ -60,7 +60,7 @@ int main(int argc, char *argv[]) {
 			"This is a Chaste executable.\n");
 	general_options.add_options()("help", "Produce help message")("sbt",
 			"Synchronized birth times")("rdd",
-			"Random division directions")("c",
+			"Random division directions")("cg",
 			"Cartesian grid")("S",
 			boost::program_options::value<unsigned>()->default_value(0),
 			"The random seed")("sw",
@@ -119,7 +119,7 @@ int main(int argc, char *argv[]) {
 		random_division_directions = true;
 	}
 	bool cartesian_grid = false;
-	if (variables_map.count("c")) {
+	if (variables_map.count("cg")) {
 		cartesian_grid = true;
 	}
 
