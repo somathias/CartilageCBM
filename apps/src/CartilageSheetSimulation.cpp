@@ -45,7 +45,7 @@
  */
 void SetupSingletons(unsigned randomSeed);
 void DestroySingletons();
-void SetupAndRunCartilageSheetSimulation(unsigned randomSeed, bool, bool, unsigned,
+void SetupAndRunCartilageSheetSimulation(unsigned randomSeed, bool, bool, bool, unsigned,
 		unsigned, unsigned, unsigned, unsigned, unsigned, double, double, double, double, double, double, double, double,
 		std::string, std::string);
 void SetForceFunction(OffLatticeSimulation<3>&, std::string, double, double, double, double, double, double);
@@ -60,7 +60,8 @@ int main(int argc, char *argv[]) {
 			"This is a Chaste executable.\n");
 	general_options.add_options()("help", "Produce help message")("sbt",
 			"Synchronized birth times")("rdd",
-			"Random division directions")("S",
+			"Random division directions")("c",
+			"Cartesian grid")("S",
 			boost::program_options::value<unsigned>()->default_value(0),
 			"The random seed")("sw",
 			boost::program_options::value<unsigned>()->default_value(5),
@@ -117,6 +118,10 @@ int main(int argc, char *argv[]) {
 	if (variables_map.count("rdd")) {
 		random_division_directions = true;
 	}
+	bool cartesian_grid = false;
+	if (variables_map.count("c")) {
+		cartesian_grid = true;
+	}
 
 	// Get ID and name from command line
 	unsigned random_seed = variables_map["S"].as<unsigned>();
@@ -142,6 +147,7 @@ int main(int argc, char *argv[]) {
 
 	SetupSingletons(random_seed);
 	SetupAndRunCartilageSheetSimulation(random_seed, random_birth_times, random_division_directions,
+			cartesian_grid,
 			n_cells_wide, n_cells_deep, n_cells_high, n_peri_lower, n_peri_upper,
 			n_boundaries, upper_boundary, activation_percentage,
 			maximum_perturbation, spring_stiffness, spring_stiffness_repulsion,
@@ -217,6 +223,7 @@ void SetForceFunction(OffLatticeSimulation<3>& simulator, std::string forceFunct
 
 void SetupAndRunCartilageSheetSimulation(unsigned random_seed,
 		bool random_birth_times, bool random_division_directions, 
+		bool cartesian_grid,
 		unsigned n_cells_wide, unsigned n_cells_deep,
 		unsigned n_cells_high, unsigned n_peri_lower, unsigned n_peri_upper,
 		unsigned n_boundaries, double upper_boundary,
@@ -260,8 +267,15 @@ void SetupAndRunCartilageSheetSimulation(unsigned random_seed,
 	if (random_division_directions){
 		p_cartilage_sheet->setDivisionDirections(false);
 	}
-	// generate the nodes
-	p_cartilage_sheet->GenerateNodesOnHCPGrid();
+
+	if (cartesian_grid){
+		p_cartilage_sheet->GenerateNodesOnCartesianGrid();
+	}
+	else {
+		// generate the nodes
+		p_cartilage_sheet->GenerateNodesOnHCPGrid();
+	}
+	
 
 	// setup the cell population
 	if (!p_cartilage_sheet->isCellPopulationSetup()) {
