@@ -52,6 +52,8 @@ public:
 	 */
 	AbstractCellCycleModel* CreateCellCycleModel();
 
+	bool ReadyToDivide();
+
     /**
      * Set the new cell's tissue type once it has been created after division.
      */
