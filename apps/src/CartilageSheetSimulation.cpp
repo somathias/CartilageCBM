@@ -31,6 +31,7 @@
 #include "RepulsionCubicForce.hpp"
 #include "PWQGeneralisedLinearSpringForce.hpp"
 #include "RepulsionForce.hpp"
+#include "PatchSizeTrackingModifier.hpp"
 
 
 // Program option includes for handling command line arguments
@@ -45,7 +46,7 @@
 void SetupSingletons(unsigned randomSeed);
 void DestroySingletons();
 void SetupAndRunCartilageSheetSimulation(unsigned randomSeed, bool, bool, unsigned,
-		unsigned, unsigned, double, double, double, double, double, double, double,
+		unsigned, unsigned, unsigned, unsigned, unsigned, double, double, double, double, double, double, double, double,
 		std::string, std::string);
 void SetForceFunction(OffLatticeSimulation<3>&, std::string, double, double, double, double, double, double);
 
@@ -67,7 +68,15 @@ int main(int argc, char *argv[]) {
 			boost::program_options::value<unsigned>()->default_value(5),
 			"The number of cells in y direction")("sh",
 			boost::program_options::value<unsigned>()->default_value(2),
-			"The number of cells in z direction")("mu",
+			"The number of cells in z direction")("pl",
+			boost::program_options::value<unsigned>()->default_value(1),
+			"The number of lower perichondrial layers")("pu",
+			boost::program_options::value<unsigned>()->default_value(0),
+			"The number of upper perichondrial layers")("nb",
+			boost::program_options::value<unsigned>()->default_value(0),
+			"The number of rigid boundaries (0,1 or 2)")("u",
+			boost::program_options::value<double>()->default_value(7.0),
+			"The distance of the upper boundary to the lower one")("mu",
 			boost::program_options::value<double>()->default_value(15.0),
 			"The adhesion spring stiffness")("mu_R",
 			boost::program_options::value<double>()->default_value(1.4),
@@ -114,6 +123,10 @@ int main(int argc, char *argv[]) {
 	unsigned n_cells_wide = variables_map["sw"].as<unsigned>();
 	unsigned n_cells_deep = variables_map["sd"].as<unsigned>();
 	unsigned n_cells_high = variables_map["sh"].as<unsigned>();
+	unsigned n_peri_lower = variables_map["pl"].as<unsigned>();
+	unsigned n_peri_upper = variables_map["pu"].as<unsigned>();
+	unsigned n_boundaries = variables_map["nb"].as<unsigned>();
+	double upper_boundary = variables_map["u"].as<double>();
 	double activation_percentage = variables_map["A"].as<double>();
 	double maximum_perturbation = variables_map["p"].as<double>();
 	double spring_stiffness = variables_map["mu"].as<double>();
@@ -129,7 +142,8 @@ int main(int argc, char *argv[]) {
 
 	SetupSingletons(random_seed);
 	SetupAndRunCartilageSheetSimulation(random_seed, random_birth_times, random_division_directions,
-			n_cells_wide, n_cells_deep, n_cells_high, activation_percentage,
+			n_cells_wide, n_cells_deep, n_cells_high, n_peri_lower, n_peri_upper,
+			n_boundaries, upper_boundary, activation_percentage,
 			maximum_perturbation, spring_stiffness, spring_stiffness_repulsion,
 			homotypic_chondro_multiplier, baseline_adhesion_multiplier,
 			simulation_end_time, force_function, output_directory);	
@@ -204,7 +218,9 @@ void SetForceFunction(OffLatticeSimulation<3>& simulator, std::string forceFunct
 void SetupAndRunCartilageSheetSimulation(unsigned random_seed,
 		bool random_birth_times, bool random_division_directions, 
 		unsigned n_cells_wide, unsigned n_cells_deep,
-		unsigned n_cells_high, double activation_percentage,
+		unsigned n_cells_high, unsigned n_peri_lower, unsigned n_peri_upper,
+		unsigned n_boundaries, double upper_boundary,
+		double activation_percentage,
 		double maximum_perturbation, double spring_stiffness,
 		double spring_stiffness_repulsion,
 		double homotypic_chondro_multiplier,
@@ -251,6 +267,10 @@ void SetupAndRunCartilageSheetSimulation(unsigned random_seed,
 	if (!p_cartilage_sheet->isCellPopulationSetup()) {
 		p_cartilage_sheet->Setup();
 	}
+
+	p_cartilage_sheet->setNumberOfPerichondrialLayersBelow(n_peri_lower);
+	p_cartilage_sheet->setNumberOfPerichondrialLayersAbove(n_peri_upper);
+
 	// setup the cell tissue types and cell division directions
 	p_cartilage_sheet->InitialiseTissueLayersAndCellDivisionDirections();
 	// setup the initial stem cell configuration
@@ -275,17 +295,33 @@ void SetupAndRunCartilageSheetSimulation(unsigned random_seed,
 						alpha, homotypic_peri_multiplier, 
 						homotypic_chondro_multiplier, heterotypic_multiplier);
 
-	//bottom plane
-    c_vector<double,3> point = zero_vector<double>(3);
-    c_vector<double,3> normal = zero_vector<double>(3);
-    normal(2) = -1.0;
-	NodeBasedCellPopulation<3> nCellPop = *cell_population;
-	//PlaneBoundaryCondition<3>* mypc = new PlaneBoundaryCondition<3>(&nCellPop, point, normal);
-    MAKE_PTR_ARGS(PlaneBoundaryCondition<3>, p_bc, (cell_population.get(), point, normal));
-    //p_bc->SetUseJiggledNodesOnPlane(true);
-    simulator.AddCellPopulationBoundaryCondition(p_bc);
+	if (n_boundaries > 0){
+		//bottom plane
+    	c_vector<double,3> point = zero_vector<double>(3);
+    	c_vector<double,3> normal = zero_vector<double>(3);
+    	normal(2) = -1.0;
+		NodeBasedCellPopulation<3> nCellPop = *cell_population;
+		//PlaneBoundaryCondition<3>* mypc = new PlaneBoundaryCondition<3>(&nCellPop, point, normal);
+   		MAKE_PTR_ARGS(PlaneBoundaryCondition<3>, p_bc, (cell_population.get(), point, normal));
+    	//p_bc->SetUseJiggledNodesOnPlane(true);
+    	simulator.AddCellPopulationBoundaryCondition(p_bc);
 
-    
+		if (n_boundaries == 2) {
+			//upper plane
+    		c_vector<double,3> point_up = zero_vector<double>(3);
+    		point_up(2) = upper_boundary;
+    		c_vector<double,3> normal_up = zero_vector<double>(3);
+    		normal_up(2) = 1.0;
+    		MAKE_PTR_ARGS(PlaneBoundaryCondition<3>, p_bc_up, (cell_population.get(), point_up, normal_up));
+    		//p_bc->SetUseJiggledNodesOnPlane(true);
+    		simulator.AddCellPopulationBoundaryCondition(p_bc_up);
+		}
+	}
+
+	// Add the PatchSizeTracker to ensure that patches have maximum 6 cells
+	MAKE_PTR(PatchSizeTrackingModifier<3>, p_modifier);
+    simulator.AddSimulationModifier(p_modifier);
+       
 
 	CellBasedEventHandler::Reset();
 	simulator.Solve();

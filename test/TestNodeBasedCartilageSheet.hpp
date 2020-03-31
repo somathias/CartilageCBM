@@ -10,12 +10,13 @@
 
 #include "UpwardsCellDivisionDirection.hpp"
 #include "DownwardsCellDivisionDirection.hpp"
+#include "PatchSizeTrackingModifier.hpp"
 
 #include "FakePetscSetup.hpp"
 
 class TestNodeBasedCartilageSheet: public AbstractCellBasedTestSuite {
 public:
-	void xTestSheet()  {
+	void TestSheet()  {
 
 		// Construct a new cartilage sheet
 		NodeBasedCartilageSheet* p_cartilage_sheet =
@@ -57,6 +58,10 @@ public:
 		p_force->SetCutOffLength(1.5);
 		p_force->SetMeinekeSpringStiffness(1.0);
 		simulator.AddForce(p_force);
+
+		// Add the PatchSizeTracker to ensure that patches have maximum 6 cells
+		MAKE_PTR(PatchSizeTrackingModifier<3>, p_modifier);
+    	simulator.AddSimulationModifier(p_modifier);
 
 		simulator.Solve();
 	}
@@ -221,7 +226,7 @@ public:
 	/**
 	 * Minimal testing for the generation of the node coordinates on a cartesian lattice
 	 */
-	void TestCartesianNodeGeneration()  {
+	void xTestCartesianNodeGeneration()  {
 		unsigned n_nodes_width = 3;
 		unsigned n_nodes_depth = 2;
 		unsigned n_nodes_height = 1;
@@ -242,8 +247,7 @@ public:
 				n_nodes_width * n_nodes_depth * n_nodes_height);
 
 		for (unsigned i = 0; i < p_cartilage_sheet->mNodes.size(); i++) {
-			c_vector<double, 3> coordinates =
-			p_cartilage_sheet->mNodes[i]->rGetLocation();
+			c_vector<double, 3> coordinates = p_cartilage_sheet->mNodes[i]->rGetLocation();
 
 			TS_ASSERT_LESS_THAN_EQUALS(coordinates[0], 2.0);
 			TS_ASSERT_LESS_THAN_EQUALS(coordinates[1], 1.0);
@@ -255,8 +259,7 @@ public:
 		p_cartilage_sheet->GenerateNodesOnCartesianGrid();
 
 		for (unsigned i = 0; i < p_cartilage_sheet->mNodes.size(); i++) {
-			c_vector<double, 3> coordinates =
-			p_cartilage_sheet->mNodes[i]->rGetLocation();
+			c_vector<double, 3> coordinates = p_cartilage_sheet->mNodes[i]->rGetLocation();
 
 			TS_ASSERT_LESS_THAN_EQUALS(coordinates[0], 2.5);
 			TS_ASSERT_LESS_THAN_EQUALS(coordinates[1], 1.5);
