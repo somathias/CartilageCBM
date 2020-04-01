@@ -86,7 +86,8 @@ bool CellTissueTypeBasedCellCycleModel::ReadyToDivide()
     }
 	//check size of clonal patch before dividing as a transit cell - this fails if "patch size" has not been set - not sure why
 	try {
-		if (mpCell->GetCellProliferativeType()->IsType<TransitCellProliferativeType>() && mpCell->GetCellData()->GetItem("patch size") >= 6){
+		//if (mpCell->GetCellProliferativeType()->IsType<TransitCellProliferativeType>() && mpCell->GetCellData()->GetItem("patch size") >= 6){
+		if (mpCell->GetCellData()->GetItem("patch size") >= 6){
 			mReadyToDivide = false;
 		}
 	} catch (const std::exception& e){
