@@ -61,8 +61,21 @@ public:
 
 	}
 
+	void TestPatchSizeLimit(){
+		MAKE_PTR(WildTypeCellMutationState, p_state);
 
-	void TestArchiveChondrocytesOnlyCellCycleModel()  {
+		ChondrocytesOnlyCellCycleModel* p_cell_cycle_model = new ChondrocytesOnlyCellCycleModel;
+
+		TS_ASSERT_EQUALS(p_cell_cycle_model->GetPatchSizeLimit(), 6);
+
+		p_cell_cycle_model->SetPatchSizeLimit(4);
+
+		TS_ASSERT_EQUALS(p_cell_cycle_model->GetPatchSizeLimit(), 4);
+
+	}
+
+
+	void xTestArchiveChondrocytesOnlyCellCycleModel()  {
 
 		MAKE_PTR(WildTypeCellMutationState, p_state);
 		MAKE_PTR(StemCellProliferativeType, p_stem_type);

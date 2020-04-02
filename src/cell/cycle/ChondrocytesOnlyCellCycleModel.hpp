@@ -37,7 +37,18 @@ private:
 		RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
         archive & *p_gen;
         archive & p_gen;
+		archive & mPatchSizeLimit;
+
 	}
+
+protected:
+	/**
+	 * Patch size limit. Cells will seize to divide once limit is reached
+	 *
+	 * Defaults to 6 in the constructor
+	 */
+	unsigned mPatchSizeLimit;
+
 public:
 	/**
 	 * Constructor
@@ -55,6 +66,10 @@ public:
 	bool ReadyToDivide();
 
 	void SetG1Duration();
+
+	void SetPatchSizeLimit(unsigned);
+
+	unsigned GetPatchSizeLimit();
 
 	/**
 	 * Outputs cell cycle model parameters to file.

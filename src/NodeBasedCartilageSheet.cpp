@@ -55,8 +55,8 @@ void NodeBasedCartilageSheet::Setup()
     {
 		CellTissueTypeBasedCellCycleModel* p_model = new CellTissueTypeBasedCellCycleModel();
 		p_model->SetStemCellG1Duration(60.0);
-		p_model->SetTransitCellG1Duration(12.0);
-		p_model->SetSDuration(1e-12);
+		p_model->SetTransitCellG1Duration(10.0);
+		p_model->SetSDuration(3.0);
 		p_model->SetMDuration(1e-12);
 		p_model->SetG2Duration(1e-12);
 		CellPtr p_cell(new Cell(p_state, p_model));
