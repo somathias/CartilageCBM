@@ -46,7 +46,7 @@
 void SetupSingletons(unsigned randomSeed);
 void DestroySingletons();
 void SetupAndRunMesenchymalCondensationSimulation(unsigned randomSeed, bool, bool, unsigned,
-		unsigned, double, double, double, double, double, double, std::string, std::string);
+		unsigned, double, double, unsigned, double, double, double, double, std::string, std::string);
 void SetForceFunction(OffLatticeSimulation<3>&, std::string, double, double, double, double, double, double);
 
 int main(int argc, char *argv[]) {
@@ -114,6 +114,7 @@ int main(int argc, char *argv[]) {
 	double upper_boundary = variables_map["u"].as<double>();
 	double activation_percentage = variables_map["A"].as<double>();
 	double maximum_perturbation = variables_map["p"].as<double>();
+	unsigned patch_size_limit = variables_map["psl"].as<unsigned>();
 	double spring_stiffness = variables_map["mu"].as<double>();
 	double spring_stiffness_repulsion = variables_map["mu_R"].as<double>();
 	double simulation_end_time = variables_map["T"].as<double>();
@@ -125,7 +126,7 @@ int main(int argc, char *argv[]) {
 
 	SetupSingletons(random_seed);
 	SetupAndRunMesenchymalCondensationSimulation(random_seed, random_birth_times, random_division_directions,
-			n_cells_wide, n_cells_deep, upper_boundary, activation_percentage,
+			n_cells_wide, n_cells_deep, upper_boundary, activation_percentage, patch_size_limit,
 			maximum_perturbation, spring_stiffness, spring_stiffness_repulsion,
 			simulation_end_time, force_function, output_directory);	
 
@@ -191,7 +192,7 @@ void SetForceFunction(OffLatticeSimulation<3>& simulator, std::string forceFunct
 void SetupAndRunMesenchymalCondensationSimulation(unsigned random_seed,
 		bool random_birth_times, bool random_division_directions, 
 		unsigned n_cells_wide, unsigned n_cells_deep, double upper_boundary, 
-		double activation_percentage,
+		double activation_percentage, unsigned patch_size_limit,
 		double maximum_perturbation, double spring_stiffness,
 		double spring_stiffness_repulsion,
 		double simulation_endtime,
@@ -217,6 +218,7 @@ void SetupAndRunMesenchymalCondensationSimulation(unsigned random_seed,
 	p_condensation->SetDimensions(n_cells_wide, n_cells_deep);
 	p_condensation->setMaxCoordinatePerturbation(maximum_perturbation);
 	p_condensation->setDistanceBetweeenBoundaries(upper_boundary);
+	p_condensation->SetPatchSizeLimit(patch_size_limit);
 
 	if (!random_birth_times) {
 		p_condensation->setSynchronizeCellCycles(true);
