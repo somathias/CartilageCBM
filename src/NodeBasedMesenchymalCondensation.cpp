@@ -9,7 +9,8 @@
 
 NodeBasedMesenchymalCondensation::NodeBasedMesenchymalCondensation() : mNumberOfNodesPerXDimension(3), mNumberOfNodesPerYDimension(3),
 													 mMaxCoordinatePerturbation(0), mDistanceBetweeenBoundaries(7.0),
-													 mSeed(0), mSynchronizeCellCycles(false),
+													 mSeed(0), mPatchSizeLimit(6),
+													 mSynchronizeCellCycles(false),
 													 mDivisionDirections(true),
 													 mNodesGenerated(false),
 													 mCellPopulationSetup(false)
@@ -60,6 +61,8 @@ void NodeBasedMesenchymalCondensation::Setup()
 		p_model->SetMDuration(1e-12);
 		p_model->SetG2Duration(1e-12);
 		p_model->SetMaxTransitGenerations(2);
+		p_model->SetPatchSizeLimit(mPatchSizeLimit);
+		
 		CellPtr p_cell(new Cell(p_state, p_model));
         p_cell->SetCellProliferativeType(p_diff_type);
 
@@ -174,6 +177,11 @@ void NodeBasedMesenchymalCondensation::SetDimensions(
 {
 	mNumberOfNodesPerXDimension = numberOfCellsWide;
 	mNumberOfNodesPerYDimension = numberOfCellsDeep;
+}
+
+void NodeBasedMesenchymalCondensation::SetPatchSizeLimit(unsigned patchSizeLimit){
+	assert(patchSizeLimit >= 1);
+	mPatchSizeLimit = patchSizeLimit;
 }
 
 /**

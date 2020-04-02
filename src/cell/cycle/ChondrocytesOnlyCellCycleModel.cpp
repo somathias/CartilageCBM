@@ -9,7 +9,8 @@
 #include <iostream>
 
 
-ChondrocytesOnlyCellCycleModel::ChondrocytesOnlyCellCycleModel() {
+ChondrocytesOnlyCellCycleModel::ChondrocytesOnlyCellCycleModel() 
+	: AbstractSimpleGenerationalCellCycleModel(), mPatchSizeLimit(6) {
 
 }
 
@@ -88,7 +89,7 @@ bool ChondrocytesOnlyCellCycleModel::ReadyToDivide()
     }
 	//check size of clonal patch before dividing - this fails if "patch size" has not been set - not sure why
 	try {
-		if (mpCell->GetCellData()->GetItem("patch size") >= 6){
+		if (mpCell->GetCellData()->GetItem("patch size") >= mPatchSizeLimit){
 			mReadyToDivide = false;
 		}
 	} catch (const std::exception& e){
@@ -97,11 +98,21 @@ bool ChondrocytesOnlyCellCycleModel::ReadyToDivide()
     return mReadyToDivide;
 }
 
+void ChondrocytesOnlyCellCycleModel::SetPatchSizeLimit(unsigned patchSizeLimit){
+	assert(patchSizeLimit >= 1);
+
+	mPatchSizeLimit = patchSizeLimit;
+}
+
+unsigned ChondrocytesOnlyCellCycleModel::GetPatchSizeLimit(){
+	return mPatchSizeLimit;
+}
+
 
 void ChondrocytesOnlyCellCycleModel::OutputCellCycleModelParameters(
 		out_stream& rParamsFile) {
-	// No new parameters to output
-
+	*rParamsFile << "\t\t\t<PatchSizeLimit>"
+			<< mPatchSizeLimit << "</PatchSizeLimit>\n";
 	// Call method on direct parent class
 	AbstractSimpleGenerationalCellCycleModel::OutputCellCycleModelParameters(
 			rParamsFile);
