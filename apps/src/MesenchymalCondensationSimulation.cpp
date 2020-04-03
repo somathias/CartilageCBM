@@ -115,6 +115,9 @@ int main(int argc, char *argv[]) {
 	double activation_percentage = variables_map["A"].as<double>();
 	double maximum_perturbation = variables_map["p"].as<double>();
 	unsigned patch_size_limit = variables_map["psl"].as<unsigned>();
+
+	//std::cout <<"Patch size limit: " << patch_size_limit << std::endl;
+
 	double spring_stiffness = variables_map["mu"].as<double>();
 	double spring_stiffness_repulsion = variables_map["mu_R"].as<double>();
 	double simulation_end_time = variables_map["T"].as<double>();
@@ -305,6 +308,7 @@ void SetupAndRunMesenchymalCondensationSimulation(unsigned random_seed,
 			<< "\n";
 	sheet_params_file << "Distance between upper and lower boundary : " << upper_boundary
 			<< "\n";
+	sheet_params_file << "Patch Size Limit : " << patch_size_limit  << "\n";
 //	sheet_params_file << "Adhesion spring stiffness : " << spring_stiffness << "\n";
 //	sheet_params_file << "Attraction force decay : " << alpha << "\n";
 	sheet_params_file << "Simulation end time : " << simulation_endtime << "\n";
