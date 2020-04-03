@@ -184,6 +184,32 @@ public:
 		simulator.Solve();
 	}
 
+	void TestPatchSizeLimit(){
+		EXIT_IF_PARALLEL;
+
+		// Construct a new mesenchymal condensation
+		NodeBasedMesenchymalCondensation* p_condensation =
+				new NodeBasedMesenchymalCondensation();
+
+		// set the sheet dimensions
+		p_condensation->SetDimensions(3, 4);
+		
+		// set a patch size limit
+		p_condensation->SetPatchSizeLimit(4);
+
+		// setup the cell population
+		if (!p_condensation->isCellPopulationSetup()) {
+			p_condensation->Setup();
+		}
+
+		// get the cell population
+		boost::shared_ptr<NodeBasedCellPopulation<3> > cell_population =
+			p_condensation->GetCellPopulation();
+
+		CellPtr p_cell = cell_population->rGetCells().front();
+		TS_ASSERT_EQUALS(static_cast<ChondrocytesOnlyCellCycleModel*>(p_cell->GetCellCycleModel())->GetPatchSizeLimit(), 4);
+	}
+
 	/**
 	 * Minimal testing for the generation of the node coordinates on a cartesian lattice
 	 */

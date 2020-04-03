@@ -72,6 +72,10 @@ public:
 
 		TS_ASSERT_EQUALS(p_cell_cycle_model->GetPatchSizeLimit(), 4);
 
+		CellPtr p_cell(new Cell(p_state, p_cell_cycle_model));
+
+		TS_ASSERT_EQUALS(static_cast<ChondrocytesOnlyCellCycleModel*>(p_cell->GetCellCycleModel())->GetPatchSizeLimit(), 4);
+
 	}
 
 

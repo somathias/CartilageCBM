@@ -46,6 +46,8 @@ AbstractCellCycleModel* ChondrocytesOnlyCellCycleModel::CreateCellCycleModel() {
 	p_model->SetGeneration(mGeneration);
 	p_model->SetMaxTransitGenerations(mMaxTransitGenerations);
 
+	p_model->SetPatchSizeLimit(mPatchSizeLimit);
+
 	return p_model;
 }
 
