@@ -8,7 +8,8 @@
 #include "CellTissueTypeBasedCellCycleModel.hpp"
 
 
-CellTissueTypeBasedCellCycleModel::CellTissueTypeBasedCellCycleModel() {
+CellTissueTypeBasedCellCycleModel::CellTissueTypeBasedCellCycleModel()
+	: AbstractSimpleGenerationalCellCycleModel(), mPatchSizeLimit(6)  {
 
 }
 
@@ -43,6 +44,9 @@ AbstractCellCycleModel* CellTissueTypeBasedCellCycleModel::CreateCellCycleModel(
 	p_model->SetMDuration(mMDuration);
 	p_model->SetGeneration(mGeneration);
 	p_model->SetMaxTransitGenerations(mMaxTransitGenerations);
+
+	p_model->SetPatchSizeLimit(mPatchSizeLimit);
+
 
 	return p_model;
 }
@@ -87,14 +91,27 @@ bool CellTissueTypeBasedCellCycleModel::ReadyToDivide()
 	//check size of clonal patch before dividing as a transit cell - this fails if "patch size" has not been set - not sure why
 	try {
 		//if (mpCell->GetCellProliferativeType()->IsType<TransitCellProliferativeType>() && mpCell->GetCellData()->GetItem("patch size") >= 6){
-		if (mpCell->GetCellData()->GetItem("patch size") >= 6){
+		if (mpCell->GetCellData()->GetItem("patch size") >= mPatchSizeLimit){
 			mReadyToDivide = false;
 		}
 	} catch (const std::exception& e){
 		std::cout << "PatchSizeTrackingModifier has not been enabled." << std::endl;
 	}
     return mReadyToDivide;
+
 }
+
+
+void CellTissueTypeBasedCellCycleModel::SetPatchSizeLimit(unsigned patchSizeLimit){
+	assert(patchSizeLimit >= 1);
+
+	mPatchSizeLimit = patchSizeLimit;
+}
+
+unsigned CellTissueTypeBasedCellCycleModel::GetPatchSizeLimit(){
+	return mPatchSizeLimit;
+}
+
 
 void CellTissueTypeBasedCellCycleModel::InitialiseDaughterCell() {
 
@@ -132,7 +149,8 @@ void CellTissueTypeBasedCellCycleModel::InitialiseDaughterCell() {
 
 void CellTissueTypeBasedCellCycleModel::OutputCellCycleModelParameters(
 		out_stream& rParamsFile) {
-	// No new parameters to output
+	*rParamsFile << "\t\t\t<PatchSizeLimit>"
+			<< mPatchSizeLimit << "</PatchSizeLimit>\n";
 
 	// Call method on direct parent class
 	AbstractSimpleGenerationalCellCycleModel::OutputCellCycleModelParameters(

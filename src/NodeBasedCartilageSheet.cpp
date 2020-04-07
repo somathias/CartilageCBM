@@ -12,7 +12,8 @@ NodeBasedCartilageSheet::NodeBasedCartilageSheet() : mNumberOfNodesPerXDimension
 													 mNumberOfPerichondrialLayersAbove(0),
 													 mNumberOfPerichondrialLayersBelow(1),
 													 mMaxCoordinatePerturbation(0), 
-													 mSeed(0), mSynchronizeCellCycles(false),
+													 mSeed(0), mPatchSizeLimit(6), 
+													 mSynchronizeCellCycles(false),
 													 mDivisionDirections(true),
 													 mNodesGenerated(false),
 													 mCellPopulationSetup(false)
@@ -59,6 +60,9 @@ void NodeBasedCartilageSheet::Setup()
 		p_model->SetSDuration(3.0);
 		p_model->SetMDuration(1e-12);
 		p_model->SetG2Duration(1e-12);
+		p_model->SetMaxTransitGenerations(2);
+		p_model->SetPatchSizeLimit(mPatchSizeLimit);
+
 		CellPtr p_cell(new Cell(p_state, p_model));
         p_cell->SetCellProliferativeType(p_diff_type);
 		// setting of the birth time will be done later when initialising the random stem cell configuration
@@ -307,6 +311,11 @@ void NodeBasedCartilageSheet::SetCartilageSheetDimensions(
 	mNumberOfNodesPerXDimension = numberOfCellsWide;
 	mNumberOfNodesPerYDimension = numberOfCellsDeep;
 	mNumberOfNodesPerZDimension = numberOfCellsHigh;
+}
+
+void NodeBasedCartilageSheet::SetPatchSizeLimit(unsigned patchSizeLimit){
+	assert(patchSizeLimit >= 1);
+	mPatchSizeLimit = patchSizeLimit;
 }
 
 /**

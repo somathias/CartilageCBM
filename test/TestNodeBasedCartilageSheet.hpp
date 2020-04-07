@@ -223,6 +223,32 @@ public:
 
 	}
 
+	void TestPatchSizeLimit(){
+		EXIT_IF_PARALLEL;
+
+		// Construct a new mesenchymal condensation
+		NodeBasedCartilageSheet* p_sheet =
+				new NodeBasedCartilageSheet();
+
+		// set the sheet dimensions
+		p_sheet->SetCartilageSheetDimensions(3,4,1);
+		
+		// set a patch size limit
+		p_sheet->SetPatchSizeLimit(4);
+
+		// setup the cell population
+		if (!p_sheet->isCellPopulationSetup()) {
+			p_sheet->Setup();
+		}
+
+		// get the cell population
+		boost::shared_ptr<NodeBasedCellPopulation<3> > cell_population =
+			p_sheet->GetCellPopulation();
+
+		CellPtr p_cell = cell_population->rGetCells().front();
+		TS_ASSERT_EQUALS(static_cast<CellTissueTypeBasedCellCycleModel*>(p_cell->GetCellCycleModel())->GetPatchSizeLimit(), 4);
+	}
+
 	/**
 	 * Minimal testing for the generation of the node coordinates on a cartesian lattice
 	 */

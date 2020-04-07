@@ -46,7 +46,8 @@
 void SetupSingletons(unsigned randomSeed);
 void DestroySingletons();
 void SetupAndRunCartilageSheetSimulation(unsigned randomSeed, bool, bool, bool, unsigned,
-		unsigned, unsigned, unsigned, unsigned, unsigned, double, double, double, double, double, double, double, double,
+		unsigned, unsigned, unsigned, unsigned, unsigned, 
+		double, double, unsigned, double, double, double, double, double, double,
 		std::string, std::string);
 void SetForceFunction(OffLatticeSimulation<3>&, std::string, double, double, double, double, double, double);
 
@@ -87,7 +88,9 @@ int main(int argc, char *argv[]) {
 			boost::program_options::value<double>()->default_value(0.1),
 			"The baseline directional adhesion multiplier")("A",
 			boost::program_options::value<double>()->default_value(0.5),
-			"The percentage of activated stem cells")("p",
+			"The percentage of activated stem cells")("psl",
+			boost::program_options::value<unsigned>()->default_value(6),
+			"The size limit for clonal patches")("p",
 			boost::program_options::value<double>()->default_value(0.0),
 			"The maximum perturbation of the initial coordinates.")("T",
 			boost::program_options::value<double>()->default_value(10.0),
@@ -134,6 +137,8 @@ int main(int argc, char *argv[]) {
 	double upper_boundary = variables_map["u"].as<double>();
 	double activation_percentage = variables_map["A"].as<double>();
 	double maximum_perturbation = variables_map["p"].as<double>();
+	unsigned patch_size_limit = variables_map["psl"].as<unsigned>();
+
 	double spring_stiffness = variables_map["mu"].as<double>();
 	double spring_stiffness_repulsion = variables_map["mu_R"].as<double>();
 	double homotypic_chondro_multiplier = variables_map["c"].as<double>();
@@ -149,7 +154,7 @@ int main(int argc, char *argv[]) {
 	SetupAndRunCartilageSheetSimulation(random_seed, random_birth_times, random_division_directions,
 			cartesian_grid,
 			n_cells_wide, n_cells_deep, n_cells_high, n_peri_lower, n_peri_upper,
-			n_boundaries, upper_boundary, activation_percentage,
+			n_boundaries, upper_boundary, activation_percentage, patch_size_limit,
 			maximum_perturbation, spring_stiffness, spring_stiffness_repulsion,
 			homotypic_chondro_multiplier, baseline_adhesion_multiplier,
 			simulation_end_time, force_function, output_directory);	
@@ -227,7 +232,7 @@ void SetupAndRunCartilageSheetSimulation(unsigned random_seed,
 		unsigned n_cells_wide, unsigned n_cells_deep,
 		unsigned n_cells_high, unsigned n_peri_lower, unsigned n_peri_upper,
 		unsigned n_boundaries, double upper_boundary,
-		double activation_percentage,
+		double activation_percentage, unsigned patch_size_limit,
 		double maximum_perturbation, double spring_stiffness,
 		double spring_stiffness_repulsion,
 		double homotypic_chondro_multiplier,
@@ -260,6 +265,7 @@ void SetupAndRunCartilageSheetSimulation(unsigned random_seed,
 	p_cartilage_sheet->SetCartilageSheetDimensions(n_cells_wide, n_cells_deep,
 			n_cells_high);
 	p_cartilage_sheet->setMaxCoordinatePerturbation(maximum_perturbation);
+	p_cartilage_sheet->SetPatchSizeLimit(patch_size_limit);
 
 	if (!random_birth_times) {
 		p_cartilage_sheet->setSynchronizeCellCycles(true);
@@ -362,6 +368,8 @@ void SetupAndRunCartilageSheetSimulation(unsigned random_seed,
 			<< "\n";
 	sheet_params_file << "Maximum perturbation : " << maximum_perturbation
 			<< "\n";
+	sheet_params_file << "Patch Size Limit : " << patch_size_limit  << "\n";
+
 //	sheet_params_file << "Adhesion spring stiffness : " << spring_stiffness << "\n";
 //	sheet_params_file << "Attraction force decay : " << alpha << "\n";
 	sheet_params_file << "Simulation end time : " << simulation_endtime << "\n";

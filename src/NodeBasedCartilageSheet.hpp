@@ -55,6 +55,9 @@ private:
 
 	unsigned mSeed;
 
+	unsigned mPatchSizeLimit;
+
+
 	bool mSynchronizeCellCycles;
 	bool mDivisionDirections;
 
@@ -80,6 +83,8 @@ public:
 	void InitialiseRandomStemCellConfiguration(unsigned);
 
 	void SetCartilageSheetDimensions(unsigned, unsigned, unsigned);
+
+	void SetPatchSizeLimit(unsigned);
 
 	void GenerateNodesOnCartesianGrid();
 	void GenerateNodesOnHCPGrid();
