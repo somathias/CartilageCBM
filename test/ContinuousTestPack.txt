@@ -7,6 +7,7 @@ cell/TestCellTissueTypes.hpp
 cell/TestCellTissueTypeBasedCellCycleModel.hpp
 cell/TestChondrocytesOnlyCellCycleModel.hpp
 cell/TestCellDivisionDirections.hpp
+cell/TestPerichondrialLayers.hpp
 population/TestCellTissueTypeBasedGeneralisedLinearSpringForce.hpp
 population/TestDirectionalAdhesionForce.hpp
 population/TestIndividualSpringStiffnessGeneralisedLinearSpringForce.hpp

@@ -142,6 +142,35 @@ void CellTissueTypeBasedCellCycleModel::InitialiseDaughterCell() {
 						ChondrocyteCellTissueType>();
 
 		mpCell->AddCellProperty(p_chondrocyte_type);
+
+		//Get old cell division direction and delete it
+		CellPropertyCollection division_direction_collection =
+				mpCell->rGetCellPropertyCollection().GetProperties<
+				HorizontalCellDivisionDirection<3>>();
+
+		assert(division_direction_collection.GetSize() == 1);
+
+		boost::shared_ptr<AbstractCellProperty> p_old_direction = division_direction_collection.GetProperty();
+//		boost::shared_ptr<PerichondrialCellTissueType> p_old_tissue_type =
+//				boost::static_pointer_cast<PerichondrialCellTissueType>(p_old_type);
+
+		p_old_direction->DecrementCellCount();
+		mpCell->rGetCellPropertyCollection().RemoveProperty(p_old_direction);
+
+		//Add new division direction
+		if (mpCell->HasCellProperty<LowerPerichondrialLayer>()) {
+			boost::shared_ptr<AbstractCellProperty> p_upwards(
+				mpCell->rGetCellPropertyCollection().GetCellPropertyRegistry()->Get<UpwardsCellDivisionDirection<3>>());
+
+				mpCell->AddCellProperty(p_upwards);
+		}
+		else if (mpCell->HasCellProperty<UpperPerichondrialLayer>())
+		{
+			boost::shared_ptr<AbstractCellProperty> p_downwards(
+				mpCell->rGetCellPropertyCollection().GetCellPropertyRegistry()->Get<DownwardsCellDivisionDirection<3>>());
+
+				mpCell->AddCellProperty(p_downwards);
+		}
 	}
 
 	AbstractSimpleGenerationalCellCycleModel::InitialiseDaughterCell();

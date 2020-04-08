@@ -112,6 +112,12 @@ void NodeBasedCartilageSheet::InitialiseTissueLayersAndCellDivisionDirections()
 		mpCellPopulation->GetCellPropertyRegistry()->Get<UpwardsCellDivisionDirection<3>>());
 	boost::shared_ptr<AbstractCellProperty> p_downwards(
 		mpCellPopulation->GetCellPropertyRegistry()->Get<DownwardsCellDivisionDirection<3>>());
+	boost::shared_ptr<AbstractCellProperty> p_horizontal(
+		mpCellPopulation->GetCellPropertyRegistry()->Get<HorizontalCellDivisionDirection<3>>());
+	boost::shared_ptr<AbstractCellProperty> p_upper_layer(
+		mpCellPopulation->GetCellPropertyRegistry()->Get<UpperPerichondrialLayer>());
+	boost::shared_ptr<AbstractCellProperty> p_lower_layer(
+		mpCellPopulation->GetCellPropertyRegistry()->Get<LowerPerichondrialLayer>());
 
 	for (AbstractCellPopulation<3>::Iterator cell_iter =
 			 mpCellPopulation->Begin();
@@ -134,7 +140,8 @@ void NodeBasedCartilageSheet::InitialiseTissueLayersAndCellDivisionDirections()
 		{
 			cell_iter->AddCellProperty(p_perichondrial);
 			if(mDivisionDirections){
-				cell_iter->AddCellProperty(p_upwards);
+				cell_iter->AddCellProperty(p_horizontal);
+				cell_iter->AddCellProperty(p_lower_layer);
 			}
 			
 		}
@@ -142,7 +149,8 @@ void NodeBasedCartilageSheet::InitialiseTissueLayersAndCellDivisionDirections()
 		{
 			cell_iter->AddCellProperty(p_perichondrial);
 			if (mDivisionDirections) {
-				cell_iter->AddCellProperty(p_downwards);
+				cell_iter->AddCellProperty(p_horizontal);
+				cell_iter->AddCellProperty(p_upper_layer);
 			}
 		}
 		else

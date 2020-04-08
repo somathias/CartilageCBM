@@ -15,6 +15,11 @@
 #include "AbstractCellTissueType.hpp"
 #include "PerichondrialCellTissueType.hpp"
 #include "ChondrocyteCellTissueType.hpp"
+#include "UpwardsCellDivisionDirection.hpp"
+#include "DownwardsCellDivisionDirection.hpp"
+#include "HorizontalCellDivisionDirection.hpp"
+#include "LowerPerichondrialLayer.hpp"
+#include "UpperPerichondrialLayer.hpp"
 #include "RandomNumberGenerator.hpp"
 
 class CellTissueTypeBasedCellCycleModel: public AbstractSimpleGenerationalCellCycleModel {
