@@ -64,14 +64,12 @@ std::pair<c_vector<double, SPACE_DIM>, c_vector<double, SPACE_DIM>> OrientationB
     else if(pParentCell->HasCellProperty<
                  HorizontalCellDivisionDirection<SPACE_DIM>>())
     {
-        /*
-		 * Use the main cell division direction provided
-		 */
+
         CellPropertyCollection collection =
             pParentCell->rGetCellPropertyCollection();
         CellPropertyCollection direction_collection =
             collection.GetProperties<
-                DownwardsCellDivisionDirection<SPACE_DIM>>();
+                HorizontalCellDivisionDirection<SPACE_DIM>>();
 
         if (direction_collection.GetSize() == 1)
         {
