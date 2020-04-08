@@ -39,6 +39,10 @@ public:
         MAKE_PTR(StemCellProliferativeType, p_stem_type);
         MAKE_PTR(TransitCellProliferativeType, p_transit_type);
 		MAKE_PTR(PerichondrialCellTissueType, p_perichondrial_type);
+		MAKE_PTR(LowerPerichondrialLayer, p_lower_layer);
+		MAKE_PTR(HorizontalCellDivisionDirection<3>, p_horizontal);
+		MAKE_PTR(UpwardsCellDivisionDirection<3>, p_upwards);
+
         for (unsigned i=0; i<num_cells; i++)
         {
             CellTissueTypeBasedCellCycleModel* p_cell_cycle_model = new CellTissueTypeBasedCellCycleModel;
@@ -68,6 +72,8 @@ public:
 		p_my_cell->SetCellProliferativeType(p_stem_type);
 		p_my_cell->GetCellData()->SetItem("patch size", 1);
 		p_my_cell->AddCellProperty(p_perichondrial_type);
+		p_my_cell->AddCellProperty(p_lower_layer);
+		p_my_cell->AddCellProperty(p_horizontal);
 		p_my_cell->InitialiseCellCycleModel();
 
 
@@ -118,6 +124,12 @@ public:
 				TS_ASSERT_EQUALS(
 						p_daughter_cell->HasCellProperty<
 								TransitCellProliferativeType>(), true);
+				TS_ASSERT_EQUALS(
+						p_daughter_cell->HasCellProperty<
+								HorizontalCellDivisionDirection<3>>(), false);
+				TS_ASSERT_EQUALS(
+						p_daughter_cell->HasCellProperty<
+								UpwardsCellDivisionDirection<3>>(), true);
 
 				TS_ASSERT_EQUALS(p_perichondrial_type->GetCellCount(), 1u);
 //				TS_ASSERT_EQUALS(p_daughter_cell->rGetCellPropertyCollection().GetCellPropertyRegistry()->Get<
