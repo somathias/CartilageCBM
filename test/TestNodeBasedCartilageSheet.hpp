@@ -10,6 +10,8 @@
 
 #include "UpwardsCellDivisionDirection.hpp"
 #include "DownwardsCellDivisionDirection.hpp"
+#include "HorizontalCellDivisionDirection.hpp"
+
 #include "PatchSizeTrackingModifier.hpp"
 
 #include "FakePetscSetup.hpp"
@@ -410,8 +412,8 @@ public:
 					cell_population->Begin(); cell_iter != cell_population->End();
 					++cell_iter) {
 
-			TS_ASSERT(cell_iter->HasCellProperty<UpwardsCellDivisionDirection<3>>() || cell_iter->HasCellProperty<DownwardsCellDivisionDirection<3>>())
-
+			//TS_ASSERT(cell_iter->HasCellProperty<UpwardsCellDivisionDirection<3>>() || cell_iter->HasCellProperty<DownwardsCellDivisionDirection<3>>())
+			TS_ASSERT(cell_iter->HasCellProperty<HorizontalCellDivisionDirection<3>>())
 		}
 
 	}
