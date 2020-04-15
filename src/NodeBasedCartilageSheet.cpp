@@ -31,7 +31,7 @@ void NodeBasedCartilageSheet::Setup()
 	// mesh generation
 	if (!mNodesGenerated)
 	{
-		GenerateNodesOnCartesianGrid();
+		GenerateNodesOnCartesianGrid(1.0);
 	}
 	else if (mNodes.size() != mNumberOfNodesPerXDimension * mNumberOfNodesPerYDimension * mNumberOfNodesPerZDimension)
 	{
@@ -330,7 +330,7 @@ void NodeBasedCartilageSheet::SetPatchSizeLimit(unsigned patchSizeLimit){
  * Generates random node coordinates for a 3D cell sheet a given number of cells wide, deep and high.
  * Arrangement of the nodes will be on a Cartesian grid.
  */
-void NodeBasedCartilageSheet::GenerateNodesOnCartesianGrid()
+void NodeBasedCartilageSheet::GenerateNodesOnCartesianGrid(double scaling)
 {
 
 	mNodes.clear();
@@ -362,8 +362,8 @@ void NodeBasedCartilageSheet::GenerateNodesOnCartesianGrid()
 				double random_azimuth_angle = 2 * M_PI * u;
 				double random_zenith_angle = std::acos(2 * v - 1);
 
-				double x_coordinate = i + noise * cos(random_azimuth_angle) * sin(random_zenith_angle);
-				double y_coordinate = j + noise * sin(random_azimuth_angle) * sin(random_zenith_angle);
+				double x_coordinate = scaling*(i + noise * cos(random_azimuth_angle) * sin(random_zenith_angle));
+				double y_coordinate = scaling*(j + noise * sin(random_azimuth_angle) * sin(random_zenith_angle));
 				double z_coordinate = k + noise * cos(random_zenith_angle);
 				mNodes.push_back(
 					new Node<3>(id, false, x_coordinate, y_coordinate,
@@ -450,7 +450,7 @@ void NodeBasedCartilageSheet::UseRandomSeed()
  * Generates random node coordinates for a 3D cell sheet a given number of cells wide, deep and high.
  * Arrangement of the nodes will be on a hcp lattice.
  */
-void NodeBasedCartilageSheet::GenerateNodesOnHCPGrid()
+void NodeBasedCartilageSheet::GenerateNodesOnHCPGrid(double scaling)
 {
 
 	mNodes.clear();
@@ -482,8 +482,8 @@ void NodeBasedCartilageSheet::GenerateNodesOnHCPGrid()
 				double random_azimuth_angle = 2 * M_PI * u;
 				double random_zenith_angle = std::acos(2 * v - 1);
 
-				double x_coordinate = (2 * i + ((j + k) % 2)) * 0.5 + noise * cos(random_azimuth_angle) * sin(random_zenith_angle);
-				double y_coordinate = (sqrt(3) * (j + (k % 2) / 3.0)) * 0.5 + noise * sin(random_azimuth_angle) * sin(random_zenith_angle);
+				double x_coordinate = scaling*((2 * i + ((j + k) % 2)) * 0.5 + noise * cos(random_azimuth_angle) * sin(random_zenith_angle));
+				double y_coordinate = scaling*((sqrt(3) * (j + (k % 2) / 3.0)) * 0.5 + noise * sin(random_azimuth_angle) * sin(random_zenith_angle));
 				double z_coordinate = (2 * sqrt(6) * k / 3.0) * 0.5 + noise * cos(random_zenith_angle);
 				mNodes.push_back(
 					new Node<3>(id, false, x_coordinate, y_coordinate,
