@@ -46,7 +46,7 @@
 void SetupSingletons(unsigned randomSeed);
 void DestroySingletons();
 void SetupAndRunMesenchymalCondensationSimulation(unsigned randomSeed, bool, bool, unsigned,
-		unsigned, double, double, unsigned, double, double, double, double, std::string, std::string);
+		unsigned, double, double, double, unsigned, double, double, double, double, double, std::string, std::string);
 void SetForceFunction(OffLatticeSimulation<3>&, std::string, double, double, double, double, double, double);
 
 int main(int argc, char *argv[]) {
@@ -65,7 +65,9 @@ int main(int argc, char *argv[]) {
 			boost::program_options::value<unsigned>()->default_value(5),
 			"The number of cells in x direction")("sd",
 			boost::program_options::value<unsigned>()->default_value(5),
-			"The number of cells in y direction")("u",
+			"The number of cells in y direction")("sc",
+			boost::program_options::value<double>()->default_value(1.0),
+			"Scaling of the sheet in x-y direction")("u",
 			boost::program_options::value<double>()->default_value(7.0),
 			"The distance of the upper boundary to the lower one")("mu",
 			boost::program_options::value<double>()->default_value(15.0),
@@ -79,7 +81,9 @@ int main(int argc, char *argv[]) {
 			boost::program_options::value<double>()->default_value(0.0),
 			"The maximum perturbation of the initial coordinates.")("T",
 			boost::program_options::value<double>()->default_value(10.0),
-			"The simulation end time")("F",
+			"The simulation end time")("dt",
+			boost::program_options::value<double>()->default_value(0.008333),
+			"The simulation time step")("F",
 			boost::program_options::value<std::string>()->default_value(
 					"pwq"), "The force function used")("output-dir",
 			boost::program_options::value<std::string>()->default_value(
@@ -111,6 +115,8 @@ int main(int argc, char *argv[]) {
 	unsigned random_seed = variables_map["S"].as<unsigned>();
 	unsigned n_cells_wide = variables_map["sw"].as<unsigned>();
 	unsigned n_cells_deep = variables_map["sd"].as<unsigned>();
+	double scaling = variables_map["sc"].as<double>();
+
 	double upper_boundary = variables_map["u"].as<double>();
 	double activation_percentage = variables_map["A"].as<double>();
 	double maximum_perturbation = variables_map["p"].as<double>();
@@ -121,6 +127,8 @@ int main(int argc, char *argv[]) {
 	double spring_stiffness = variables_map["mu"].as<double>();
 	double spring_stiffness_repulsion = variables_map["mu_R"].as<double>();
 	double simulation_end_time = variables_map["T"].as<double>();
+	double dt = variables_map["dt"].as<double>();
+
 	std::string force_function =
 			variables_map["F"].as<std::string>();
 	std::string output_directory =
@@ -129,9 +137,9 @@ int main(int argc, char *argv[]) {
 
 	SetupSingletons(random_seed);
 	SetupAndRunMesenchymalCondensationSimulation(random_seed, random_birth_times, random_division_directions,
-			n_cells_wide, n_cells_deep, upper_boundary, activation_percentage, patch_size_limit,
+			n_cells_wide, n_cells_deep, scaling, upper_boundary, activation_percentage, patch_size_limit,
 			maximum_perturbation, spring_stiffness, spring_stiffness_repulsion,
-			simulation_end_time, force_function, output_directory);	
+			simulation_end_time, dt, force_function, output_directory);	
 
 	DestroySingletons();
 }
@@ -194,11 +202,11 @@ void SetForceFunction(OffLatticeSimulation<3>& simulator, std::string forceFunct
 
 void SetupAndRunMesenchymalCondensationSimulation(unsigned random_seed,
 		bool random_birth_times, bool random_division_directions, 
-		unsigned n_cells_wide, unsigned n_cells_deep, double upper_boundary, 
+		unsigned n_cells_wide, unsigned n_cells_deep, double scaling, double upper_boundary, 
 		double activation_percentage, unsigned patch_size_limit,
 		double maximum_perturbation, double spring_stiffness,
 		double spring_stiffness_repulsion,
-		double simulation_endtime,
+		double simulation_endtime, double dt,
 		std::string force_function,
 		std::string output_directory) {
 	
@@ -230,7 +238,7 @@ void SetupAndRunMesenchymalCondensationSimulation(unsigned random_seed,
 		p_condensation->setDivisionDirections(false);
 	}
 	// generate the nodes
-	p_condensation->GenerateNodesOnHCPGrid();
+	p_condensation->GenerateNodesOnHCPGrid(scaling);
 
 	// setup the cell population
 	if (!p_condensation->isCellPopulationSetup()) {
@@ -251,6 +259,7 @@ void SetupAndRunMesenchymalCondensationSimulation(unsigned random_seed,
 	//OffLatticeSimulation<3> simulator(cell_population);
 	simulator.SetOutputDirectory(output_directory);
 	simulator.SetEndTime(simulation_endtime); //hours
+	simulator.SetDt(dt);
 	simulator.SetSamplingTimestepMultiple(12);
 
 	// call helper function to set force function
