@@ -46,7 +46,8 @@
 void SetupSingletons(unsigned randomSeed);
 void DestroySingletons();
 void SetupAndRunCartilageSheetSimulation(unsigned randomSeed, bool, bool, bool, unsigned,
-		unsigned, unsigned, unsigned, unsigned, unsigned, double, double, double, double, double, double, double, double,
+		unsigned, unsigned, double, unsigned, unsigned, unsigned, 
+		double, double, unsigned, double, double, double, double, double, double, double,
 		std::string, std::string);
 void SetForceFunction(OffLatticeSimulation<3>&, std::string, double, double, double, double, double, double);
 
@@ -69,7 +70,9 @@ int main(int argc, char *argv[]) {
 			boost::program_options::value<unsigned>()->default_value(5),
 			"The number of cells in y direction")("sh",
 			boost::program_options::value<unsigned>()->default_value(2),
-			"The number of cells in z direction")("pl",
+			"The number of cells in z direction")("sc",
+			boost::program_options::value<double>()->default_value(1.0),
+			"Scaling of the sheet in x-y direction")("pl",
 			boost::program_options::value<unsigned>()->default_value(1),
 			"The number of lower perichondrial layers")("pu",
 			boost::program_options::value<unsigned>()->default_value(0),
@@ -87,11 +90,15 @@ int main(int argc, char *argv[]) {
 			boost::program_options::value<double>()->default_value(0.1),
 			"The baseline directional adhesion multiplier")("A",
 			boost::program_options::value<double>()->default_value(0.5),
-			"The percentage of activated stem cells")("p",
+			"The percentage of activated stem cells")("psl",
+			boost::program_options::value<unsigned>()->default_value(6),
+			"The size limit for clonal patches")("p",
 			boost::program_options::value<double>()->default_value(0.0),
 			"The maximum perturbation of the initial coordinates.")("T",
 			boost::program_options::value<double>()->default_value(10.0),
-			"The simulation end time")("F",
+			"The simulation end time")("dt",
+			boost::program_options::value<double>()->default_value(0.008333),
+			"The simulation time step")("F",
 			boost::program_options::value<std::string>()->default_value(
 					"CellTissueTypeBasedGLS"), "The force function used")("output-dir",
 			boost::program_options::value<std::string>()->default_value(
@@ -128,17 +135,21 @@ int main(int argc, char *argv[]) {
 	unsigned n_cells_wide = variables_map["sw"].as<unsigned>();
 	unsigned n_cells_deep = variables_map["sd"].as<unsigned>();
 	unsigned n_cells_high = variables_map["sh"].as<unsigned>();
+	double scaling = variables_map["sc"].as<double>();
 	unsigned n_peri_lower = variables_map["pl"].as<unsigned>();
 	unsigned n_peri_upper = variables_map["pu"].as<unsigned>();
 	unsigned n_boundaries = variables_map["nb"].as<unsigned>();
 	double upper_boundary = variables_map["u"].as<double>();
 	double activation_percentage = variables_map["A"].as<double>();
 	double maximum_perturbation = variables_map["p"].as<double>();
+	unsigned patch_size_limit = variables_map["psl"].as<unsigned>();
+
 	double spring_stiffness = variables_map["mu"].as<double>();
 	double spring_stiffness_repulsion = variables_map["mu_R"].as<double>();
 	double homotypic_chondro_multiplier = variables_map["c"].as<double>();
 	double baseline_adhesion_multiplier = variables_map["b"].as<double>();
 	double simulation_end_time = variables_map["T"].as<double>();
+	double dt = variables_map["dt"].as<double>();
 	std::string force_function =
 			variables_map["F"].as<std::string>();
 	std::string output_directory =
@@ -148,11 +159,11 @@ int main(int argc, char *argv[]) {
 	SetupSingletons(random_seed);
 	SetupAndRunCartilageSheetSimulation(random_seed, random_birth_times, random_division_directions,
 			cartesian_grid,
-			n_cells_wide, n_cells_deep, n_cells_high, n_peri_lower, n_peri_upper,
-			n_boundaries, upper_boundary, activation_percentage,
+			n_cells_wide, n_cells_deep, n_cells_high, scaling, n_peri_lower, n_peri_upper,
+			n_boundaries, upper_boundary, activation_percentage, patch_size_limit,
 			maximum_perturbation, spring_stiffness, spring_stiffness_repulsion,
 			homotypic_chondro_multiplier, baseline_adhesion_multiplier,
-			simulation_end_time, force_function, output_directory);	
+			simulation_end_time, dt, force_function, output_directory);	
 
 	DestroySingletons();
 }
@@ -225,14 +236,16 @@ void SetupAndRunCartilageSheetSimulation(unsigned random_seed,
 		bool random_birth_times, bool random_division_directions, 
 		bool cartesian_grid,
 		unsigned n_cells_wide, unsigned n_cells_deep,
-		unsigned n_cells_high, unsigned n_peri_lower, unsigned n_peri_upper,
+		unsigned n_cells_high, double scaling,
+		unsigned n_peri_lower, unsigned n_peri_upper,
 		unsigned n_boundaries, double upper_boundary,
-		double activation_percentage,
+		double activation_percentage, unsigned patch_size_limit,
 		double maximum_perturbation, double spring_stiffness,
 		double spring_stiffness_repulsion,
 		double homotypic_chondro_multiplier,
 		double baseline_adhesion_multiplier, 
 		double simulation_endtime,
+		double dt, 
 		std::string force_function,
 		std::string output_directory) {
 	
@@ -260,6 +273,7 @@ void SetupAndRunCartilageSheetSimulation(unsigned random_seed,
 	p_cartilage_sheet->SetCartilageSheetDimensions(n_cells_wide, n_cells_deep,
 			n_cells_high);
 	p_cartilage_sheet->setMaxCoordinatePerturbation(maximum_perturbation);
+	p_cartilage_sheet->SetPatchSizeLimit(patch_size_limit);
 
 	if (!random_birth_times) {
 		p_cartilage_sheet->setSynchronizeCellCycles(true);
@@ -269,11 +283,11 @@ void SetupAndRunCartilageSheetSimulation(unsigned random_seed,
 	}
 
 	if (cartesian_grid){
-		p_cartilage_sheet->GenerateNodesOnCartesianGrid();
+		p_cartilage_sheet->GenerateNodesOnCartesianGrid(scaling);
 	}
 	else {
 		// generate the nodes
-		p_cartilage_sheet->GenerateNodesOnHCPGrid();
+		p_cartilage_sheet->GenerateNodesOnHCPGrid(scaling);
 	}
 	
 
@@ -301,6 +315,7 @@ void SetupAndRunCartilageSheetSimulation(unsigned random_seed,
 	//OffLatticeSimulation<3> simulator(cell_population);
 	simulator.SetOutputDirectory(output_directory);
 	simulator.SetEndTime(simulation_endtime); //hours
+	simulator.SetDt(dt);
 	simulator.SetSamplingTimestepMultiple(12);
 
 	// call helper function to set force function
@@ -362,6 +377,8 @@ void SetupAndRunCartilageSheetSimulation(unsigned random_seed,
 			<< "\n";
 	sheet_params_file << "Maximum perturbation : " << maximum_perturbation
 			<< "\n";
+	sheet_params_file << "Patch Size Limit : " << patch_size_limit  << "\n";
+
 //	sheet_params_file << "Adhesion spring stiffness : " << spring_stiffness << "\n";
 //	sheet_params_file << "Attraction force decay : " << alpha << "\n";
 	sheet_params_file << "Simulation end time : " << simulation_endtime << "\n";

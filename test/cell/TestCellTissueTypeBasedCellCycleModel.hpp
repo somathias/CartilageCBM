@@ -39,6 +39,10 @@ public:
         MAKE_PTR(StemCellProliferativeType, p_stem_type);
         MAKE_PTR(TransitCellProliferativeType, p_transit_type);
 		MAKE_PTR(PerichondrialCellTissueType, p_perichondrial_type);
+		MAKE_PTR(LowerPerichondrialLayer, p_lower_layer);
+		MAKE_PTR(HorizontalCellDivisionDirection<3>, p_horizontal);
+		MAKE_PTR(UpwardsCellDivisionDirection<3>, p_upwards);
+
         for (unsigned i=0; i<num_cells; i++)
         {
             CellTissueTypeBasedCellCycleModel* p_cell_cycle_model = new CellTissueTypeBasedCellCycleModel;
@@ -66,8 +70,12 @@ public:
 
 		CellPtr p_my_cell(new Cell(p_state, p_my_model));
 		p_my_cell->SetCellProliferativeType(p_stem_type);
+		p_my_cell->GetCellData()->SetItem("patch size", 1);
 		p_my_cell->AddCellProperty(p_perichondrial_type);
+		p_my_cell->AddCellProperty(p_lower_layer);
+		p_my_cell->AddCellProperty(p_horizontal);
 		p_my_cell->InitialiseCellCycleModel();
+
 
 		// TS_ASSERT_EQUALS(p_my_cell->rGetCellPropertyCollection().GetCellPropertyRegistry()->Get<
 		// 									PerichondrialCellTissueType>()->GetCellCount(), 1u);
@@ -116,6 +124,12 @@ public:
 				TS_ASSERT_EQUALS(
 						p_daughter_cell->HasCellProperty<
 								TransitCellProliferativeType>(), true);
+				TS_ASSERT_EQUALS(
+						p_daughter_cell->HasCellProperty<
+								HorizontalCellDivisionDirection<3>>(), false);
+				TS_ASSERT_EQUALS(
+						p_daughter_cell->HasCellProperty<
+								UpwardsCellDivisionDirection<3>>(), true);
 
 				TS_ASSERT_EQUALS(p_perichondrial_type->GetCellCount(), 1u);
 //				TS_ASSERT_EQUALS(p_daughter_cell->rGetCellPropertyCollection().GetCellPropertyRegistry()->Get<
@@ -125,6 +139,23 @@ public:
 			}
 
 		}
+
+	}
+
+	void TestPatchSizeLimit(){
+		MAKE_PTR(WildTypeCellMutationState, p_state);
+
+		CellTissueTypeBasedCellCycleModel* p_cell_cycle_model = new CellTissueTypeBasedCellCycleModel;
+
+		TS_ASSERT_EQUALS(p_cell_cycle_model->GetPatchSizeLimit(), 6);
+
+		p_cell_cycle_model->SetPatchSizeLimit(4);
+
+		TS_ASSERT_EQUALS(p_cell_cycle_model->GetPatchSizeLimit(), 4);
+
+		CellPtr p_cell(new Cell(p_state, p_cell_cycle_model));
+
+		TS_ASSERT_EQUALS(static_cast<CellTissueTypeBasedCellCycleModel*>(p_cell->GetCellCycleModel())->GetPatchSizeLimit(), 4);
 
 	}
 
@@ -151,6 +182,7 @@ public:
 			CellPtr p_cell(new Cell(p_state, p_model));
 			p_cell->SetCellProliferativeType(p_transit_type);
 			p_cell->AddCellProperty(p_chondrocyte_type);
+			p_cell->GetCellData()->SetItem("patch size", 1);
 			p_cell->InitialiseCellCycleModel();
 
 			p_simulation_time->IncrementTimeOneStep();

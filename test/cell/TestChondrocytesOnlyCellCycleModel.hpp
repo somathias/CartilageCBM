@@ -44,6 +44,7 @@ public:
             ChondrocytesOnlyCellCycleModel* p_cell_cycle_model = new ChondrocytesOnlyCellCycleModel;
             CellPtr p_cell(new Cell(p_state, p_cell_cycle_model));
             p_cell->SetCellProliferativeType(p_stem_type);
+			p_cell->GetCellData()->SetItem("patch size", 1);
             p_cell->InitialiseCellCycleModel();
             cells.push_back(p_cell);
         }
@@ -79,7 +80,7 @@ public:
 	}
 
 
-	void xTestArchiveChondrocytesOnlyCellCycleModel()  {
+	void TestArchiveChondrocytesOnlyCellCycleModel()  {
 
 		MAKE_PTR(WildTypeCellMutationState, p_state);
 		MAKE_PTR(StemCellProliferativeType, p_stem_type);
@@ -101,6 +102,7 @@ public:
 			CellPtr p_cell(new Cell(p_state, p_model));
 			p_cell->SetCellProliferativeType(p_transit_type);
 			p_cell->AddCellProperty(p_chondrocyte_type);
+			p_cell->GetCellData()->SetItem("patch size", 1);
 			p_cell->InitialiseCellCycleModel();
 
 			p_simulation_time->IncrementTimeOneStep();

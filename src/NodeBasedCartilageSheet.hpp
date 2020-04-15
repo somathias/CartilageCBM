@@ -30,8 +30,11 @@
 #include "CellTissueTypeBasedCellCycleModel.hpp"
 #include "PerichondrialCellTissueType.hpp"
 #include "ChondrocyteCellTissueType.hpp"
+#include "UpperPerichondrialLayer.hpp"
+#include "LowerPerichondrialLayer.hpp"
 #include "UpwardsCellDivisionDirection.hpp"
 #include "DownwardsCellDivisionDirection.hpp"
+#include "HorizontalCellDivisionDirection.hpp"
 #include "CellTissueTypesWriter.hpp"
 #include "CellDivisionDirectionsWriter.hpp"
 #include "OrientationBasedDivisionRule.hpp"
@@ -54,6 +57,9 @@ private:
 	double mMaxCoordinatePerturbation;
 
 	unsigned mSeed;
+
+	unsigned mPatchSizeLimit;
+
 
 	bool mSynchronizeCellCycles;
 	bool mDivisionDirections;
@@ -81,8 +87,10 @@ public:
 
 	void SetCartilageSheetDimensions(unsigned, unsigned, unsigned);
 
-	void GenerateNodesOnCartesianGrid();
-	void GenerateNodesOnHCPGrid();
+	void SetPatchSizeLimit(unsigned);
+
+	void GenerateNodesOnCartesianGrid(double);
+	void GenerateNodesOnHCPGrid(double);
 
 	void UseRandomSeed();
 

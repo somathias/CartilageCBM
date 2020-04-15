@@ -12,7 +12,8 @@ NodeBasedCartilageSheet::NodeBasedCartilageSheet() : mNumberOfNodesPerXDimension
 													 mNumberOfPerichondrialLayersAbove(0),
 													 mNumberOfPerichondrialLayersBelow(1),
 													 mMaxCoordinatePerturbation(0), 
-													 mSeed(0), mSynchronizeCellCycles(false),
+													 mSeed(0), mPatchSizeLimit(6), 
+													 mSynchronizeCellCycles(false),
 													 mDivisionDirections(true),
 													 mNodesGenerated(false),
 													 mCellPopulationSetup(false)
@@ -30,7 +31,7 @@ void NodeBasedCartilageSheet::Setup()
 	// mesh generation
 	if (!mNodesGenerated)
 	{
-		GenerateNodesOnCartesianGrid();
+		GenerateNodesOnCartesianGrid(1.0);
 	}
 	else if (mNodes.size() != mNumberOfNodesPerXDimension * mNumberOfNodesPerYDimension * mNumberOfNodesPerZDimension)
 	{
@@ -59,6 +60,9 @@ void NodeBasedCartilageSheet::Setup()
 		p_model->SetSDuration(3.0);
 		p_model->SetMDuration(1e-12);
 		p_model->SetG2Duration(1e-12);
+		p_model->SetMaxTransitGenerations(2);
+		p_model->SetPatchSizeLimit(mPatchSizeLimit);
+
 		CellPtr p_cell(new Cell(p_state, p_model));
         p_cell->SetCellProliferativeType(p_diff_type);
 		// setting of the birth time will be done later when initialising the random stem cell configuration
@@ -108,6 +112,12 @@ void NodeBasedCartilageSheet::InitialiseTissueLayersAndCellDivisionDirections()
 		mpCellPopulation->GetCellPropertyRegistry()->Get<UpwardsCellDivisionDirection<3>>());
 	boost::shared_ptr<AbstractCellProperty> p_downwards(
 		mpCellPopulation->GetCellPropertyRegistry()->Get<DownwardsCellDivisionDirection<3>>());
+	boost::shared_ptr<AbstractCellProperty> p_horizontal(
+		mpCellPopulation->GetCellPropertyRegistry()->Get<HorizontalCellDivisionDirection<3>>());
+	boost::shared_ptr<AbstractCellProperty> p_upper_layer(
+		mpCellPopulation->GetCellPropertyRegistry()->Get<UpperPerichondrialLayer>());
+	boost::shared_ptr<AbstractCellProperty> p_lower_layer(
+		mpCellPopulation->GetCellPropertyRegistry()->Get<LowerPerichondrialLayer>());
 
 	for (AbstractCellPopulation<3>::Iterator cell_iter =
 			 mpCellPopulation->Begin();
@@ -130,7 +140,8 @@ void NodeBasedCartilageSheet::InitialiseTissueLayersAndCellDivisionDirections()
 		{
 			cell_iter->AddCellProperty(p_perichondrial);
 			if(mDivisionDirections){
-				cell_iter->AddCellProperty(p_upwards);
+				cell_iter->AddCellProperty(p_horizontal);
+				cell_iter->AddCellProperty(p_lower_layer);
 			}
 			
 		}
@@ -138,7 +149,8 @@ void NodeBasedCartilageSheet::InitialiseTissueLayersAndCellDivisionDirections()
 		{
 			cell_iter->AddCellProperty(p_perichondrial);
 			if (mDivisionDirections) {
-				cell_iter->AddCellProperty(p_downwards);
+				cell_iter->AddCellProperty(p_horizontal);
+				cell_iter->AddCellProperty(p_upper_layer);
 			}
 		}
 		else
@@ -309,11 +321,16 @@ void NodeBasedCartilageSheet::SetCartilageSheetDimensions(
 	mNumberOfNodesPerZDimension = numberOfCellsHigh;
 }
 
+void NodeBasedCartilageSheet::SetPatchSizeLimit(unsigned patchSizeLimit){
+	assert(patchSizeLimit >= 1);
+	mPatchSizeLimit = patchSizeLimit;
+}
+
 /**
  * Generates random node coordinates for a 3D cell sheet a given number of cells wide, deep and high.
  * Arrangement of the nodes will be on a Cartesian grid.
  */
-void NodeBasedCartilageSheet::GenerateNodesOnCartesianGrid()
+void NodeBasedCartilageSheet::GenerateNodesOnCartesianGrid(double scaling)
 {
 
 	mNodes.clear();
@@ -345,8 +362,8 @@ void NodeBasedCartilageSheet::GenerateNodesOnCartesianGrid()
 				double random_azimuth_angle = 2 * M_PI * u;
 				double random_zenith_angle = std::acos(2 * v - 1);
 
-				double x_coordinate = i + noise * cos(random_azimuth_angle) * sin(random_zenith_angle);
-				double y_coordinate = j + noise * sin(random_azimuth_angle) * sin(random_zenith_angle);
+				double x_coordinate = scaling*(i + noise * cos(random_azimuth_angle) * sin(random_zenith_angle));
+				double y_coordinate = scaling*(j + noise * sin(random_azimuth_angle) * sin(random_zenith_angle));
 				double z_coordinate = k + noise * cos(random_zenith_angle);
 				mNodes.push_back(
 					new Node<3>(id, false, x_coordinate, y_coordinate,
@@ -433,7 +450,7 @@ void NodeBasedCartilageSheet::UseRandomSeed()
  * Generates random node coordinates for a 3D cell sheet a given number of cells wide, deep and high.
  * Arrangement of the nodes will be on a hcp lattice.
  */
-void NodeBasedCartilageSheet::GenerateNodesOnHCPGrid()
+void NodeBasedCartilageSheet::GenerateNodesOnHCPGrid(double scaling)
 {
 
 	mNodes.clear();
@@ -465,8 +482,8 @@ void NodeBasedCartilageSheet::GenerateNodesOnHCPGrid()
 				double random_azimuth_angle = 2 * M_PI * u;
 				double random_zenith_angle = std::acos(2 * v - 1);
 
-				double x_coordinate = (2 * i + ((j + k) % 2)) * 0.5 + noise * cos(random_azimuth_angle) * sin(random_zenith_angle);
-				double y_coordinate = (sqrt(3) * (j + (k % 2) / 3.0)) * 0.5 + noise * sin(random_azimuth_angle) * sin(random_zenith_angle);
+				double x_coordinate = scaling*((2 * i + ((j + k) % 2)) * 0.5 + noise * cos(random_azimuth_angle) * sin(random_zenith_angle));
+				double y_coordinate = scaling*((sqrt(3) * (j + (k % 2) / 3.0)) * 0.5 + noise * sin(random_azimuth_angle) * sin(random_zenith_angle));
 				double z_coordinate = (2 * sqrt(6) * k / 3.0) * 0.5 + noise * cos(random_zenith_angle);
 				mNodes.push_back(
 					new Node<3>(id, false, x_coordinate, y_coordinate,

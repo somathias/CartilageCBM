@@ -71,6 +71,17 @@ def get_clonal_patches(path_to_dir):
     data = np.array(list(itertools.zip_longest(*content, fillvalue=np.nan)), dtype=float).T 
 
     ancestors = data[:,1:]
+    
+    # get cell tissue types
+    content_ctt = [];
+    with open(path_to_dir + 'results.vizcelltissuetypes') as f:
+        for line in f:
+            split_line = line.split()
+            content_ctt.append(split_line)
+    data_ctt = np.array(list(itertools.zip_longest(*content_ctt, fillvalue=np.nan)), dtype=float).T 
+
+    cell_tissue_types = data_ctt[:,1:]
+    #print(cell_tissue_types)
 
     # get all possible ancestor ids from the first line, -1 means not set
     ids = np.unique(ancestors[0, ~np.isnan(ancestors[0,:])]) #only search over non-nan elements
@@ -78,7 +89,8 @@ def get_clonal_patches(path_to_dir):
     # make a boolean mask for each of them
     clonal_patches = {}
     for patch in ids:
-        mask = ancestors == patch
+        #mask = (ancestors == patch)
+        mask = (cell_tissue_types == 24.0) & (ancestors == patch) #only count chondrocytes
         mask = np.kron(mask, np.array([True,True,True]))
         clonal_patches[patch] = mask  
     

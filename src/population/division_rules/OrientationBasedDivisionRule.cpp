@@ -2,6 +2,8 @@
 #include "RandomNumberGenerator.hpp"
 #include "UpwardsCellDivisionDirection.hpp"
 #include "DownwardsCellDivisionDirection.hpp"
+#include "HorizontalCellDivisionDirection.hpp"
+
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 std::pair<c_vector<double, SPACE_DIM>, c_vector<double, SPACE_DIM>> OrientationBasedDivisionRule<ELEMENT_DIM, SPACE_DIM>::CalculateCellDivisionVector(
@@ -57,6 +59,24 @@ std::pair<c_vector<double, SPACE_DIM>, c_vector<double, SPACE_DIM>> OrientationB
                     DownwardsCellDivisionDirection<SPACE_DIM>>(
                     direction_collection.GetProperty());
             main_direction = 0.5 * separation * p_direction->GetCellDivisionDirection();
+        }
+    }
+    else if(pParentCell->HasCellProperty<
+                 HorizontalCellDivisionDirection<SPACE_DIM>>())
+    {
+
+        CellPropertyCollection collection =
+            pParentCell->rGetCellPropertyCollection();
+        CellPropertyCollection direction_collection =
+            collection.GetProperties<
+                HorizontalCellDivisionDirection<SPACE_DIM>>();
+
+        if (direction_collection.GetSize() == 1)
+        {
+            double random_angle = 2.0 * M_PI * RandomNumberGenerator::Instance()->ranf();
+
+            main_direction(0) = 0.5 * separation * cos(random_angle);
+            main_direction(1) = 0.5 * separation * sin(random_angle);
         }
     }
     else

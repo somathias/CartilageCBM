@@ -15,6 +15,11 @@
 #include "AbstractCellTissueType.hpp"
 #include "PerichondrialCellTissueType.hpp"
 #include "ChondrocyteCellTissueType.hpp"
+#include "UpwardsCellDivisionDirection.hpp"
+#include "DownwardsCellDivisionDirection.hpp"
+#include "HorizontalCellDivisionDirection.hpp"
+#include "LowerPerichondrialLayer.hpp"
+#include "UpperPerichondrialLayer.hpp"
 #include "RandomNumberGenerator.hpp"
 
 class CellTissueTypeBasedCellCycleModel: public AbstractSimpleGenerationalCellCycleModel {
@@ -37,7 +42,17 @@ private:
 		RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
         archive & *p_gen;
         archive & p_gen;
+		archive & mPatchSizeLimit;
 	}
+
+protected:
+	/**
+	 * Patch size limit. Cells will seize to divide once limit is reached
+	 *
+	 * Defaults to 6 in the constructor
+	 */
+	unsigned mPatchSizeLimit;
+
 public:
 	/**
 	 * Constructor
@@ -60,6 +75,10 @@ public:
     void InitialiseDaughterCell();
 
 	void SetG1Duration();
+
+	void SetPatchSizeLimit(unsigned);
+
+	unsigned GetPatchSizeLimit();
 
 	/**
 	 * Outputs cell cycle model parameters to file.
