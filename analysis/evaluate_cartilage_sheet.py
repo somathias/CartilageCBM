@@ -100,11 +100,7 @@ def main(path):
 #        plt.close()
 #    
 #    plt.close('all')
-<<<<<<< HEAD
-#    
-=======
-    
->>>>>>> master
+
     ## Clonal Envelopes ########################################################
     clp = sm.get_clonal_patches(path)
     
