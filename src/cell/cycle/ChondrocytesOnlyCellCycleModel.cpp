@@ -91,7 +91,8 @@ bool ChondrocytesOnlyCellCycleModel::ReadyToDivide()
     }
 	//check size of clonal patch before dividing - this fails if "patch size" has not been set - not sure why
 	try {
-		if (mpCell->GetCellData()->GetItem("patch size") >= mPatchSizeLimit){
+		if (mpCell->GetCellProliferativeType()->IsType<TransitCellProliferativeType>() && mpCell->GetCellData()->GetItem("patch size") >= mPatchSizeLimit){
+		//if (mpCell->GetCellData()->GetItem("patch size") >= mPatchSizeLimit){
 			mReadyToDivide = false;
 		}
 	} catch (const std::exception& e){
