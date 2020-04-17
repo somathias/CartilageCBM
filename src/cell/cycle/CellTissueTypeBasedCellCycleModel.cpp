@@ -94,6 +94,10 @@ bool CellTissueTypeBasedCellCycleModel::ReadyToDivide()
 		//if (mpCell->GetCellData()->GetItem("patch size") >= mPatchSizeLimit){
 			mReadyToDivide = false;
 		}
+		else if (mpCell->GetCellProliferativeType()->IsType<StemCellProliferativeType>() && mpCell->GetCellData()->GetItem("patch size") >= 1){
+			mReadyToDivide = false; //the perichondrial cell has already divided once - should not divide again
+		}
+
 	} catch (const std::exception& e){
 		std::cout << "PatchSizeTrackingModifier has not been enabled." << std::endl;
 	}

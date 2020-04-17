@@ -36,7 +36,7 @@ public:
 
         std::cout <<"Before generating the nodes"<< std::endl;
 		// generate the nodes
-		p_condensation->GenerateNodesOnCartesianGrid();
+		p_condensation->GenerateNodesOnCartesianGrid(1.0);
 
         std::cout <<"After generating the nodes"<< std::endl;
 
@@ -94,7 +94,7 @@ public:
 		// set the sheet dimensions
 		p_condensation->SetDimensions(5, 4);
 		// generate the nodes
-		p_condensation->GenerateNodesOnCartesianGrid();
+		p_condensation->GenerateNodesOnCartesianGrid(1.0);
 
 		// setup the cell population
 		p_condensation->Setup();
@@ -144,7 +144,7 @@ public:
 
         std::cout <<"Before generating the nodes"<< std::endl;
 		// generate the nodes
-		p_condensation->GenerateNodesOnCartesianGrid();
+		p_condensation->GenerateNodesOnCartesianGrid(1.0);
 
         std::cout <<"After generating the nodes"<< std::endl;
 
@@ -227,7 +227,7 @@ public:
 		//p_condensation->setMaxCoordinatePerturbation(0.1);
 		//p_condensation->UseRandomSeed();
 		// generate the nodes
-		p_condensation->GenerateNodesOnCartesianGrid();
+		p_condensation->GenerateNodesOnCartesianGrid(1.0);
 
 		TS_ASSERT_EQUALS(p_condensation->mNodes.size(),
 				n_nodes_width * n_nodes_depth);
@@ -243,7 +243,7 @@ public:
 
 		// now with perturbation
 		p_condensation->setMaxCoordinatePerturbation(0.5);
-		p_condensation->GenerateNodesOnCartesianGrid();
+		p_condensation->GenerateNodesOnCartesianGrid(1.0);
 
 		for (unsigned i = 0; i < p_condensation->mNodes.size(); i++) {
 			c_vector<double, 3> coordinates =
@@ -273,7 +273,7 @@ public:
 		//p_condensation->setMaxCoordinatePerturbation(0.1);
 		//p_condensation->UseRandomSeed();
 		// generate the nodes
-		p_condensation->GenerateNodesOnHCPGrid();
+		p_condensation->GenerateNodesOnHCPGrid(1.0);
 
 		TS_ASSERT_EQUALS(p_condensation->mNodes.size(),
 				n_nodes_width * n_nodes_depth);
@@ -310,7 +310,7 @@ public:
 
 		// now check with perturbation
 		p_condensation->setMaxCoordinatePerturbation(0.1);
-		p_condensation->GenerateNodesOnHCPGrid();
+		p_condensation->GenerateNodesOnHCPGrid(1.0);
 
 		// coordinates_first = p_condensation->mNodes[0]->rGetLocation();
 		// coordinates_second = p_condensation->mNodes[1]->rGetLocation();
