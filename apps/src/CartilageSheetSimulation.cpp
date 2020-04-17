@@ -47,7 +47,7 @@ void SetupSingletons(unsigned randomSeed);
 void DestroySingletons();
 void SetupAndRunCartilageSheetSimulation(unsigned randomSeed, bool, bool, bool, unsigned,
 		unsigned, unsigned, double, unsigned, unsigned, unsigned, 
-		double, double, unsigned, double, double, double, double, double, double, double,
+		double, double, unsigned, double, double, double, double, double, double, double, double, double, double,
 		std::string, std::string);
 void SetForceFunction(OffLatticeSimulation<3>&, std::string, double, double, double, double, double, double);
 
@@ -94,7 +94,13 @@ int main(int argc, char *argv[]) {
 			boost::program_options::value<unsigned>()->default_value(6),
 			"The size limit for clonal patches")("p",
 			boost::program_options::value<double>()->default_value(0.0),
-			"The maximum perturbation of the initial coordinates.")("T",
+			"The maximum perturbation of the initial coordinates.")("g1s",
+			boost::program_options::value<double>()->default_value(60.0),
+			"The stem cell G1 duration.")("g1t",
+			boost::program_options::value<double>()->default_value(30.0),
+			"The transit cell G1 duration.")("ds",
+			boost::program_options::value<double>()->default_value(10.0),
+			"The s phase duration.")("T",
 			boost::program_options::value<double>()->default_value(10.0),
 			"The simulation end time")("dt",
 			boost::program_options::value<double>()->default_value(0.008333),
@@ -143,7 +149,9 @@ int main(int argc, char *argv[]) {
 	double activation_percentage = variables_map["A"].as<double>();
 	double maximum_perturbation = variables_map["p"].as<double>();
 	unsigned patch_size_limit = variables_map["psl"].as<unsigned>();
-
+	double stem_cell_g1_duration = variables_map["g1s"].as<double>();
+	double transit_cell_g1_duration = variables_map["g1t"].as<double>();
+	double s_phase_duration = variables_map["ds"].as<double>();
 	double spring_stiffness = variables_map["mu"].as<double>();
 	double spring_stiffness_repulsion = variables_map["mu_R"].as<double>();
 	double homotypic_chondro_multiplier = variables_map["c"].as<double>();
@@ -161,7 +169,8 @@ int main(int argc, char *argv[]) {
 			cartesian_grid,
 			n_cells_wide, n_cells_deep, n_cells_high, scaling, n_peri_lower, n_peri_upper,
 			n_boundaries, upper_boundary, activation_percentage, patch_size_limit,
-			maximum_perturbation, spring_stiffness, spring_stiffness_repulsion,
+			maximum_perturbation, stem_cell_g1_duration, transit_cell_g1_duration, s_phase_duration,
+			spring_stiffness, spring_stiffness_repulsion,
 			homotypic_chondro_multiplier, baseline_adhesion_multiplier,
 			simulation_end_time, dt, force_function, output_directory);	
 
@@ -240,7 +249,9 @@ void SetupAndRunCartilageSheetSimulation(unsigned random_seed,
 		unsigned n_peri_lower, unsigned n_peri_upper,
 		unsigned n_boundaries, double upper_boundary,
 		double activation_percentage, unsigned patch_size_limit,
-		double maximum_perturbation, double spring_stiffness,
+		double maximum_perturbation, 
+		double stem_cell_g1_duration, double transit_cell_g1_duration, double s_phase_duration,
+		double spring_stiffness,
 		double spring_stiffness_repulsion,
 		double homotypic_chondro_multiplier,
 		double baseline_adhesion_multiplier, 
@@ -274,6 +285,7 @@ void SetupAndRunCartilageSheetSimulation(unsigned random_seed,
 			n_cells_high);
 	p_cartilage_sheet->setMaxCoordinatePerturbation(maximum_perturbation);
 	p_cartilage_sheet->SetPatchSizeLimit(patch_size_limit);
+	p_cartilage_sheet->SetPhaseDurations(stem_cell_g1_duration, transit_cell_g1_duration, s_phase_duration);
 
 	if (!random_birth_times) {
 		p_cartilage_sheet->setSynchronizeCellCycles(true);

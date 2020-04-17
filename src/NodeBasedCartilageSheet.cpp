@@ -55,9 +55,9 @@ void NodeBasedCartilageSheet::Setup()
 	for (unsigned i=0; i<mMesh.GetNumNodes(); i++)
     {
 		CellTissueTypeBasedCellCycleModel* p_model = new CellTissueTypeBasedCellCycleModel();
-		p_model->SetStemCellG1Duration(60.0);
-		p_model->SetTransitCellG1Duration(30.0);
-		p_model->SetSDuration(10.0);
+		p_model->SetStemCellG1Duration(mStemCellG1Duration);
+		p_model->SetTransitCellG1Duration(mTransitCellG1Duration);
+		p_model->SetSDuration(mSPhaseDuration);
 		p_model->SetMDuration(1e-12);
 		p_model->SetG2Duration(1e-12);
 		p_model->SetMaxTransitGenerations(2);
@@ -324,6 +324,12 @@ void NodeBasedCartilageSheet::SetCartilageSheetDimensions(
 void NodeBasedCartilageSheet::SetPatchSizeLimit(unsigned patchSizeLimit){
 	assert(patchSizeLimit >= 1);
 	mPatchSizeLimit = patchSizeLimit;
+}
+
+void NodeBasedCartilageSheet::SetPhaseDurations(double stem_cell_g1_duration, double transit_cell_g1_duration, double s_phase_duration){
+	mStemCellG1Duration = stem_cell_g1_duration;
+	mTransitCellG1Duration = transit_cell_g1_duration;
+	mSPhaseDuration = s_phase_duration;
 }
 
 /**
