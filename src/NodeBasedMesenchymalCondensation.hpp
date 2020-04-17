@@ -52,6 +52,9 @@ private:
 
 	unsigned mPatchSizeLimit;
 
+	double mTransitCellG1Duration;
+	double mSPhaseDuration;
+
 	bool mSynchronizeCellCycles;
 	bool mDivisionDirections;
 
@@ -80,6 +83,8 @@ public:
 
 	void GenerateNodesOnCartesianGrid(double);
 	void GenerateNodesOnHCPGrid(double);
+
+	void SetPhaseDurations(double, double);
 
 	void UseRandomSeed();
 

@@ -1,4 +1,7 @@
 #include "PatchSizeTrackingModifier.hpp"
+#include "PerichondrialCellTissueType.hpp"
+#include "StemCellProliferativeType.hpp"
+
 
 template<unsigned DIM>
 PatchSizeTrackingModifier<DIM>::PatchSizeTrackingModifier()
@@ -42,12 +45,24 @@ void PatchSizeTrackingModifier<DIM>::UpdateCellData(AbstractCellPopulation<DIM,D
     {
         // Get ancestor ID (set to -1 if unset)
         int ancestor = (cell_iter->GetAncestor() == UNSIGNED_UNSET) ? (-1) : cell_iter->GetAncestor();
-        if (clonalPatches.count(ancestor)){
-            ++clonalPatches[ancestor]; // increase the count
+        if( ancestor == (int) cell_iter->GetCellId()){ // this perichondrial cell is the ancestor itself
+            if (clonalPatches.count(ancestor)){
+                continue; // don't count the perichondrial cell itself
+            }
+            else{
+                clonalPatches[ancestor] = 0 ; // initialize the count with 0
+            }
         }
-        else{
-            clonalPatches[ancestor] = 1 ;
+        else{ // we're looking at a chondrocyte (that might be the ancestor, but we don't care for now)
+            if (clonalPatches.count(ancestor)){
+                ++clonalPatches[ancestor]; // increase the count
+            }
+            else{
+                clonalPatches[ancestor] = 1 ;
+            }
         }
+        
+        
                 
     }
 

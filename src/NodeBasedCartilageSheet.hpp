@@ -56,6 +56,10 @@ private:
 
 	double mMaxCoordinatePerturbation;
 
+	double mStemCellG1Duration;
+	double mTransitCellG1Duration;
+	double mSPhaseDuration;
+
 	unsigned mSeed;
 
 	unsigned mPatchSizeLimit;
@@ -91,6 +95,8 @@ public:
 
 	void GenerateNodesOnCartesianGrid(double);
 	void GenerateNodesOnHCPGrid(double);
+
+	void SetPhaseDurations(double, double, double);
 
 	void UseRandomSeed();
 

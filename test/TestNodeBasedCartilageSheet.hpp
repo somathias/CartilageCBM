@@ -34,7 +34,7 @@ public:
 		std::string seed_string = ss.str();
 
 		// generate the nodes
-		p_cartilage_sheet->GenerateNodesOnHCPGrid();
+		p_cartilage_sheet->GenerateNodesOnHCPGrid(1.0);
 
 		// setup the cell population
 		if (!p_cartilage_sheet->isCellPopulationSetup()) {
@@ -79,7 +79,7 @@ public:
 		// set the sheet dimensions
 		p_cartilage_sheet->SetCartilageSheetDimensions(5, 4, 2);
 		// generate the nodes
-		p_cartilage_sheet->GenerateNodesOnHCPGrid();
+		p_cartilage_sheet->GenerateNodesOnHCPGrid(1.0);
 
 		// setup the cell population
 		p_cartilage_sheet->Setup();
@@ -136,7 +136,7 @@ public:
 		p_cartilage_sheet->SetCartilageSheetDimensions(5, 4, 5);
 		p_cartilage_sheet->setNumberOfPerichondrialLayersAbove(2);
 		// generate the nodes
-		p_cartilage_sheet->GenerateNodesOnHCPGrid();
+		p_cartilage_sheet->GenerateNodesOnHCPGrid(1.0);
 
 		// setup the cell population
 		p_cartilage_sheet->Setup();
@@ -192,7 +192,7 @@ public:
 		// set the sheet dimensions
 		p_cartilage_sheet->SetCartilageSheetDimensions(5, 4, 1);
 		// generate the nodes
-		p_cartilage_sheet->GenerateNodesOnHCPGrid();
+		p_cartilage_sheet->GenerateNodesOnHCPGrid(1.0);
 
 		// setup the cell population
 		p_cartilage_sheet->Setup();
@@ -269,7 +269,7 @@ public:
 		//p_cartilage_sheet->setMaxCoordinatePerturbation(0.1);
 		//p_cartilage_sheet->UseRandomSeed();
 		// generate the nodes
-		p_cartilage_sheet->GenerateNodesOnCartesianGrid();
+		p_cartilage_sheet->GenerateNodesOnCartesianGrid(1.0);
 
 		TS_ASSERT_EQUALS(p_cartilage_sheet->mNodes.size(),
 				n_nodes_width * n_nodes_depth * n_nodes_height);
@@ -284,7 +284,7 @@ public:
 
 		// now with perturbation
 		p_cartilage_sheet->setMaxCoordinatePerturbation(0.5);
-		p_cartilage_sheet->GenerateNodesOnCartesianGrid();
+		p_cartilage_sheet->GenerateNodesOnCartesianGrid(1.0);
 
 		for (unsigned i = 0; i < p_cartilage_sheet->mNodes.size(); i++) {
 			c_vector<double, 3> coordinates = p_cartilage_sheet->mNodes[i]->rGetLocation();
@@ -314,7 +314,7 @@ public:
 		//p_cartilage_sheet->setMaxCoordinatePerturbation(0.1);
 		//p_cartilage_sheet->UseRandomSeed();
 		// generate the nodes
-		p_cartilage_sheet->GenerateNodesOnHCPGrid();
+		p_cartilage_sheet->GenerateNodesOnHCPGrid(1.0);
 
 		TS_ASSERT_EQUALS(p_cartilage_sheet->mNodes.size(),
 				n_nodes_width * n_nodes_depth * n_nodes_height);
@@ -351,7 +351,7 @@ public:
 
 		// now check with perturbation
 		p_cartilage_sheet->setMaxCoordinatePerturbation(0.1);
-		p_cartilage_sheet->GenerateNodesOnHCPGrid();
+		p_cartilage_sheet->GenerateNodesOnHCPGrid(1.0);
 
 		coordinates_first = p_cartilage_sheet->mNodes[0]->rGetLocation();
 		coordinates_second = p_cartilage_sheet->mNodes[1]->rGetLocation();
@@ -393,7 +393,7 @@ public:
 		p_cartilage_sheet->setNumberOfPerichondrialLayersAbove(1); // set the upper layer to be perichondrial as well.
 
 		// generate the nodes
-		p_cartilage_sheet->GenerateNodesOnHCPGrid();
+		p_cartilage_sheet->GenerateNodesOnHCPGrid(1.0);
 
 		// setup the cell population
 		if (!p_cartilage_sheet->isCellPopulationSetup()) {
@@ -428,7 +428,7 @@ public:
 		p_cartilage_sheet->SetCartilageSheetDimensions(2, 2, 2);
 
 		// generate the nodes
-		p_cartilage_sheet->GenerateNodesOnHCPGrid();
+		p_cartilage_sheet->GenerateNodesOnHCPGrid(1.0);
 
 		// setup the cell population
 		if (!p_cartilage_sheet->isCellPopulationSetup()) {
