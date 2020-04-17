@@ -56,8 +56,8 @@ void NodeBasedMesenchymalCondensation::Setup()
 	for (unsigned i=0; i<mMesh.GetNumNodes(); i++)
     {
 		ChondrocytesOnlyCellCycleModel* p_model = new ChondrocytesOnlyCellCycleModel();
-		p_model->SetTransitCellG1Duration(30.0);
-		p_model->SetSDuration(10.0);
+		p_model->SetTransitCellG1Duration(mTransitCellG1Duration);
+		p_model->SetSDuration(mSPhaseDuration);
 		p_model->SetMDuration(1e-12);
 		p_model->SetG2Duration(1e-12);
 		p_model->SetMaxTransitGenerations(2);
@@ -183,6 +183,12 @@ void NodeBasedMesenchymalCondensation::SetPatchSizeLimit(unsigned patchSizeLimit
 	assert(patchSizeLimit >= 1);
 	mPatchSizeLimit = patchSizeLimit;
 }
+
+void NodeBasedMesenchymalCondensation::SetPhaseDurations(double transit_cell_g1_duration, double s_phase_duration){
+	mTransitCellG1Duration = transit_cell_g1_duration;
+	mSPhaseDuration = s_phase_duration;
+}
+
 
 /**
  * Generates random node coordinates for a 3D cell sheet a given number of cells wide and deep.
