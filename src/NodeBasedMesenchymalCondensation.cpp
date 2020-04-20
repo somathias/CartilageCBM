@@ -119,6 +119,8 @@ void NodeBasedMesenchymalCondensation::InitialiseRandomConfiguration(
 	MAKE_PTR(TransitCellProliferativeType, p_transit_type);
 	boost::shared_ptr<AbstractCellProperty> p_upwards(
 		mpCellPopulation->GetCellPropertyRegistry()->Get<UpwardsCellDivisionDirection<3>>());
+	boost::shared_ptr<AbstractCellProperty> p_chondrocyte(
+		mpCellPopulation->GetCellPropertyRegistry()->Get<ChondrocyteCellTissueType>());
 
 
 	// generate transit cell indices for all layers
@@ -143,6 +145,7 @@ void NodeBasedMesenchymalCondensation::InitialiseRandomConfiguration(
 		{
 
 			cell->SetCellProliferativeType(p_transit_type);
+			cell->AddCellProperty(p_chondrocyte);
 
 			MAKE_PTR_ARGS(CellAncestor, p_cell_ancestor, (node_index));
 			cell->SetAncestor(p_cell_ancestor);
@@ -170,6 +173,8 @@ void NodeBasedMesenchymalCondensation::InitialiseRandomConfiguration(
 		}
 	}
 	mpCellPopulation->AddCellWriter<CellAncestorWriter>();
+	mpCellPopulation->AddCellWriter<CellDivisionDirectionsWriter>();
+	mpCellPopulation->AddCellWriter<CellTissueTypesWriter>();
 }
 
 void NodeBasedMesenchymalCondensation::SetDimensions(
