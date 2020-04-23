@@ -45,7 +45,9 @@ void PatchSizeTrackingModifier<DIM>::UpdateCellData(AbstractCellPopulation<DIM,D
     {
         // Get ancestor ID (set to -1 if unset)
         int ancestor = (cell_iter->GetAncestor() == UNSIGNED_UNSET) ? (-1) : cell_iter->GetAncestor();
-        if( ancestor == (int) cell_iter->GetCellId()){ // this perichondrial cell is the ancestor itself
+        CellPtr my_cell = *cell_iter;
+        bool isPeri = my_cell->HasCellProperty<PerichondrialCellTissueType>();
+        if( ancestor == (int) cell_iter->GetCellId() && isPeri ){ // this perichondrial cell is the ancestor itself
             if (clonalPatches.count(ancestor)){
                 continue; // don't count the perichondrial cell itself
             }
