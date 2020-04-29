@@ -32,6 +32,7 @@
 #include "PWQGeneralisedLinearSpringForce.hpp"
 #include "RepulsionForce.hpp"
 #include "PatchSizeTrackingModifier.hpp"
+#include "ChondrocytesOnlyCellCycleModel.hpp"
 
 
 // Program option includes for handling command line arguments
@@ -45,7 +46,7 @@
  */
 void SetupSingletons(unsigned randomSeed);
 void DestroySingletons();
-void SetupAndRunMesenchymalCondensationSimulation(unsigned randomSeed, bool, bool, unsigned,
+void SetupAndRunMesenchymalCondensationSimulation(unsigned randomSeed, bool, bool, bool,  unsigned,
 		unsigned, double, double, double, unsigned, double, double, double, double, double, double, double, std::string, std::string);
 void SetForceFunction(OffLatticeSimulation<3>&, std::string, double, double, double, double, double, double);
 
@@ -59,7 +60,8 @@ int main(int argc, char *argv[]) {
 			"This is a Chaste executable.\n");
 	general_options.add_options()("help", "Produce help message")("sbt",
 			"Synchronized birth times")("rdd",
-			"Random division directions")("S",
+			"Random division directions")("continue",
+			"Continue simulation after increasing upper boundary and patch size limit")("S",
 			boost::program_options::value<unsigned>()->default_value(0),
 			"The random seed")("sw",
 			boost::program_options::value<unsigned>()->default_value(5),
@@ -114,6 +116,10 @@ int main(int argc, char *argv[]) {
 	if (variables_map.count("rdd")) {
 		random_division_directions = true;
 	}
+	bool cont = false;
+	if (variables_map.count("continue")) {
+		cont = true;
+	}
 
 	// Get ID and name from command line
 	unsigned random_seed = variables_map["S"].as<unsigned>();
@@ -143,7 +149,7 @@ int main(int argc, char *argv[]) {
 
 
 	SetupSingletons(random_seed);
-	SetupAndRunMesenchymalCondensationSimulation(random_seed, random_birth_times, random_division_directions,
+	SetupAndRunMesenchymalCondensationSimulation(random_seed, random_birth_times, random_division_directions, cont, 
 			n_cells_wide, n_cells_deep, scaling, upper_boundary, activation_percentage, patch_size_limit,
 			maximum_perturbation, transit_cell_g1_duration, s_phase_duration, spring_stiffness, spring_stiffness_repulsion,
 			simulation_end_time, dt, force_function, output_directory);	
@@ -208,7 +214,7 @@ void SetForceFunction(OffLatticeSimulation<3>& simulator, std::string forceFunct
 }
 
 void SetupAndRunMesenchymalCondensationSimulation(unsigned random_seed,
-		bool random_birth_times, bool random_division_directions, 
+		bool random_birth_times, bool random_division_directions, bool cont, 
 		unsigned n_cells_wide, unsigned n_cells_deep, double scaling, double upper_boundary, 
 		double activation_percentage, unsigned patch_size_limit,
 		double maximum_perturbation, double transit_cell_g1_duration, double s_phase_duration,
@@ -281,7 +287,7 @@ void SetupAndRunMesenchymalCondensationSimulation(unsigned random_seed,
     c_vector<double,3> point = zero_vector<double>(3);
     c_vector<double,3> normal = zero_vector<double>(3);
     normal(2) = -1.0;
-	NodeBasedCellPopulation<3> nCellPop = *cell_population;
+	//NodeBasedCellPopulation<3> nCellPop = *cell_population;
     MAKE_PTR_ARGS(PlaneBoundaryCondition<3>, p_bc, (cell_population.get(), point, normal));
     //p_bc->SetUseJiggledNodesOnPlane(true);
     simulator.AddCellPopulationBoundaryCondition(p_bc);
@@ -302,6 +308,30 @@ void SetupAndRunMesenchymalCondensationSimulation(unsigned random_seed,
 
 	CellBasedEventHandler::Reset();
 	simulator.Solve();
+
+	if (cont){
+		//reset the upper plane
+		point_up(2) = upper_boundary + 2.0;
+		simulator.RemoveAllCellPopulationBoundaryConditions();
+		simulator.AddCellPopulationBoundaryCondition(p_bc);
+		MAKE_PTR_ARGS(PlaneBoundaryCondition<3>, p_bc_up_wider, (cell_population.get(), point_up, normal_up));
+    	simulator.AddCellPopulationBoundaryCondition(p_bc_up_wider);
+
+		//increase the patch size limit
+		for (AbstractCellPopulation<3>::Iterator cell_iter =
+			cell_population.get()->Begin(); cell_iter != cell_population.get()->End();
+			++cell_iter) {
+			
+			static_cast<ChondrocytesOnlyCellCycleModel*>(cell_iter->GetCellCycleModel())->SetPatchSizeLimit(patch_size_limit+2);
+			cell_iter->SetBirthTime(simulation_endtime); //reset the birth time so that not every cell wants to divide at once
+		}
+		simulator.SetEndTime(simulation_endtime+50); //hours
+
+		simulator.Solve();
+	}
+
+	
+
 	
 
 
