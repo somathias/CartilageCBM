@@ -3,6 +3,7 @@
 #include "UpwardsCellDivisionDirection.hpp"
 #include "DownwardsCellDivisionDirection.hpp"
 #include "HorizontalCellDivisionDirection.hpp"
+#include "PerichondrialCellTissueType.hpp"
 
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -128,7 +129,12 @@ std::pair<c_vector<double, SPACE_DIM>, c_vector<double, SPACE_DIM>> OrientationB
         }
     }
 
-    c_vector<double, SPACE_DIM> parent_position = rCellPopulation.GetLocationOfCellCentre(pParentCell) - main_direction;
+    c_vector<double, SPACE_DIM> parent_position = rCellPopulation.GetLocationOfCellCentre(pParentCell);
+    if (!pParentCell->HasCellProperty<PerichondrialCellTissueType>()){
+        //parent cell is not perichondrial - move backwards
+        parent_position -=  main_direction;
+    }
+
     c_vector<double, SPACE_DIM> daughter_position = parent_position + 2 * main_direction;
 
     std::pair<c_vector<double, SPACE_DIM>, c_vector<double, SPACE_DIM>> positions(parent_position, daughter_position);
