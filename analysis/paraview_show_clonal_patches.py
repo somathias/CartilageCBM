@@ -6,9 +6,10 @@ from paraview.simple import *
 def screenshot(argv): 
        
     path = '/home/kubuntu1804/Documents/sf_simulation_results/exp-optimal_adhesion/20190306-151409/0.5/0.5/0/'
+    time_step = 450
     
     try:
-        opts, args = getopt.getopt(argv,"hi:",["ifile="])
+        opts, args = getopt.getopt(argv,"hi:t:",["ifile=", "time="])
     except getopt.GetoptError:
         print('No path to input provided via -i flag. Using default.')
     for opt, arg in opts:
@@ -17,7 +18,12 @@ def screenshot(argv):
             sys.exit()
         elif opt in ("-i", "--ifile"):
             path = arg
+        elif opt in ("-t", "--time"):
+            time_step = int(arg)
+            
     print('Input file path is '+ path)
+    print('Time step is '+ str(time_step))
+
 
     #### disable automatic camera reset on 'Show'
     paraview.simple._DisableFirstRenderCameraReset()
@@ -168,21 +174,22 @@ def screenshot(argv):
     
     tk = GetTimeKeeper()
     timesteps = tk.TimestepValues
-    animationScene1.AnimationTime = timesteps[400]
+    animationScene1.AnimationTime = timesteps[time_step]
+    print(len(timesteps))
     
     
     
     # save screenshot
-    SaveScreenshot(path+'patches_t40.png', renderView1, ImageResolution=[949, 654])
+    SaveScreenshot(path+'patches.png', renderView1, ImageResolution=[949, 654])
     #SaveScreenshot('/home/kubuntu1804/Documents/sf_simulation_results/exp-random_direction/20190219-155036/0.0/0.5/0/columns_t40.png', renderView1, ImageResolution=[949, 654])
     #### saving camera placements for all active views
     
     
-    animationScene1.AnimationTime = timesteps[450]
-    
-    # save screenshot
-    SaveScreenshot(path+'patches_t45.png', renderView1, ImageResolution=[949, 654])
-    
+#    animationScene1.AnimationTime = timesteps[450]
+#    
+#    # save screenshot
+#    SaveScreenshot(path+'patches_t45.png', renderView1, ImageResolution=[949, 654])
+#    
     
     # current camera placement for renderView1
     renderView1.CameraPosition = [7.193617343902588, -26.7593766832504, 0.16042351722717285]
