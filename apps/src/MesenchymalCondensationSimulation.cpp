@@ -46,7 +46,7 @@
  */
 void SetupSingletons(unsigned randomSeed);
 void DestroySingletons();
-void SetupAndRunMesenchymalCondensationSimulation(unsigned randomSeed, bool, bool, bool,  unsigned,
+void SetupAndRunMesenchymalCondensationSimulation(unsigned randomSeed, bool, bool, bool,  bool, unsigned,
 		unsigned, double, double, double, unsigned, double, double, double, double, double, double, double, std::string, std::string);
 void SetForceFunction(OffLatticeSimulation<3>&, std::string, double, double, double, double, double, double);
 
@@ -61,7 +61,8 @@ int main(int argc, char *argv[]) {
 	general_options.add_options()("help", "Produce help message")("sbt",
 			"Synchronized birth times")("rdd",
 			"Random division directions")("continue",
-			"Continue simulation after increasing upper boundary and patch size limit")("S",
+			"Continue simulation after increasing upper boundary and patch size limit")("flat",
+			"Do not use offset in z direction")("S",
 			boost::program_options::value<unsigned>()->default_value(0),
 			"The random seed")("sw",
 			boost::program_options::value<unsigned>()->default_value(5),
@@ -121,6 +122,11 @@ int main(int argc, char *argv[]) {
 		cont = true;
 	}
 
+	bool use_offset = true;
+	if (variables_map.count("flat")) {
+		use_offset = false;
+	}
+
 	// Get ID and name from command line
 	unsigned random_seed = variables_map["S"].as<unsigned>();
 	unsigned n_cells_wide = variables_map["sw"].as<unsigned>();
@@ -149,7 +155,7 @@ int main(int argc, char *argv[]) {
 
 
 	SetupSingletons(random_seed);
-	SetupAndRunMesenchymalCondensationSimulation(random_seed, random_birth_times, random_division_directions, cont, 
+	SetupAndRunMesenchymalCondensationSimulation(random_seed, random_birth_times, random_division_directions, cont, use_offset,
 			n_cells_wide, n_cells_deep, scaling, upper_boundary, activation_percentage, patch_size_limit,
 			maximum_perturbation, transit_cell_g1_duration, s_phase_duration, spring_stiffness, spring_stiffness_repulsion,
 			simulation_end_time, dt, force_function, output_directory);	
@@ -214,7 +220,7 @@ void SetForceFunction(OffLatticeSimulation<3>& simulator, std::string forceFunct
 }
 
 void SetupAndRunMesenchymalCondensationSimulation(unsigned random_seed,
-		bool random_birth_times, bool random_division_directions, bool cont, 
+		bool random_birth_times, bool random_division_directions, bool cont, bool use_offset,
 		unsigned n_cells_wide, unsigned n_cells_deep, double scaling, double upper_boundary, 
 		double activation_percentage, unsigned patch_size_limit,
 		double maximum_perturbation, double transit_cell_g1_duration, double s_phase_duration,
@@ -254,7 +260,7 @@ void SetupAndRunMesenchymalCondensationSimulation(unsigned random_seed,
 		p_condensation->setDivisionDirections(false);
 	}
 	// generate the nodes
-	p_condensation->GenerateNodesOnHCPGrid(scaling);
+	p_condensation->GenerateNodesOnHCPGrid(scaling, use_offset);
 
 	// setup the cell population
 	if (!p_condensation->isCellPopulationSetup()) {

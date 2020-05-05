@@ -81,8 +81,8 @@ public:
 
 	void SetPatchSizeLimit(unsigned);
 
-	void GenerateNodesOnCartesianGrid(double);
-	void GenerateNodesOnHCPGrid(double);
+	void GenerateNodesOnCartesianGrid(double, bool);
+	void GenerateNodesOnHCPGrid(double, bool);
 
 	void SetPhaseDurations(double, double);
 

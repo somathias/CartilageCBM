@@ -28,7 +28,7 @@ void NodeBasedMesenchymalCondensation::Setup()
 	// mesh generation
 	if (!mNodesGenerated)
 	{
-		GenerateNodesOnCartesianGrid(1.0);
+		GenerateNodesOnCartesianGrid(1.0, true);
 	}
 	else if (mNodes.size() != mNumberOfNodesPerXDimension * mNumberOfNodesPerYDimension)
 	{
@@ -199,7 +199,7 @@ void NodeBasedMesenchymalCondensation::SetPhaseDurations(double transit_cell_g1_
  * Generates random node coordinates for a 3D cell sheet a given number of cells wide and deep.
  * Arrangement of the nodes will be on a Cartesian grid.
  */
-void NodeBasedMesenchymalCondensation::GenerateNodesOnCartesianGrid(double scaling)
+void NodeBasedMesenchymalCondensation::GenerateNodesOnCartesianGrid(double scaling, bool use_offset)
 {
 
 	mNodes.clear();
@@ -225,7 +225,10 @@ void NodeBasedMesenchymalCondensation::GenerateNodesOnCartesianGrid(double scali
 
 				double noise = mMaxCoordinatePerturbation * RandomNumberGenerator::Instance()->ranf();
 
-                double z_offset = mDistanceBetweeenBoundaries *RandomNumberGenerator::Instance()->ranf();
+                double z_offset = 0.0;
+				if (use_offset){
+					z_offset = mDistanceBetweeenBoundaries *RandomNumberGenerator::Instance()->ranf();
+				}
 
 				double random_azimuth_angle = 2 * M_PI * u;
 				double random_zenith_angle = std::acos(2 * v - 1);
@@ -247,7 +250,7 @@ void NodeBasedMesenchymalCondensation::GenerateNodesOnCartesianGrid(double scali
  * Generates random node coordinates for a 3D cell sheet a given number of cells wide, deep and high.
  * Arrangement of the nodes will be on a hcp lattice.
  */
-void NodeBasedMesenchymalCondensation::GenerateNodesOnHCPGrid(double scaling)
+void NodeBasedMesenchymalCondensation::GenerateNodesOnHCPGrid(double scaling, bool use_offset)
 {
 
 	mNodes.clear();
@@ -274,7 +277,10 @@ void NodeBasedMesenchymalCondensation::GenerateNodesOnHCPGrid(double scaling)
 
 				double noise = mMaxCoordinatePerturbation * RandomNumberGenerator::Instance()->ranf();
 
-				double z_offset = mDistanceBetweeenBoundaries *RandomNumberGenerator::Instance()->ranf();
+				double z_offset = 0.0;
+				if (use_offset){
+					z_offset = mDistanceBetweeenBoundaries *RandomNumberGenerator::Instance()->ranf();
+				}
 
 				double random_azimuth_angle = 2 * M_PI * u;
 				double random_zenith_angle = std::acos(2 * v - 1);
