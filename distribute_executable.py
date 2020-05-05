@@ -88,14 +88,14 @@ def run_simulations_list(list_of_flags=[''], random_seed=0, executable='/home/ku
     # Pass the list of bash commands to the pool
     pool.map_async(execute_command, command_list).get(86400)
 
-def run_postprocessing_multiple_random_seeds(number_of_simulations, output_directory, output_path='/home/kubuntu1804/Documents/sf_simulation_results/'):
+def run_postprocessing_multiple_random_seeds(number_of_simulations, output_directory, output_path='/home/kubuntu1804/Documents/sf_simulation_results/', start_time=0):
     
     # Make a list of output_directories
     directory_list = []
 
     for random_seed in range(number_of_simulations):
 
-        directory = output_path + output_directory + str(random_seed) +'/results_from_time_0/'
+        directory = output_path + output_directory + str(random_seed) +'/results_from_time_'+str(start_time)+'/'
         directory_list.append(directory)
     print(directory_list)
 
@@ -110,13 +110,13 @@ def run_postprocessing_multiple_random_seeds(number_of_simulations, output_direc
     # Pass the list of bash commands to the pool
     pool.map_async(evaluate_cartilage_sheet.main, directory_list).get(86400)
 
-def run_postprocessing_list(list_of_directories, random_seed=0, output_path='/home/kubuntu1804/Documents/sf_simulation_results/'):
+def run_postprocessing_list(list_of_directories, random_seed=0, output_path='/home/kubuntu1804/Documents/sf_simulation_results/', start_time=0):
     
     # Make a list of output_directories
     directory_list = []
 
     for direc in list_of_directories:
-        directory_list.append(output_path + direc + str(random_seed) +'/results_from_time_0/')
+        directory_list.append(output_path + direc + str(random_seed) +'/results_from_time_'+str(start_time)+'/')
     print(directory_list)
 
     # Use processes equal to the number of cpus available
