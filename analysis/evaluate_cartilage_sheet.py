@@ -147,7 +147,7 @@ def main(path):
             ch = ch[:-1, :]
             rcq = rcq[:-1,:]
             ppa = ppa[:-1, :]
-    print(ppa[0,:])
+
 #            
 #    #--calculate, plot and save mean column quality ----------------------------
 #    cq_mean = np.mean(cq, axis=0)
