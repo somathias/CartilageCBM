@@ -7,9 +7,10 @@ def screenshot(argv):
        
     path = '/home/kubuntu1804/Documents/sf_simulation_results/exp-optimal_adhesion/20190306-151409/0.5/0.5/0/'
     time_step = 450
+    start='0'
     
     try:
-        opts, args = getopt.getopt(argv,"hi:t:",["ifile=", "time="])
+        opts, args = getopt.getopt(argv,"hi:t:s:",["ifile=", "time=", "start="])
     except getopt.GetoptError:
         print('No path to input provided via -i flag. Using default.')
     for opt, arg in opts:
@@ -20,16 +21,19 @@ def screenshot(argv):
             path = arg
         elif opt in ("-t", "--time"):
             time_step = int(arg)
+        elif opt in ("-s", "--start"):
+            start = arg
             
     print('Input file path is '+ path)
     print('Time step is '+ str(time_step))
+    print('Start time is '+ start)
 
 
     #### disable automatic camera reset on 'Show'
     paraview.simple._DisableFirstRenderCameraReset()
     
     # create a new 'PVD Reader'
-    resultspvd = PVDReader(FileName=path+'results_from_time_0/results.pvd')
+    resultspvd = PVDReader(FileName=path+'results_from_time_'+start+'/results.pvd')
     #resultspvd = PVDReader(FileName='/home/kubuntu1804/Documents/sf_simulation_results/exp-random_direction/20190219-155036/0.0/0.5/0/results_from_time_0/results.pvd')
     
     # get animation scene
