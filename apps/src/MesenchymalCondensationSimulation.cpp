@@ -316,10 +316,12 @@ void SetupAndRunMesenchymalCondensationSimulation(unsigned random_seed,
 	simulator.Solve();
 
 	if (cont){
-		//reset the upper plane
-		point_up(2) = upper_boundary + 2.0;
+		//reset the both the upper and the lower plane
+		point(2) = -1.0;
+		point_up(2) = upper_boundary + 1.0;
 		simulator.RemoveAllCellPopulationBoundaryConditions();
-		simulator.AddCellPopulationBoundaryCondition(p_bc);
+		MAKE_PTR_ARGS(PlaneBoundaryCondition<3>, p_bc_lower, (cell_population.get(), point, normal));
+    	simulator.AddCellPopulationBoundaryCondition(p_bc_lower);
 		MAKE_PTR_ARGS(PlaneBoundaryCondition<3>, p_bc_up_wider, (cell_population.get(), point_up, normal_up));
     	simulator.AddCellPopulationBoundaryCondition(p_bc_up_wider);
 
