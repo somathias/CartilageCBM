@@ -160,7 +160,7 @@ def screenshot(argv):
     # reset view to fit data
     renderView1.ResetCamera()
     
-    animationScene1.GoToLast()
+    #animationScene1.GoToLast()
     
     # current camera placement for renderView1
     renderView1.CameraPosition = [-19.125742985611605, 4.73473185300827, 1.7598326057195663]
@@ -168,8 +168,12 @@ def screenshot(argv):
     renderView1.CameraViewUp = [0.0, 0.0, 1.0]
     renderView1.CameraParallelScale = 7.16435526763671
     
+    tk = GetTimeKeeper()
+    timesteps = tk.TimestepValues
+    animationScene1.AnimationTime = timesteps[time_step]
+    
     # save screenshot
-    SaveScreenshot(path+'plus_x.png', renderView1, ImageResolution=[1229, 732])
+    SaveScreenshot(path+'plus_x_t'+str(time_step)+'.png', renderView1, ImageResolution=[1229, 732])
     
     # create a new 'Threshold'
     threshold1 = Threshold(Input=glyph1)
@@ -244,7 +248,8 @@ def screenshot(argv):
     # reset view to fit data
     renderView1.ResetCamera()
     
-    animationScene1.GoToLast()
+    #animationScene1.GoToLast()
+    animationScene1.AnimationTime = timesteps[time_step]
     
     # current camera placement for renderView1
     renderView1.CameraPosition = [3.854806661605835, 19.1787146788673, 1.75]
@@ -253,7 +258,7 @@ def screenshot(argv):
     renderView1.CameraParallelScale = 6.441634600341691
     
     # save screenshot
-    SaveScreenshot(path+'threshold_48_minus_y.png', renderView1, ImageResolution=[1229, 732])
+    SaveScreenshot(path+'threshold_48_minus_y_t'+str(time_step)+'.png', renderView1, ImageResolution=[1229, 732])
      
     #### uncomment the following to render all views
     #RenderAllViews()
