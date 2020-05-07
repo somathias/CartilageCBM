@@ -14,6 +14,11 @@ std::pair<c_vector<double, SPACE_DIM>, c_vector<double, SPACE_DIM>> OrientationB
     // Get separation parameter
     double separation = rCellPopulation.GetMeinekeDivisionSeparation();
 
+    if (pParentCell->HasCellProperty<PerichondrialCellTissueType>()){
+        //parent cell is perichondrial - do not place cells at overlap
+        separation = 1.0;
+    }
+
     // Make a random direction vector of the required length
     c_vector<double, SPACE_DIM> main_direction;
 
