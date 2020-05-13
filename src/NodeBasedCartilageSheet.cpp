@@ -500,3 +500,49 @@ void NodeBasedCartilageSheet::GenerateNodesOnHCPGrid(double scaling)
 	}
 	mNodesGenerated = true;
 }
+
+void NodeBasedCartilageSheet::GenerateNodesOnStackedHexagonalGrid(double scaling)
+{
+
+	mNodes.clear();
+	unsigned n_nodes_width = mNumberOfNodesPerXDimension;
+	unsigned n_nodes_depth = mNumberOfNodesPerYDimension;
+	unsigned n_nodes_height = mNumberOfNodesPerZDimension;
+	unsigned n_nodes = n_nodes_width * n_nodes_depth * n_nodes_height;
+	mNodes.reserve(n_nodes);
+
+	unsigned id = 0;
+
+	for (unsigned k = 0; k < n_nodes_height; k++)
+	{
+		for (unsigned j = 0; j < n_nodes_depth; j++)
+		{
+			for (unsigned i = 0; i < n_nodes_width; i++)
+			{
+				/*
+				 * Note that to pick a random point on the surface of a sphere, it is incorrect
+				 * to select spherical coordinates from uniform distributions on [0, 2*pi) and
+				 * [0, pi) respectively, since points picked in this way will be 'bunched' near
+				 * the poles.
+				 */
+				double u = RandomNumberGenerator::Instance()->ranf();
+				double v = RandomNumberGenerator::Instance()->ranf();
+
+				double noise = mMaxCoordinatePerturbation * RandomNumberGenerator::Instance()->ranf();
+
+				double random_azimuth_angle = 2 * M_PI * u;
+				double random_zenith_angle = std::acos(2 * v - 1);
+
+				double x_coordinate = scaling*((2 * i + (j % 2)) * 0.5 + noise * cos(random_azimuth_angle) * sin(random_zenith_angle));
+				double y_coordinate = scaling*((sqrt(3) * j) * 0.5 + noise * sin(random_azimuth_angle) * sin(random_zenith_angle));
+				double z_coordinate = k + noise * cos(random_zenith_angle);
+				mNodes.push_back(
+					new Node<3>(id, false, x_coordinate, y_coordinate,
+								z_coordinate));
+				id++;
+			}
+		}
+	}
+	mNodesGenerated = true;
+}
+

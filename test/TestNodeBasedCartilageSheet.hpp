@@ -382,6 +382,54 @@ public:
 		TS_ASSERT_DELTA(coordinates_last[2], 1.6329, 1e-1);
 	}
 
+		/**
+	 * Minimal testing for the generation of the node coordinates on a HCP lattice
+	 */
+	void TestStackedHexagonalGridNodeGeneration()  {
+		unsigned n_nodes_width = 3;
+		unsigned n_nodes_depth = 3;
+		unsigned n_nodes_height = 3;
+
+		// Construct a new cartilage sheet
+		NodeBasedCartilageSheet* p_cartilage_sheet =
+		new NodeBasedCartilageSheet();
+
+		// set the sheet dimensions
+		p_cartilage_sheet->SetCartilageSheetDimensions(n_nodes_width,
+				n_nodes_depth, n_nodes_height);
+		//p_cartilage_sheet->setMaxCoordinatePerturbation(0.1);
+		//p_cartilage_sheet->UseRandomSeed();
+		// generate the nodes
+		p_cartilage_sheet->GenerateNodesOnStackedHexagonalGrid(1.0);
+
+		TS_ASSERT_EQUALS(p_cartilage_sheet->mNodes.size(),
+				n_nodes_width * n_nodes_depth * n_nodes_height);
+
+		c_vector<double, 3> coordinates_first =
+		p_cartilage_sheet->mNodes[0]->rGetLocation();
+		c_vector<double, 3> coordinates_second =
+		p_cartilage_sheet->mNodes[9]->rGetLocation();
+		c_vector<double, 3> coordinates_last =
+		p_cartilage_sheet->mNodes[p_cartilage_sheet->mNodes.size() - 1]->rGetLocation();
+
+		//check that first node is in origin
+		TS_ASSERT_EQUALS(coordinates_first[0], 0);
+		TS_ASSERT_EQUALS(coordinates_first[1], 0);
+		TS_ASSERT_EQUALS(coordinates_first[2], 0);
+
+		//check that second node is directly above the first
+		TS_ASSERT_EQUALS(coordinates_second[0], coordinates_first[0]);
+		TS_ASSERT_EQUALS(coordinates_second[1], coordinates_first[1]);
+		TS_ASSERT_EQUALS(coordinates_second[2], 1.0);
+		
+		//check the coordinates of the last node
+		TS_ASSERT_EQUALS(coordinates_last[0], 2.0);
+		TS_ASSERT_DELTA(coordinates_last[1], 1.7320, 1e-4);
+		TS_ASSERT_EQUALS(coordinates_last[2], n_nodes_height-1.0);
+
+		
+	}
+
 	void TestDivisionDirections()  {
 
 		// Construct a new cartilage sheet

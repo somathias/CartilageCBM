@@ -95,6 +95,7 @@ public:
 
 	void GenerateNodesOnCartesianGrid(double);
 	void GenerateNodesOnHCPGrid(double);
+	void GenerateNodesOnStackedHexagonalGrid(double);
 
 	void SetPhaseDurations(double, double, double);
 
