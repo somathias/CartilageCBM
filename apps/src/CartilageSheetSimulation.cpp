@@ -299,7 +299,7 @@ void SetupAndRunCartilageSheetSimulation(unsigned random_seed,
 	}
 	else {
 		// generate the nodes
-		p_cartilage_sheet->GenerateNodesOnHCPGrid(scaling);
+		p_cartilage_sheet->GenerateNodesOnStackedHexagonalGrid(scaling);
 	}
 	
 
