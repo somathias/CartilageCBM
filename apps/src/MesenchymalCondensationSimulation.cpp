@@ -46,7 +46,7 @@
  */
 void SetupSingletons(unsigned randomSeed);
 void DestroySingletons();
-void SetupAndRunMesenchymalCondensationSimulation(unsigned randomSeed, bool, bool, bool,  bool, unsigned,
+void SetupAndRunMesenchymalCondensationSimulation(unsigned randomSeed, bool, bool, bool,  bool, bool, unsigned,
 		unsigned, double, double, double, unsigned, double, double, double, double, double, double, double, std::string, std::string);
 void SetForceFunction(OffLatticeSimulation<3>&, std::string, double, double, double, double, double, double);
 
@@ -62,7 +62,7 @@ int main(int argc, char *argv[]) {
 			"Synchronized birth times")("rdd",
 			"Random division directions")("continue",
 			"Continue simulation after increasing upper boundary and patch size limit")("flat",
-			"Do not use offset in z direction")("S",
+			"Do not use offset in z direction")("lb0", "Have lower boundary at z=0")("S",
 			boost::program_options::value<unsigned>()->default_value(0),
 			"The random seed")("sw",
 			boost::program_options::value<unsigned>()->default_value(5),
@@ -127,6 +127,12 @@ int main(int argc, char *argv[]) {
 		use_offset = false;
 	}
 
+	bool symmetrical_boundary = true;
+	if (variables_map.count("lb0")) {
+		symmetrical_boundary = false;
+	}
+	
+
 	// Get ID and name from command line
 	unsigned random_seed = variables_map["S"].as<unsigned>();
 	unsigned n_cells_wide = variables_map["sw"].as<unsigned>();
@@ -156,6 +162,7 @@ int main(int argc, char *argv[]) {
 
 	SetupSingletons(random_seed);
 	SetupAndRunMesenchymalCondensationSimulation(random_seed, random_birth_times, random_division_directions, cont, use_offset,
+			symmetrical_boundary,
 			n_cells_wide, n_cells_deep, scaling, upper_boundary, activation_percentage, patch_size_limit,
 			maximum_perturbation, transit_cell_g1_duration, s_phase_duration, spring_stiffness, spring_stiffness_repulsion,
 			simulation_end_time, dt, force_function, output_directory);	
@@ -220,7 +227,7 @@ void SetForceFunction(OffLatticeSimulation<3>& simulator, std::string forceFunct
 }
 
 void SetupAndRunMesenchymalCondensationSimulation(unsigned random_seed,
-		bool random_birth_times, bool random_division_directions, bool cont, bool use_offset,
+		bool random_birth_times, bool random_division_directions, bool cont, bool use_offset, bool symmetrical_boundary,
 		unsigned n_cells_wide, unsigned n_cells_deep, double scaling, double upper_boundary, 
 		double activation_percentage, unsigned patch_size_limit,
 		double maximum_perturbation, double transit_cell_g1_duration, double s_phase_duration,
@@ -291,16 +298,24 @@ void SetupAndRunMesenchymalCondensationSimulation(unsigned random_seed,
 
 	//bottom plane
     c_vector<double,3> point = zero_vector<double>(3);
-    c_vector<double,3> normal = zero_vector<double>(3);
+	if(symmetrical_boundary){
+		point(2) = - upper_boundary/2.0;
+	}
+	c_vector<double,3> normal = zero_vector<double>(3);
     normal(2) = -1.0;
 	//NodeBasedCellPopulation<3> nCellPop = *cell_population;
-    MAKE_PTR_ARGS(PlaneBoundaryCondition<3>, p_bc, (cell_population.get(), point, normal));
+    MAKE_PTR_ARGS(PlaneBoundaryCondition<3>, p_bc_down, (cell_population.get(), point, normal));
     //p_bc->SetUseJiggledNodesOnPlane(true);
-    simulator.AddCellPopulationBoundaryCondition(p_bc);
+    simulator.AddCellPopulationBoundaryCondition(p_bc_down);
 
     //upper plane
     c_vector<double,3> point_up = zero_vector<double>(3);
-    point_up(2) = upper_boundary;
+	if(symmetrical_boundary){
+		point_up(2) = upper_boundary/2.0;
+	}
+	else {
+    	point_up(2) = upper_boundary;
+	}
     c_vector<double,3> normal_up = zero_vector<double>(3);
     normal_up(2) = 1.0;
     MAKE_PTR_ARGS(PlaneBoundaryCondition<3>, p_bc_up, (cell_population.get(), point_up, normal_up));
