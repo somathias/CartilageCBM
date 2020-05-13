@@ -154,7 +154,7 @@ def screenshot(argv):
     renderView1.ResetCamera()
     
     # Properties modified on glyphScaleLUT
-    glyphScaleLUT.NumberOfTableValues = 283
+    glyphScaleLUT.NumberOfTableValues = 258 #283
     
     # get opacity transfer function/opacity map for 'GlyphScale'
     glyphScalePWF = GetOpacityTransferFunction('GlyphScale')
@@ -177,7 +177,7 @@ def screenshot(argv):
     animationScene1.AnimationTime = timesteps[time_step]
     
     # save screenshot
-    SaveScreenshot(path+'plus_x_t'+str(time_step)+'.png', renderView1, ImageResolution=[1229, 732])
+    #SaveScreenshot(path+'plus_x_t'+str(time_step)+'.png', renderView1, ImageResolution=[1229, 732])
     
     # create a new 'Threshold'
     threshold1 = Threshold(Input=glyph1)
@@ -256,10 +256,10 @@ def screenshot(argv):
     animationScene1.AnimationTime = timesteps[time_step]
     
     # current camera placement for renderView1
-    renderView1.CameraPosition = [3.854806661605835, 19.1787146788673, 1.75]
-    renderView1.CameraFocalPoint = [3.854806661605835, 2.17948997020721, 1.75]
+    renderView1.CameraPosition = [3.85671669244766, 27.3666101354151, 3.25]
+    renderView1.CameraFocalPoint = [3.85671669244766, 2.34563988447189, 3.25]
     renderView1.CameraViewUp = [0.0, 0.0, 1.0]
-    renderView1.CameraParallelScale = 6.441634600341691
+    renderView1.CameraParallelScale = 7.83584338974411
     
     # save screenshot
     SaveScreenshot(path+'threshold_48_minus_y_t'+str(time_step)+'.png', renderView1, ImageResolution=[1229, 732])
