@@ -263,6 +263,11 @@ def screenshot(argv):
     
     # save screenshot
     SaveScreenshot(path+'threshold_48_minus_y_t'+str(time_step)+'.png', renderView1, ImageResolution=[1229, 732])
+    
+    animationScene1.AnimationTime = timesteps[0]
+    # save screenshot
+    SaveScreenshot(path+'threshold_48_minus_y_t'+str(0)+'.png', renderView1, ImageResolution=[1229, 732])
+    
      
     #### uncomment the following to render all views
     #RenderAllViews()
