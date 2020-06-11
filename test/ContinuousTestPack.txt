@@ -10,6 +10,7 @@ cell/TestCellDivisionDirections.hpp
 cell/TestPerichondrialLayers.hpp
 population/TestCellTissueTypeBasedGeneralisedLinearSpringForce.hpp
 population/TestDirectionalAdhesionForce.hpp
+population/TestDirectionalRepulsionPWQForce.hpp
 population/TestIndividualSpringStiffnessGeneralisedLinearSpringForce.hpp
 population/TestCubicGeneralisedLinearSpringForce.hpp
 population/TestRepulsionCubicForce.hpp
