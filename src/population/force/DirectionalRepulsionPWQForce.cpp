@@ -74,9 +74,9 @@ double DirectionalRepulsionPWQForce::VariableSpringConstantMultiplicationFactor(
 
 
 		double abs_dot_product  = fabs(unit_difference[2]);
-        double directional_multiplier = abs_dot_product * (1.0-mBaselineRepulsionMultiplier) + mBaselineRepulsionMultiplier;
-        PRINT_VARIABLE(abs_dot_product);
-        PRINT_VARIABLE(directional_multiplier);
+        double directional_multiplier = (1.0 - abs_dot_product) * (1.0-mBaselineRepulsionMultiplier) + mBaselineRepulsionMultiplier;
+        //PRINT_VARIABLE(abs_dot_product);
+        //PRINT_VARIABLE(directional_multiplier);
         return directional_multiplier;
 	}
 }

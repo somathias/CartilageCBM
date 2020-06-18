@@ -29,7 +29,7 @@ class TestDirectionalRepulsionPWQForce: public AbstractCellBasedTestSuite {
 public:
 
 	
-    void xTestDirectionalRepulsionPWQForcePerpendicular() {
+    void TestDirectionalRepulsionPWQForcePerpendicular() {
 
 		std::vector<Node<3>*> nodes;
 		nodes.push_back(new Node<3>(0u, false, 0.0, 0.0, 0.0));
@@ -85,6 +85,8 @@ public:
         double cut_off_repulsion = rest_length / (1 - sqrt(ratio) * (1-rest_length / cut_off_length));
 		TS_ASSERT_DELTA(cut_off_repulsion, 1.0, 1e-4);
 
+        double baseline_repulsion = force.GetBaselineRepulsionMultiplier();
+        TS_ASSERT_EQUALS(baseline_repulsion, 0.1)
 
 
 		// Calculate the force between nodes 0 and 2
@@ -97,7 +99,7 @@ public:
         if (cut_off_repulsion > 0.75)  
         {
             TS_ASSERT_DELTA(force_contribution[2],  
-                - spring_stiffness_repulsion*(0.25)*(0.25),
+                - baseline_repulsion*spring_stiffness_repulsion*(0.25)*(0.25),
                 1e-4);
         }
         else
@@ -133,14 +135,14 @@ public:
 		TS_ASSERT_DELTA(cell_population.GetNode(0)->rGetAppliedForce()[0], 0.0, 1e-4);
 		TS_ASSERT_DELTA(cell_population.GetNode(0)->rGetAppliedForce()[1], 0.0, 1e-4);
 		TS_ASSERT_DELTA(cell_population.GetNode(0)->rGetAppliedForce()[2], 
-                        - spring_stiffness_repulsion*(0.25)*(0.25), 1e-4);
+                        - baseline_repulsion*spring_stiffness_repulsion*(0.25)*(0.25), 1e-4);
 		TS_ASSERT_DELTA(cell_population.GetNode(1)->rGetAppliedForce()[0], 0.0, 1e-4);
 		TS_ASSERT_DELTA(cell_population.GetNode(1)->rGetAppliedForce()[1], 0.0, 1e-4);
         TS_ASSERT_DELTA(cell_population.GetNode(1)->rGetAppliedForce()[2], 0.0, 1e-4);
 		TS_ASSERT_DELTA(cell_population.GetNode(2)->rGetAppliedForce()[0], 0.0, 1e-4);
 		TS_ASSERT_DELTA(cell_population.GetNode(2)->rGetAppliedForce()[1], 0.0, 1e-4);
 		TS_ASSERT_DELTA(cell_population.GetNode(2)->rGetAppliedForce()[2], 
-                        spring_stiffness_repulsion*(0.25)*(0.25), 1e-4);
+                        baseline_repulsion*spring_stiffness_repulsion*(0.25)*(0.25), 1e-4);
 
 	}
 
@@ -214,7 +216,7 @@ public:
         if (cut_off_repulsion > 0.75)  
         {
             TS_ASSERT_DELTA(force_contribution[0],  
-                - baseline_repulsion*spring_stiffness_repulsion*(0.25)*(0.25),
+                - spring_stiffness_repulsion*(0.25)*(0.25),
                 1e-4);
         }
         else
@@ -248,7 +250,7 @@ public:
 		force.AddForceContribution(cell_population);
 
 		TS_ASSERT_DELTA(cell_population.GetNode(0)->rGetAppliedForce()[0], 
-                        - baseline_repulsion*spring_stiffness_repulsion*(0.25)*(0.25), 
+                        - spring_stiffness_repulsion*(0.25)*(0.25), 
                         1e-4);
 		TS_ASSERT_DELTA(cell_population.GetNode(0)->rGetAppliedForce()[1], 0.0, 1e-4);
 		TS_ASSERT_DELTA(cell_population.GetNode(0)->rGetAppliedForce()[2], 0.0, 1e-4);
@@ -256,7 +258,7 @@ public:
 		TS_ASSERT_DELTA(cell_population.GetNode(1)->rGetAppliedForce()[1], 0.0, 1e-4);
         TS_ASSERT_DELTA(cell_population.GetNode(1)->rGetAppliedForce()[2], 0.0, 1e-4);
 		TS_ASSERT_DELTA(cell_population.GetNode(2)->rGetAppliedForce()[0], 
-                        baseline_repulsion*spring_stiffness_repulsion*(0.25)*(0.25), 
+                        spring_stiffness_repulsion*(0.25)*(0.25), 
                         1e-4);
 		TS_ASSERT_DELTA(cell_population.GetNode(2)->rGetAppliedForce()[1], 0.0, 1e-4);
 		TS_ASSERT_DELTA(cell_population.GetNode(2)->rGetAppliedForce()[2], 0.0, 1e-4);
