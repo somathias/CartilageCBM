@@ -6,6 +6,7 @@
  */
 
 #include "PWQGeneralisedLinearSpringForce.hpp"
+#include "Debug.hpp"
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 PWQGeneralisedLinearSpringForce<ELEMENT_DIM, SPACE_DIM>::PWQGeneralisedLinearSpringForce() :
@@ -187,17 +188,16 @@ c_vector<double, SPACE_DIM> PWQGeneralisedLinearSpringForce<
 	// subclasses it can depend on properties of each of the cells
 	double overlap = distance_between_nodes - rest_length;
 	bool is_closer_than_rest_length = (overlap <= 0);
-	double multiplication_factor = GeneralisedLinearSpringForce<ELEMENT_DIM,
-			SPACE_DIM>::VariableSpringConstantMultiplicationFactor(
+	double multiplication_factor = this->VariableSpringConstantMultiplicationFactor(
 			nodeAGlobalIndex, nodeBGlobalIndex, rCellPopulation,
 			is_closer_than_rest_length);
 	double spring_stiffness_adhesion = GeneralisedLinearSpringForce<ELEMENT_DIM,
 			SPACE_DIM>::mMeinekeSpringStiffness;
-    double spring_stiffness_repulsion = mRepulsionSpringStiffness;
+  double spring_stiffness_repulsion = mRepulsionSpringStiffness;
 
-    double cut_off_length = AbstractTwoBodyInteractionForce<ELEMENT_DIM, SPACE_DIM>::mMechanicsCutOffLength;
-    double ratio = spring_stiffness_adhesion / spring_stiffness_repulsion;
-    double cut_off_repulsion = rest_length / (1 - sqrt(ratio) * (1-rest_length / cut_off_length));
+  double cut_off_length = AbstractTwoBodyInteractionForce<ELEMENT_DIM, SPACE_DIM>::mMechanicsCutOffLength;
+  double ratio = spring_stiffness_adhesion / spring_stiffness_repulsion;
+  double cut_off_repulsion = rest_length / (1 - sqrt(ratio) * (1-rest_length / cut_off_length));
 
 	if (bool(
 			dynamic_cast<MeshBasedCellPopulation<ELEMENT_DIM, SPACE_DIM>*>(&rCellPopulation))) {
