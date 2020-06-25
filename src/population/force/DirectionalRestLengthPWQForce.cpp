@@ -17,6 +17,7 @@ DirectionalRestLengthPWQForce::DirectionalRestLengthPWQForce() :
 c_vector<double, 3> DirectionalRestLengthPWQForce::CalculateForceBetweenNodes(
 		unsigned nodeAGlobalIndex, unsigned nodeBGlobalIndex,
 		AbstractCellPopulation<3>& rCellPopulation) {
+
 	// We should only ever calculate the force between two distinct nodes
 	assert(nodeAGlobalIndex != nodeBGlobalIndex);
 
@@ -165,12 +166,12 @@ c_vector<double, 3> DirectionalRestLengthPWQForce::CalculateForceBetweenNodes(
      * 
      */
     double abs_dot_product  = fabs(unit_difference[2]);
-    if(abs_dot_product < 0.5){
-        rest_length = (2.0*(sqrt(2.0)-1.0)*abs_dot_product+1.0)*rest_length;
+    if(abs_dot_product < 1.0/sqrt(2.0)){
+        rest_length = ((2.0-sqrt(2.0))*abs_dot_product+1.0)*rest_length;
     }
     else{
-        rest_length = (-2.0*(sqrt(2.0)-1.0)*abs_dot_product+2.0*sqrt(2.0)-1.0)*rest_length;
-    }     
+        rest_length = (1.0/(1-sqrt(2.0))*((2.0-sqrt(2.0))*abs_dot_product-1.0))*rest_length;
+    }
 
 	//assert(rest_length <= 1.0+1e-12); ///\todo #1884 Magic number: would "<= 1.0" do?
 
