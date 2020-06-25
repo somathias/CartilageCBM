@@ -31,6 +31,7 @@
 #include "RepulsionCubicForce.hpp"
 #include "PWQGeneralisedLinearSpringForce.hpp"
 #include "DirectionalRepulsionPWQForce.hpp"
+#include "DirectionalRestLengthPWQForce.hpp"
 #include "RepulsionForce.hpp"
 #include "PatchSizeTrackingModifier.hpp"
 
@@ -216,14 +217,21 @@ void SetForceFunction(OffLatticeSimulation<3>& simulator, std::string forceFunct
 		MAKE_PTR(PWQGeneralisedLinearSpringForce<3>, p_force);
 		p_force->SetCutOffLength(1.5);
 		p_force->SetMeinekeSpringStiffness(spring_stiffness);
-		p_force->SetRepulsionSpringStiffness(spring_stiffness_repulsion); // our default value fixed by experiments on optimal relative column height
+		p_force->SetRepulsionSpringStiffness(spring_stiffness_repulsion); 
 		simulator.AddForce(p_force);
 	}
 	else if (forceFunction.compare("directional_repulsion_pwq")==0){
 		MAKE_PTR(DirectionalRepulsionPWQForce, p_force);
 		p_force->SetCutOffLength(1.5);
 		p_force->SetMeinekeSpringStiffness(spring_stiffness);
-		p_force->SetRepulsionSpringStiffness(spring_stiffness_repulsion); // our default value fixed by experiments on optimal relative column height
+		p_force->SetRepulsionSpringStiffness(spring_stiffness_repulsion); 
+		simulator.AddForce(p_force);
+	}
+	else if (forceFunction.compare("directional_rest_length_pwq")==0){
+		MAKE_PTR(DirectionalRestLengthPWQForce, p_force);
+		p_force->SetCutOffLength(1.5);
+		p_force->SetMeinekeSpringStiffness(spring_stiffness);
+		p_force->SetRepulsionSpringStiffness(spring_stiffness_repulsion); 
 		simulator.AddForce(p_force);
 	}
 	else if (forceFunction.compare("GLS_repulsion_only")==0){
@@ -237,7 +245,7 @@ void SetForceFunction(OffLatticeSimulation<3>& simulator, std::string forceFunct
 		MAKE_PTR(CellTissueTypeBasedGeneralisedLinearSpringForce<3>, p_force);
 		p_force->SetCutOffLength(1.5);
 		p_force->SetMeinekeSpringStiffness(spring_stiffness);
-		p_force->SetRepulsionSpringStiffness(spring_stiffness_repulsion); // our default value fixed by experiments on optimal relative column height
+		p_force->SetRepulsionSpringStiffness(spring_stiffness_repulsion); 
 		p_force->SetAlpha(alpha);
 		p_force->SetHomotypicPerichondrialSpringConstantMultiplier(
 			homotypic_peri_multiplier);
