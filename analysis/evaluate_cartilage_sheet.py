@@ -240,23 +240,23 @@ def main(path):
 #    
     #-- calculate, plot and save patch size distribution --------------------------------------
     # find the values at t=35h and t=40h
-    ind_t35 = np.where(times==35.0)[0][0] #what if we did not sample at this time???
-    ind_t40 = np.where(times==40.0)[0][0]
-    ind_t45 = np.where(times==45.0)[0][0]
-
-    max_cells_per_all_columns = int(nc[:, ind_t45].max())
-    bins=np.arange(1,max_cells_per_all_columns+2) #we add two because the last bin has to include max and max+1, else it would contain max-1 and max
-    
-    plt.figure()
-    plt.hist([nc[:, ind_t35], nc[:, ind_t40], nc[:, ind_t45]], bins=bins, align='left', color= ['#fcbba1', '#fb6a4a', '#a50f15'])
-    ax = plt.gca()
-    ax.set_xticks(bins)
-    ax.set_xticklabels(['1', '2', '3','4','5','6','7','8','9','10','11'])
-    plt.legend(('t=35h', 't=40h', 't=45h'))
-    plt.xlabel('Size of clonal patch in number of cells')
-    plt.ylabel('Number of clonal patches')
-    plt.savefig(results_path + 'patch_size_distribution.png')
-    plt.savefig(results_path + 'patch_size_distribution.pdf')
+#    ind_t35 = np.where(times==35.0)[0][0] #what if we did not sample at this time???
+#    ind_t40 = np.where(times==40.0)[0][0]
+#    ind_t45 = np.where(times==45.0)[0][0]
+#
+#    max_cells_per_all_columns = int(nc[:, ind_t45].max())
+#    bins=np.arange(1,max_cells_per_all_columns+2) #we add two because the last bin has to include max and max+1, else it would contain max-1 and max
+#    
+#    plt.figure()
+#    plt.hist([nc[:, ind_t35], nc[:, ind_t40], nc[:, ind_t45]], bins=bins, align='left', color= ['#fcbba1', '#fb6a4a', '#a50f15'])
+#    ax = plt.gca()
+#    ax.set_xticks(bins)
+#    ax.set_xticklabels(['1', '2', '3','4','5','6','7','8','9','10','11'])
+#    plt.legend(('t=35h', 't=40h', 't=45h'))
+#    plt.xlabel('Size of clonal patch in number of cells')
+#    plt.ylabel('Number of clonal patches')
+#    plt.savefig(results_path + 'patch_size_distribution.png')
+#    plt.savefig(results_path + 'patch_size_distribution.pdf')
 
     
 #    patch_size_dist_t35, bin_edges_t35 = np.histogram(nc[:, ind_t35], bins=bins)
