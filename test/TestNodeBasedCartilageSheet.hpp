@@ -504,4 +504,23 @@ public:
 
 	}
 
+	void TestInitialiseMissingColumnExperiment(){
+		// Construct a new cartilage sheet
+		NodeBasedCartilageSheet* p_cartilage_sheet =
+				new NodeBasedCartilageSheet();
+
+		// set the sheet dimensions
+		p_cartilage_sheet->SetCartilageSheetDimensions(5, 5, 2);
+
+		// generate the nodes
+		p_cartilage_sheet->GenerateNodesOnStackedHexagonalGrid(1.0);
+
+		// setup the cell population
+		if (!p_cartilage_sheet->isCellPopulationSetup()) {
+			p_cartilage_sheet->Setup();
+		}
+
+		p_cartilage_sheet->InitialiseMissingColumnExperiment();
+	}
+
 };

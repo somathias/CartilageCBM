@@ -232,6 +232,42 @@ void NodeBasedCartilageSheet::InitialiseBulkStemCellConfiguration(
 	mpCellPopulation->AddCellWriter<CellAncestorWriter>();
 }
 
+void NodeBasedCartilageSheet::InitialiseMissingColumnExperiment()
+{
+	//check if the population is set up
+	if (!mCellPopulationSetup)
+	{
+		EXCEPTION("The cell population has not been set up yet.");
+	}
+
+	// currently hard-code setup for sheet of 5x5xZ cells
+	if (mNumberOfNodesPerXDimension != 5)
+	{
+		EXCEPTION(
+			"This experiment setup is currently hard-coded for 5 cells in the x-direction.");
+	}
+	if (mNumberOfNodesPerYDimension != 5)
+	{
+		EXCEPTION(
+			"This experiment setup is currently hard-coded for 5 cells in the y-direction.");
+	}
+
+	//get index of column in the center - currently hard-coded as index 12
+	unsigned center_index = 12;
+	for (unsigned layer = 0; layer < mNumberOfNodesPerZDimension; layer++)
+	{
+		unsigned index = center_index + layer*mNumberOfNodesPerXDimension*mNumberOfNodesPerYDimension;
+		mMesh.DeleteNode(index);
+
+		CellPtr p_cell = mpCellPopulation->GetCellUsingLocationIndex(index);
+		mpCellPopulation->RemoveCellUsingLocationIndex(index, p_cell);
+		mpCellPopulation->mCells.erase(p_cell);
+	}
+
+
+
+}
+
 void NodeBasedCartilageSheet::InitialiseRandomStemCellConfiguration(
 	unsigned numberOfStemCells)
 {

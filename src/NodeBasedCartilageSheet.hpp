@@ -88,6 +88,7 @@ public:
 	void InitialiseTissueLayersAndCellDivisionDirections();
 	void InitialiseBulkStemCellConfiguration(unsigned, unsigned);
 	void InitialiseRandomStemCellConfiguration(unsigned);
+	void InitialiseMissingColumnExperiment();
 
 	void SetCartilageSheetDimensions(unsigned, unsigned, unsigned);
 
