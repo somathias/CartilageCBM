@@ -516,11 +516,42 @@ public:
 		p_cartilage_sheet->GenerateNodesOnStackedHexagonalGrid(1.0);
 
 		// setup the cell population
-		if (!p_cartilage_sheet->isCellPopulationSetup()) {
-			p_cartilage_sheet->Setup();
-		}
+		// if (!p_cartilage_sheet->isCellPopulationSetup()) {
+		// 	p_cartilage_sheet->Setup();
+		// }
+		p_cartilage_sheet->Setup();
 
+		// Delete middle column
 		p_cartilage_sheet->InitialiseMissingColumnExperiment();
+
+		// count cells?
+		// get the cell population
+		boost::shared_ptr<NodeBasedCellPopulation<3> > cell_population =
+		p_cartilage_sheet->GetCellPopulation();
+
+		unsigned n_cells = 0;
+		for (AbstractCellPopulation<3>::Iterator cell_iter =
+					cell_population->Begin(); cell_iter != cell_population->End();
+					++cell_iter) {
+
+			n_cells++;
+
+		}
+		TS_ASSERT_EQUALS(n_cells, 48);//number of stem cells should be 5*5*2-2;
+
+		//pass cell population to the simulator
+		OffLatticeSimulation<3> simulator(*cell_population);
+		simulator.SetOutputDirectory("TestMissingColumnExperiment");
+		simulator.SetSamplingTimestepMultiple(12);
+		simulator.SetEndTime(1.0);
+
+		MAKE_PTR(GeneralisedLinearSpringForce<3>, p_force);
+		p_force->SetCutOffLength(1.5);
+		p_force->SetMeinekeSpringStiffness(1.0);
+		simulator.AddForce(p_force);
+
+		simulator.Solve();
+
 	}
 
 };

@@ -72,8 +72,12 @@ void NodeBasedCartilageSheet::Setup()
 	//CellsGenerator<CellTissueTypeBasedCellCycleModel, 3> cells_generator;
 	//cells_generator.GenerateBasicRandom(mCells, mMesh.GetNumNodes(), p_diff_type);
 
+	//make copy of mCells because calling reset will clear the vector passed to the cell population
+	std::vector<CellPtr> tmp_mCells = mCells;
+
 	//generate the cell population
-	mpCellPopulation.reset(new NodeBasedCellPopulation<3>(mMesh, mCells));
+	mpCellPopulation.reset(new NodeBasedCellPopulation<3>(mMesh, tmp_mCells));
+
 
 	//set the division rule
 	boost::shared_ptr<AbstractCentreBasedDivisionRule<3, 3>> p_division_rule_to_set(new OrientationBasedDivisionRule<3, 3>());
@@ -259,10 +263,19 @@ void NodeBasedCartilageSheet::InitialiseMissingColumnExperiment()
 		unsigned index = center_index + layer*mNumberOfNodesPerXDimension*mNumberOfNodesPerYDimension;
 		mMesh.DeleteNode(index);
 
-		CellPtr p_cell = mpCellPopulation->GetCellUsingLocationIndex(index);
-		mpCellPopulation->RemoveCellUsingLocationIndex(index, p_cell);
-		mpCellPopulation->mCells.erase(p_cell);
+		//CellPtr p_cell = mpCellPopulation->GetCellUsingLocationIndex(index);
+		//mpCellPopulation->RemoveCellUsingLocationIndex(index, p_cell); //is this necessary since I regenerate the cell population anyways.
+		mCells.erase(mCells.begin()+index); 
 	}
+
+	//generate the cell population again, because I can't delete cells from mpCellPopulation->mCells
+	mpCellPopulation.reset(new NodeBasedCellPopulation<3>(mMesh, mCells));
+
+	//set the division rule again
+	boost::shared_ptr<AbstractCentreBasedDivisionRule<3, 3>> p_division_rule_to_set(new OrientationBasedDivisionRule<3, 3>());
+	mpCellPopulation->SetCentreBasedDivisionRule(p_division_rule_to_set);
+
+	mCellPopulationSetup = true;
 
 
 
