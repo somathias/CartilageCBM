@@ -35,6 +35,7 @@
 #include "UpwardsCellDivisionDirection.hpp"
 #include "DownwardsCellDivisionDirection.hpp"
 #include "HorizontalCellDivisionDirection.hpp"
+#include "FixedCellDivisionDirection.hpp"
 #include "CellTissueTypesWriter.hpp"
 #include "CellDivisionDirectionsWriter.hpp"
 #include "OrientationBasedDivisionRule.hpp"
