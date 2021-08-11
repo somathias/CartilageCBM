@@ -148,18 +148,33 @@ void CellTissueTypeBasedCellCycleModel::InitialiseDaughterCell() {
 		mpCell->AddCellProperty(p_chondrocyte_type);
 
 		//Get old cell division direction and delete it
-		CellPropertyCollection division_direction_collection =
+		CellPropertyCollection horizontal_division_direction_collection =
 				mpCell->rGetCellPropertyCollection().GetProperties<
 				HorizontalCellDivisionDirection<3>>();
 
-		assert(division_direction_collection.GetSize() == 1);
-
-		boost::shared_ptr<AbstractCellProperty> p_old_direction = division_direction_collection.GetProperty();
+		if (horizontal_division_direction_collection.GetSize() == 1){
+			boost::shared_ptr<AbstractCellProperty> p_old_direction = horizontal_division_direction_collection.GetProperty();
 //		boost::shared_ptr<PerichondrialCellTissueType> p_old_tissue_type =
 //				boost::static_pointer_cast<PerichondrialCellTissueType>(p_old_type);
 
-		p_old_direction->DecrementCellCount();
-		mpCell->rGetCellPropertyCollection().RemoveProperty(p_old_direction);
+			p_old_direction->DecrementCellCount();
+			mpCell->rGetCellPropertyCollection().RemoveProperty(p_old_direction);
+		}
+		
+		// make this work with a fixed direction as well
+		CellPropertyCollection fixed_division_direction_collection =
+				mpCell->rGetCellPropertyCollection().GetProperties<
+				FixedCellDivisionDirection<3>>();
+
+		if (fixed_division_direction_collection.GetSize() == 1){
+			boost::shared_ptr<AbstractCellProperty> p_old_direction = fixed_division_direction_collection.GetProperty();
+//		boost::shared_ptr<PerichondrialCellTissueType> p_old_tissue_type =
+//				boost::static_pointer_cast<PerichondrialCellTissueType>(p_old_type);
+
+			p_old_direction->DecrementCellCount();
+			mpCell->rGetCellPropertyCollection().RemoveProperty(p_old_direction);
+		}
+	
 
 		//Add new division direction
 		if (mpCell->HasCellProperty<LowerPerichondrialLayer>()) {

@@ -18,6 +18,7 @@
 #include "UpwardsCellDivisionDirection.hpp"
 #include "DownwardsCellDivisionDirection.hpp"
 #include "HorizontalCellDivisionDirection.hpp"
+#include "FixedCellDivisionDirection.hpp"
 #include "LowerPerichondrialLayer.hpp"
 #include "UpperPerichondrialLayer.hpp"
 #include "RandomNumberGenerator.hpp"

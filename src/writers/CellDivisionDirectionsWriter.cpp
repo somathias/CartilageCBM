@@ -2,6 +2,8 @@
 #include "AbstractCellPopulation.hpp"
 #include "UpwardsCellDivisionDirection.hpp"
 #include "DownwardsCellDivisionDirection.hpp"
+#include "FixedCellDivisionDirection.hpp"
+
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 CellDivisionDirectionsWriter<ELEMENT_DIM, SPACE_DIM>::CellDivisionDirectionsWriter() :
@@ -40,6 +42,19 @@ double CellDivisionDirectionsWriter<ELEMENT_DIM, SPACE_DIM>::GetCellDataForVtkOu
 		boost::shared_ptr<DownwardsCellDivisionDirection<SPACE_DIM> > p_direction =
 				boost::static_pointer_cast<
 						DownwardsCellDivisionDirection<SPACE_DIM> >(
+						direction_collection.GetProperty());
+
+		colour = p_direction->GetColour();	
+	} else if (pCell->HasCellProperty<FixedCellDivisionDirection<SPACE_DIM> >()) {
+
+		CellPropertyCollection collection = pCell->rGetCellPropertyCollection();
+		CellPropertyCollection direction_collection = collection.GetProperties<
+				FixedCellDivisionDirection<SPACE_DIM> >();
+
+		assert(direction_collection.GetSize() == 1);
+		boost::shared_ptr<FixedCellDivisionDirection<SPACE_DIM> > p_direction =
+				boost::static_pointer_cast<
+						FixedCellDivisionDirection<SPACE_DIM> >(
 						direction_collection.GetProperty());
 
 		colour = p_direction->GetColour();

@@ -12,12 +12,17 @@ NodeBasedCartilageSheet::NodeBasedCartilageSheet() : mNumberOfNodesPerXDimension
 													 mNumberOfPerichondrialLayersAbove(0),
 													 mNumberOfPerichondrialLayersBelow(1),
 													 mMaxCoordinatePerturbation(0), 
+													 mStemCellG1Duration(60.0),
+													 mTransitCellG1Duration(30.0),
+													 mSPhaseDuration(10.0),
 													 mSeed(0), mPatchSizeLimit(6), 
 													 mSynchronizeCellCycles(false),
 													 mDivisionDirections(true),
 													 mNodesGenerated(false),
 													 mCellPopulationSetup(false)
 {
+													
+													 
 }
 
 NodeBasedCartilageSheet::~NodeBasedCartilageSheet()
@@ -72,8 +77,12 @@ void NodeBasedCartilageSheet::Setup()
 	//CellsGenerator<CellTissueTypeBasedCellCycleModel, 3> cells_generator;
 	//cells_generator.GenerateBasicRandom(mCells, mMesh.GetNumNodes(), p_diff_type);
 
+	//make copy of mCells because calling reset will clear the vector passed to the cell population
+	std::vector<CellPtr> tmp_mCells = mCells;
+
 	//generate the cell population
-	mpCellPopulation.reset(new NodeBasedCellPopulation<3>(mMesh, mCells));
+	mpCellPopulation.reset(new NodeBasedCellPopulation<3>(mMesh, tmp_mCells));
+
 
 	//set the division rule
 	boost::shared_ptr<AbstractCentreBasedDivisionRule<3, 3>> p_division_rule_to_set(new OrientationBasedDivisionRule<3, 3>());
@@ -232,6 +241,7 @@ void NodeBasedCartilageSheet::InitialiseBulkStemCellConfiguration(
 	mpCellPopulation->AddCellWriter<CellAncestorWriter>();
 }
 
+
 void NodeBasedCartilageSheet::InitialiseRandomStemCellConfiguration(
 	unsigned numberOfStemCells)
 {
@@ -311,6 +321,90 @@ void NodeBasedCartilageSheet::InitialiseRandomStemCellConfiguration(
 	}
 	mpCellPopulation->AddCellWriter<CellAncestorWriter>();
 }
+
+void NodeBasedCartilageSheet::InitialiseMissingColumnExperiment()
+{
+	//check if the population is set up
+	if (!mCellPopulationSetup)
+	{
+		EXCEPTION("The cell population has not been set up yet.");
+	}
+
+	// currently hard-code setup for sheet of 5x5xZ cells
+	if (mNumberOfNodesPerXDimension != 5)
+	{
+		EXCEPTION(
+			"This experiment setup is currently hard-coded for 5 cells in the x-direction.");
+	}
+	if (mNumberOfNodesPerYDimension != 5)
+	{
+		EXCEPTION(
+			"This experiment setup is currently hard-coded for 5 cells in the y-direction.");
+	}
+
+	//get index of column in the center - currently hard-coded as index 12
+	unsigned center_index = 12;
+	for (unsigned layer = 0; layer < mNumberOfNodesPerZDimension; layer++)
+	{
+		unsigned index = center_index + layer*mNumberOfNodesPerXDimension*mNumberOfNodesPerYDimension;
+		mMesh.DeleteNode(index);
+
+		//CellPtr p_cell = mpCellPopulation->GetCellUsingLocationIndex(index);
+		//mpCellPopulation->RemoveCellUsingLocationIndex(index, p_cell); //is this necessary since I regenerate the cell population anyways.
+		mCells.erase(mCells.begin()+index); 
+	}
+
+	//generate the cell population again, because I can't delete cells from mpCellPopulation->mCells
+	mpCellPopulation.reset(new NodeBasedCellPopulation<3>(mMesh, mCells));
+
+	//set the division rule again
+	boost::shared_ptr<AbstractCentreBasedDivisionRule<3, 3>> p_division_rule_to_set(new OrientationBasedDivisionRule<3, 3>());
+	mpCellPopulation->SetCentreBasedDivisionRule(p_division_rule_to_set);
+
+	mCellPopulationSetup = true;
+
+	// make cell with location index 6 divide into space provided by deleting the column
+	boost::shared_ptr<AbstractCellProperty> p_perichondrial(
+		mpCellPopulation->GetCellPropertyRegistry()->Get<PerichondrialCellTissueType>());
+	boost::shared_ptr<AbstractCellProperty> p_lower_layer(
+		mpCellPopulation->GetCellPropertyRegistry()->Get<LowerPerichondrialLayer>());
+	boost::shared_ptr<AbstractCellProperty> p_fixed(
+		mpCellPopulation->GetCellPropertyRegistry()->Get<FixedCellDivisionDirection<3>>());
+
+	unsigned index = 6;
+	CellPtr p_cell = mpCellPopulation->GetCellUsingLocationIndex(index);
+
+	p_cell->AddCellProperty(p_perichondrial);
+	p_cell->AddCellProperty(p_lower_layer);
+	p_cell->AddCellProperty(p_fixed);
+
+	MAKE_PTR(StemCellProliferativeType, p_stem_type);
+	p_cell->SetCellProliferativeType(p_stem_type);
+
+	MAKE_PTR_ARGS(CellAncestor, p_cell_ancestor, (index));
+	p_cell->SetAncestor(p_cell_ancestor);
+
+	// set random birth times if required
+	if (!mSynchronizeCellCycles)
+	{
+		CellTissueTypeBasedCellCycleModel *p_cell_cycle_model =
+			new CellTissueTypeBasedCellCycleModel;
+		double birth_time =
+			-p_cell_cycle_model->GetAverageStemCellCycleTime() * RandomNumberGenerator::Instance()->ranf();
+		p_cell->SetBirthTime(birth_time);
+	}
+	else
+	{
+		p_cell->SetBirthTime(-56.0); //Average stem cell cycle time is 60.0 with current values
+									//Now we don't have to wait forever for cell divisions to start
+	}
+
+	mpCellPopulation->AddCellWriter<CellDivisionDirectionsWriter>();
+	mpCellPopulation->AddCellWriter<CellTissueTypesWriter>();
+	mpCellPopulation->AddCellWriter<CellAncestorWriter>();			
+
+}
+
 
 void NodeBasedCartilageSheet::SetCartilageSheetDimensions(
 	unsigned numberOfCellsWide, unsigned numberOfCellsDeep,

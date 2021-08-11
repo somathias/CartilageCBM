@@ -3,6 +3,7 @@
 #include "UpwardsCellDivisionDirection.hpp"
 #include "DownwardsCellDivisionDirection.hpp"
 #include "HorizontalCellDivisionDirection.hpp"
+#include "FixedCellDivisionDirection.hpp"
 #include "PerichondrialCellTissueType.hpp"
 
 
@@ -83,6 +84,25 @@ std::pair<c_vector<double, SPACE_DIM>, c_vector<double, SPACE_DIM>> OrientationB
 
             main_direction(0) = 0.5 * separation * cos(random_angle);
             main_direction(1) = 0.5 * separation * sin(random_angle);
+        }
+    }
+    else if(pParentCell->HasCellProperty<
+                 FixedCellDivisionDirection<SPACE_DIM>>())
+    {
+
+        CellPropertyCollection collection =
+            pParentCell->rGetCellPropertyCollection();
+        CellPropertyCollection direction_collection =
+            collection.GetProperties<
+                FixedCellDivisionDirection<SPACE_DIM>>();
+
+        if (direction_collection.GetSize() == 1)
+        {
+            boost::shared_ptr<FixedCellDivisionDirection<SPACE_DIM>> p_direction =
+                boost::static_pointer_cast<
+                    FixedCellDivisionDirection<SPACE_DIM>>(
+                    direction_collection.GetProperty());
+            main_direction = 0.5 * separation * p_direction->GetCellDivisionDirection();
         }
     }
     else

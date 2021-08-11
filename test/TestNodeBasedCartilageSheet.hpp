@@ -11,6 +11,7 @@
 #include "UpwardsCellDivisionDirection.hpp"
 #include "DownwardsCellDivisionDirection.hpp"
 #include "HorizontalCellDivisionDirection.hpp"
+#include "FixedCellDivisionDirection.hpp"
 
 #include "PatchSizeTrackingModifier.hpp"
 
@@ -501,6 +502,71 @@ public:
 			TS_ASSERT(!cell_iter->HasCellProperty<DownwardsCellDivisionDirection<3>>())
 
 		}
+
+	}
+
+	void TestInitialiseMissingColumnExperiment(){
+		// Construct a new cartilage sheet
+		NodeBasedCartilageSheet* p_cartilage_sheet =
+				new NodeBasedCartilageSheet();
+
+		// set the sheet dimensions
+		p_cartilage_sheet->SetCartilageSheetDimensions(5, 5, 2);
+
+		// generate the nodes
+		p_cartilage_sheet->GenerateNodesOnStackedHexagonalGrid(1.0);
+
+		p_cartilage_sheet->setSynchronizeCellCycles(true);
+
+		// setup the cell population
+		// if (!p_cartilage_sheet->isCellPopulationSetup()) {
+		// 	p_cartilage_sheet->Setup();
+		// }
+		p_cartilage_sheet->Setup();
+
+		// Delete middle column
+		p_cartilage_sheet->InitialiseMissingColumnExperiment();
+		std::cout << "Passed initialization." << std::endl;
+
+		// count cells?
+		// get the cell population
+		boost::shared_ptr<NodeBasedCellPopulation<3> > cell_population =
+		p_cartilage_sheet->GetCellPopulation();
+
+		unsigned n_cells = 0;
+		for (AbstractCellPopulation<3>::Iterator cell_iter =
+					cell_population->Begin(); cell_iter != cell_population->End();
+					++cell_iter) {
+
+			n_cells++;
+
+		}
+		TS_ASSERT_EQUALS(n_cells, 48);//number of stem cells should be 5*5*2-2;
+
+		//check properties of cell at location index 6
+		CellPtr p_cell = cell_population->GetCellUsingLocationIndex(6);
+		TS_ASSERT(p_cell->HasCellProperty<FixedCellDivisionDirection<3>>())
+		TS_ASSERT(p_cell->HasCellProperty<PerichondrialCellTissueType>())
+		TS_ASSERT(p_cell->HasCellProperty<LowerPerichondrialLayer>())
+
+
+		//pass cell population to the simulator
+		OffLatticeSimulation<3> simulator(*cell_population);
+		simulator.SetOutputDirectory("TestMissingColumnExperiment");
+		simulator.SetSamplingTimestepMultiple(12);
+		simulator.SetEndTime(50.0);
+
+		MAKE_PTR(GeneralisedLinearSpringForce<3>, p_force);
+		p_force->SetCutOffLength(1.5);
+		p_force->SetMeinekeSpringStiffness(1.0);
+		simulator.AddForce(p_force);
+
+		// Add the PatchSizeTracker to ensure that patches have maximum 6 cells
+		// Currently it is not possible to run simulations with the CellTissueTypeBasedCellCycleModel in them without this.
+		MAKE_PTR(PatchSizeTrackingModifier<3>, p_modifier);
+		simulator.AddSimulationModifier(p_modifier);
+
+		simulator.Solve();
 
 	}
 
