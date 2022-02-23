@@ -46,7 +46,7 @@
  */
 void SetupSingletons(unsigned randomSeed);
 void DestroySingletons();
-void SetupAndRunMesenchymalCondensationSimulation(unsigned randomSeed, bool, bool, bool,  bool, bool, unsigned,
+void SetupAndRunMesenchymalCondensationSimulation(unsigned randomSeed, bool, bool,  bool, bool, unsigned,
 		unsigned, double, double, double, unsigned, double, double, double, double, double, double, double, std::string, std::string);
 void SetForceFunction(OffLatticeSimulation<3>&, std::string, double, double, double, double, double, double);
 
@@ -58,8 +58,7 @@ int main(int argc, char *argv[]) {
 	// Define command line options
 	boost::program_options::options_description general_options(
 			"This is a Chaste executable.\n");
-	general_options.add_options()("help", "Produce help message")("sbt",
-			"Synchronized birth times")("rdd",
+	general_options.add_options()("help", "Produce help message")("rdd",
 			"Random division directions")("continue",
 			"Continue simulation after increasing upper boundary and patch size limit")("flat",
 			"Do not use offset in z direction")("lb0", "Have lower boundary at z=0")("S",
@@ -108,11 +107,11 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
 
-	bool random_birth_times = true;
-	// set random birth times to false = synchronized case if wanted
-	if (variables_map.count("sbt")) {
-		random_birth_times = false;
-	}
+	// bool random_birth_times = true;
+	// // set random birth times to false = synchronized case if wanted
+	// if (variables_map.count("sbt")) {
+	// 	random_birth_times = false;
+	// }
 	bool random_division_directions = false;
 	if (variables_map.count("rdd")) {
 		random_division_directions = true;
@@ -161,7 +160,7 @@ int main(int argc, char *argv[]) {
 
 
 	SetupSingletons(random_seed);
-	SetupAndRunMesenchymalCondensationSimulation(random_seed, random_birth_times, random_division_directions, cont, use_offset,
+	SetupAndRunMesenchymalCondensationSimulation(random_seed, random_division_directions, cont, use_offset,
 			symmetrical_boundary,
 			n_cells_wide, n_cells_deep, scaling, upper_boundary, activation_percentage, patch_size_limit,
 			maximum_perturbation, transit_cell_g1_duration, s_phase_duration, spring_stiffness, spring_stiffness_repulsion,
@@ -227,7 +226,7 @@ void SetForceFunction(OffLatticeSimulation<3>& simulator, std::string forceFunct
 }
 
 void SetupAndRunMesenchymalCondensationSimulation(unsigned random_seed,
-		bool random_birth_times, bool random_division_directions, bool cont, bool use_offset, bool symmetrical_boundary,
+		bool random_division_directions, bool cont, bool use_offset, bool symmetrical_boundary,
 		unsigned n_cells_wide, unsigned n_cells_deep, double scaling, double upper_boundary, 
 		double activation_percentage, unsigned patch_size_limit,
 		double maximum_perturbation, double transit_cell_g1_duration, double s_phase_duration,
@@ -260,9 +259,9 @@ void SetupAndRunMesenchymalCondensationSimulation(unsigned random_seed,
 	p_condensation->SetPhaseDurations(transit_cell_g1_duration, s_phase_duration);
 
 
-	if (!random_birth_times) {
-		p_condensation->setSynchronizeCellCycles(true);
-	}
+	// if (!random_birth_times) {
+	// 	p_condensation->setSynchronizeCellCycles(true);
+	// }
 	if (random_division_directions){
 		p_condensation->setDivisionDirections(false);
 	}
@@ -373,7 +372,7 @@ void SetupAndRunMesenchymalCondensationSimulation(unsigned random_seed,
 	sheet_params_file << "Number cells X : " << n_cells_wide << "\n";
 	sheet_params_file << "Number cells Y : " << n_cells_deep << "\n";
 	sheet_params_file << "Number cells Z : " << 1 << "\n";
-	sheet_params_file << "Random birth times : " << random_birth_times << "\n";
+	// sheet_params_file << "Random birth times : " << random_birth_times << "\n";
 	sheet_params_file << "Activation percentage : " << activation_percentage
 			<< "\n";
 	sheet_params_file << "Maximum perturbation : " << maximum_perturbation
