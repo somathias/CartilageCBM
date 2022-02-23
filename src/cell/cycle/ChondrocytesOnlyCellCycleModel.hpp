@@ -43,7 +43,7 @@ private:
 
 protected:
 	/**
-	 * Patch size limit. Cells will seize to divide once limit is reached
+	 * Patch size limit. Cells will cease to divide once limit is reached
 	 *
 	 * Defaults to 6 in the constructor
 	 */

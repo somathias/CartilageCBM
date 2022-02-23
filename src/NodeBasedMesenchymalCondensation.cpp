@@ -10,7 +10,7 @@
 NodeBasedMesenchymalCondensation::NodeBasedMesenchymalCondensation() : mNumberOfNodesPerXDimension(3), mNumberOfNodesPerYDimension(3),
 													 mMaxCoordinatePerturbation(0), mDistanceBetweeenBoundaries(7.0),
 													 mSeed(0), mPatchSizeLimit(6),
-													 mSynchronizeCellCycles(false),
+													 //mSynchronizeCellCycles(false),
 													 mDivisionDirections(true),
 													 mNodesGenerated(false),
 													 mCellPopulationSetup(false)
@@ -60,7 +60,7 @@ void NodeBasedMesenchymalCondensation::Setup()
 		p_model->SetSDuration(mSPhaseDuration);
 		p_model->SetMDuration(1e-12);
 		p_model->SetG2Duration(1e-12);
-		p_model->SetMaxTransitGenerations(2);
+		p_model->SetMaxTransitGenerations(12);
 		p_model->SetPatchSizeLimit(mPatchSizeLimit);
 		
 		CellPtr p_cell(new Cell(p_state, p_model));
@@ -151,23 +151,24 @@ void NodeBasedMesenchymalCondensation::InitialiseRandomConfiguration(
 			cell->SetAncestor(p_cell_ancestor);
 
 			if(mDivisionDirections){
-			cell->AddCellProperty(p_upwards);
-		}
+				cell->AddCellProperty(p_upwards);
+			}
 
-			// set random birth times if required
-			if (!mSynchronizeCellCycles)
-			{
-				ChondrocytesOnlyCellCycleModel *p_cell_cycle_model =
-					new ChondrocytesOnlyCellCycleModel;
-				double birth_time =
-					-p_cell_cycle_model->GetAverageTransitCellCycleTime() * RandomNumberGenerator::Instance()->ranf();
-				cell->SetBirthTime(birth_time);
-			}
-			else
-			{
-				cell->SetBirthTime(0.0); //Average transit cell cycle time is 12.0 with current values
+			// // set random birth times if required
+			// if (!mSynchronizeCellCycles)
+			// {
+			// 	ChondrocytesOnlyCellCycleModel *p_cell_cycle_model =
+			// 		new ChondrocytesOnlyCellCycleModel;
+			// 	double birth_time =
+			// 		-p_cell_cycle_model->GetAverageTransitCellCycleTime() * RandomNumberGenerator::Instance()->ranf();
+			// 	cell->SetBirthTime(birth_time);
+			// }
+			// else
+			// {
+			// 	cell->SetBirthTime(0.0); //Average transit cell cycle time is 13.0 with current values
 										  
-			}
+			// }
+			cell->SetBirthTime(0.0); //Average transit cell cycle time is 13.0 with current values
 			//increase counter
 			i++;
 		}
@@ -335,11 +336,11 @@ unsigned NodeBasedMesenchymalCondensation::getSeed() const
 	return mSeed;
 }
 
-void NodeBasedMesenchymalCondensation::setSynchronizeCellCycles(
-	bool synchronizeCellCycles)
-{
-	mSynchronizeCellCycles = synchronizeCellCycles;
-}
+// void NodeBasedMesenchymalCondensation::setSynchronizeCellCycles(
+// 	bool synchronizeCellCycles)
+// {
+// 	mSynchronizeCellCycles = synchronizeCellCycles;
+// }
 
 void NodeBasedMesenchymalCondensation::setDivisionDirections(
 	bool divisionDirections)

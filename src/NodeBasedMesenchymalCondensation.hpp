@@ -55,7 +55,7 @@ private:
 	double mTransitCellG1Duration;
 	double mSPhaseDuration;
 
-	bool mSynchronizeCellCycles;
+//	bool mSynchronizeCellCycles;
 	bool mDivisionDirections;
 
 	std::vector<Node<3>*> mNodes;
@@ -97,7 +97,7 @@ public:
 
 	unsigned getSeed() const;
 
-	void setSynchronizeCellCycles(bool synchronizeCellCycles);
+//	void setSynchronizeCellCycles(bool synchronizeCellCycles);
 	void setDivisionDirections(bool divisionDirections);
 
 	void setDistanceBetweeenBoundaries(double distance);
