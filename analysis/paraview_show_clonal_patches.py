@@ -106,12 +106,22 @@ def screenshot(argv):
     renderView1.AxesGrid.YLabelColor = [0.0, 0.0, 0.0]
     renderView1.AxesGrid.ZLabelColor = [0.0, 0.0, 0.0]
     
-    renderView1.AxesGrid.XTitleFontSize = 20
-    renderView1.AxesGrid.YTitleFontSize = 20
-    renderView1.AxesGrid.ZTitleFontSize = 20
-    renderView1.AxesGrid.XLabelFontSize = 20
-    renderView1.AxesGrid.YLabelFontSize = 20
-    renderView1.AxesGrid.ZLabelFontSize = 20
+    renderView1.AxesGrid.XTitleFontSize = 80
+    renderView1.AxesGrid.YTitleFontSize = 80
+    renderView1.AxesGrid.ZTitleFontSize = 80
+    renderView1.AxesGrid.XLabelFontSize = 60
+    renderView1.AxesGrid.YLabelFontSize = 60
+    renderView1.AxesGrid.ZLabelFontSize = 60
+    
+    renderView1.AxesGrid.XTitle = 'x'
+    renderView1.AxesGrid.YTitle = 'y'
+    renderView1.AxesGrid.ZTitle = '  z  '
+    
+    renderView1.AxesGrid.XAxisUseCustomLabels = 1
+    renderView1.AxesGrid.XAxisLabels= [0, 2, 6, 8]
+    renderView1.AxesGrid.ZAxisUseCustomLabels = 1
+    renderView1.AxesGrid.ZAxisLabels= [0,1, 2, 3]
+    
         
     # get color transfer function/color map for 'GlyphScale'
 #    glyphScaleLUT = GetColorTransferFunction('GlyphScale')
@@ -272,11 +282,11 @@ def screenshot(argv):
     renderView1.CameraParallelScale = 9.174560763910034
     
     # save screenshot
-    SaveScreenshot(path+'threshold_48_minus_y_t'+str(time_step)+'.png', renderView1, ImageResolution=[1625, 618], TransparentBackground=1)
+    SaveScreenshot(path+'threshold_48_minus_y_t'+str(time_step)+'.png', renderView1, ImageResolution=[3250, 1236], TransparentBackground=1)
     
     animationScene1.AnimationTime = timesteps[0]
     # save screenshot
-    SaveScreenshot(path+'threshold_48_minus_y_t'+str(0)+'.png', renderView1, ImageResolution=[1625, 618], TransparentBackground=1)
+    SaveScreenshot(path+'threshold_48_minus_y_t'+str(0)+'.png', renderView1, ImageResolution=[3250, 1236], TransparentBackground=1)
     
      
     #### uncomment the following to render all views
