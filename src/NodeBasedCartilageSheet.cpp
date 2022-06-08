@@ -271,6 +271,11 @@ void NodeBasedCartilageSheet::InitialiseRandomStemCellConfiguration(
 		numberOfStemCellsPerLayer = floor(numberOfStemCells / static_cast<double>(numberOfPerichondrialLayers));
 	}
 
+	if (mNumberOfNodesPerXDimension > 2 && mNumberOfNodesPerYDimension > 2 && numberOfStemCellsPerLayer > (mNumberOfNodesPerXDimension-2)*(mNumberOfNodesPerYDimension-2)){
+		EXCEPTION(
+			"Specified number of stem cells per layer does not allow for leaving a boundary of non-activated stem cells to prevent boundary effects.");
+	}
+
 	MAKE_PTR(StemCellProliferativeType, p_stem_type);
 
 	// generate stem cell indices for all layers
@@ -279,11 +284,24 @@ void NodeBasedCartilageSheet::InitialiseRandomStemCellConfiguration(
 	while (i < numberOfStemCells)
 	{
 		//choose a row
-		unsigned row = RandomNumberGenerator::Instance()->randMod(
-			mNumberOfNodesPerXDimension);
-		//choose a column
-		unsigned column = RandomNumberGenerator::Instance()->randMod(
-			mNumberOfNodesPerYDimension);
+		unsigned row;
+		if(mNumberOfNodesPerXDimension > 2){
+			// if at least 3 rows available leave outer rows untouched
+			row = RandomNumberGenerator::Instance()->randMod(mNumberOfNodesPerXDimension-2) + 1;
+		}
+		else{
+			row = RandomNumberGenerator::Instance()->randMod(mNumberOfNodesPerXDimension);
+		}
+		//choose a column		
+		unsigned column;
+		if(mNumberOfNodesPerYDimension > 2){
+			// if at least 3 columns available leave outer columns untouched
+			column = RandomNumberGenerator::Instance()->randMod(mNumberOfNodesPerYDimension-2) + 1;
+		}
+		else{
+			column = RandomNumberGenerator::Instance()->randMod(mNumberOfNodesPerYDimension);
+		}
+
 		//calculate node index
 		// if in lower layer the offset is zero, else the offset is n_cells_total_per_layer*(mNumberOfNodesPerZDimension -1);
 		unsigned offset = (i < numberOfStemCellsPerLayer) ? 0 : n_cells_total_per_layer * (mNumberOfNodesPerZDimension - 1);
@@ -301,20 +319,21 @@ void NodeBasedCartilageSheet::InitialiseRandomStemCellConfiguration(
 			MAKE_PTR_ARGS(CellAncestor, p_cell_ancestor, (node_index));
 			cell->SetAncestor(p_cell_ancestor);
 
-			// set random birth times if required
-			if (!mSynchronizeCellCycles)
-			{
-				CellTissueTypeBasedCellCycleModel *p_cell_cycle_model =
-					new CellTissueTypeBasedCellCycleModel;
-				double birth_time =
-					-p_cell_cycle_model->GetAverageStemCellCycleTime() * RandomNumberGenerator::Instance()->ranf();
-				cell->SetBirthTime(birth_time);
-			}
-			else
-			{
-				cell->SetBirthTime(-56.0); //Average stem cell cycle time is 60.0 with current values
-										   //Now we don't have to wait forever for cell divisions to start
-			}
+			// // set random birth times if required
+			// if (!mSynchronizeCellCycles)
+			// {
+			// 	CellTissueTypeBasedCellCycleModel *p_cell_cycle_model =
+			// 		new CellTissueTypeBasedCellCycleModel;
+			// 	double birth_time =
+			// 		-p_cell_cycle_model->GetAverageStemCellCycleTime() * RandomNumberGenerator::Instance()->ranf();
+			// 	cell->SetBirthTime(birth_time);
+			// }
+			// else
+			// {
+			// 	cell->SetBirthTime(-56.0); //Average stem cell cycle time is 60.0 with current values
+			// 							   //Now we don't have to wait forever for cell divisions to start
+			// }
+			cell->SetBirthTime(0.0);
 			//increase counter
 			i++;
 		}
