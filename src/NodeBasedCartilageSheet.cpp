@@ -404,19 +404,20 @@ void NodeBasedCartilageSheet::InitialiseMissingColumnExperiment()
 	p_cell->SetAncestor(p_cell_ancestor);
 
 	// set random birth times if required
-	if (!mSynchronizeCellCycles)
-	{
-		CellTissueTypeBasedCellCycleModel *p_cell_cycle_model =
-			new CellTissueTypeBasedCellCycleModel;
-		double birth_time =
-			-p_cell_cycle_model->GetAverageStemCellCycleTime() * RandomNumberGenerator::Instance()->ranf();
-		p_cell->SetBirthTime(birth_time);
-	}
-	else
-	{
-		p_cell->SetBirthTime(-56.0); //Average stem cell cycle time is 60.0 with current values
-									//Now we don't have to wait forever for cell divisions to start
-	}
+	// if (!mSynchronizeCellCycles)
+	// {
+	// 	CellTissueTypeBasedCellCycleModel *p_cell_cycle_model =
+	// 		new CellTissueTypeBasedCellCycleModel;
+	// 	double birth_time =
+	// 		-p_cell_cycle_model->GetAverageStemCellCycleTime() * RandomNumberGenerator::Instance()->ranf();
+	// 	p_cell->SetBirthTime(birth_time);
+	// }
+	// else
+	// {
+	// 	p_cell->SetBirthTime(-56.0); //Average stem cell cycle time is 60.0 with current values
+	// 								//Now we don't have to wait forever for cell divisions to start
+	// }
+	p_cell->SetBirthTime(0.0);
 
 	mpCellPopulation->AddCellWriter<CellDivisionDirectionsWriter>();
 	mpCellPopulation->AddCellWriter<CellTissueTypesWriter>();
