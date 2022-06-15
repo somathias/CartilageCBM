@@ -113,9 +113,9 @@ def screenshot(argv):
     renderView1.AxesGrid.YLabelFontSize = 60
     renderView1.AxesGrid.ZLabelFontSize = 60
     
-    renderView1.AxesGrid.XTitle = 'x'
-    renderView1.AxesGrid.YTitle = 'y'
-    renderView1.AxesGrid.ZTitle = '  z  '
+    renderView1.AxesGrid.XTitle = 'x [d]'
+    renderView1.AxesGrid.YTitle = 'y [d]'
+    renderView1.AxesGrid.ZTitle = '  z [d]  '
     
     renderView1.AxesGrid.XAxisUseCustomLabels = 1
     renderView1.AxesGrid.XAxisLabels= [0, 2, 6, 8]
@@ -180,6 +180,89 @@ def screenshot(argv):
     ancestorsPWF = GetOpacityTransferFunction('Ancestors')
     ancestorsPWF.Points = [0.0, 0.0, 0.5, 0.0, 199.0, 1.0, 0.5, 0.0]
     ancestorsPWF.ScalarRangeInitialized = 1
+    
+    
+    # create a new 'Plane'
+    plane1 = Plane()
+
+    # Properties modified on plane1
+    plane1.Point1 = [8.5, -0.5, 0.0]
+    plane1.Point2 = [-0.5, 11.5, 0.0]
+    plane1.XResolution = 8
+    plane1.YResolution = 11
+
+    # show data in view
+    plane1Display = Show(plane1, renderView1)
+    # trace defaults for the display properties.
+    plane1Display.Representation = 'Surface'
+    plane1Display.ColorArrayName = [None, '']
+    plane1Display.OSPRayScaleArray = 'Normals'
+    plane1Display.OSPRayScaleFunction = 'PiecewiseFunction'
+    plane1Display.SelectOrientationVectors = 'None'
+    plane1Display.ScaleFactor = 0.0
+    plane1Display.SelectScaleArray = 'None'
+    plane1Display.GlyphType = 'Arrow'
+    plane1Display.GlyphTableIndexArray = 'None'
+    plane1Display.DataAxesGrid = 'GridAxesRepresentation'
+    plane1Display.PolarAxes = 'PolarAxesRepresentation'
+
+    # init the 'PiecewiseFunction' selected for 'OSPRayScaleFunction'
+    plane1Display.OSPRayScaleFunction.Points = [-1.0, 0.0, 0.5, 0.0, 147.0, 1.0, 0.5, 0.0]
+
+    # update the view to ensure updated data information
+    renderView1.Update()
+
+    # change representation type
+    plane1Display.SetRepresentationType('Surface With Edges')
+
+    # Properties modified on plane1Display
+    plane1Display.Opacity = 0.25
+
+    # Properties modified on plane1Display
+    plane1Display.EdgeColor = [0.0, 0.0, 0.0]
+
+   # create a new 'Plane'
+    plane2 = Plane()
+
+    # Properties modified on plane2
+    plane2.Origin = [-0.5, -0.5, 3.5]
+    plane2.Point1 = [8.5, -0.5, 3.5]
+    plane2.Point2 = [-0.5, 11.5, 3.5]
+    plane2.XResolution = 8
+    plane2.YResolution = 11
+
+    # show data in view
+    plane2Display = Show(plane2, renderView1)
+    # trace defaults for the display properties.
+    plane2Display.Representation = 'Surface'
+    plane2Display.ColorArrayName = [None, '']
+    plane2Display.OSPRayScaleArray = 'Normals'
+    plane2Display.OSPRayScaleFunction = 'PiecewiseFunction'
+    plane2Display.SelectOrientationVectors = 'None'
+    plane2Display.ScaleFactor = 0.0
+    plane2Display.SelectScaleArray = 'None'
+    plane2Display.GlyphType = 'Arrow'
+    plane2Display.GlyphTableIndexArray = 'None'
+    plane2Display.DataAxesGrid = 'GridAxesRepresentation'
+    plane2Display.PolarAxes = 'PolarAxesRepresentation'
+
+    # init the 'PiecewiseFunction' selected for 'OSPRayScaleFunction'
+    plane2Display.OSPRayScaleFunction.Points = [-1.0, 0.0, 0.5, 0.0, 147.0, 1.0, 0.5, 0.0]
+
+    # update the view to ensure updated data information
+    renderView1.Update()
+
+    # change representation type
+    plane2Display.SetRepresentationType('Surface With Edges')
+
+    # Properties modified on plane2Display
+    plane2Display.Opacity = 0.25
+
+    # Properties modified on plane2Display
+    plane2Display.EdgeColor = [0.0, 0.0, 0.0]
+
+    # set active source
+    SetActiveSource(glyph1) 
     
     # reset view to fit data
     renderView1.ResetCamera()
