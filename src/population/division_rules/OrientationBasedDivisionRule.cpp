@@ -105,6 +105,52 @@ std::pair<c_vector<double, SPACE_DIM>, c_vector<double, SPACE_DIM>> OrientationB
             main_direction = 0.5 * separation * p_direction->GetCellDivisionDirection();
         }
     }
+    else if (pParentCell->HasCellProperty<PerturbedUpwardsCellDivisionDirection<SPACE_DIM>>())
+    {
+        /*
+		 * Draw a perturbed cell division direction pointing mostly upwards.
+         * To this end, the cosine of the zenith angle is uniformly drawn from [T, 1],
+         * where T = cosine(max_zenith_angle).
+		 */
+        
+        // Get max_zenith_angle from cell property
+        double max_zenith_angle;
+        
+        CellPropertyCollection collection =
+            pParentCell->rGetCellPropertyCollection();
+        CellPropertyCollection direction_collection =
+            collection.GetProperties<
+                PerturbedUpwardsCellDivisionDirection<SPACE_DIM>>();
+
+        if (direction_collection.GetSize() == 1)
+        {
+            boost::shared_ptr<PerturbedUpwardsCellDivisionDirection<SPACE_DIM>> p_direction =
+                boost::static_pointer_cast<
+                    PerturbedUpwardsCellDivisionDirection<SPACE_DIM>>(
+                    direction_collection.GetProperty());
+            max_zenith_angle = p_direction->getMaximumZenithAngle();
+        }
+        else
+        {
+            max_zenith_angle = 0.25*M_PI;
+        }
+        std::cout << max_zenith_angle << std::endl;
+        
+        double T = cos(max_zenith_angle);
+        std::cout << T << std::endl; 
+        
+        double u = RandomNumberGenerator::Instance()->ranf();
+        double v = RandomNumberGenerator::Instance()->ranf();
+        
+        double random_azimuth_angle = 2 * M_PI * u;
+        double random_zenith_angle = std::acos(T + v * (1 - T) );
+        
+        main_direction(0) = 0.5 * separation * cos(random_azimuth_angle) * sin(random_zenith_angle);
+        main_direction(1) = 0.5 * separation * sin(random_azimuth_angle) * sin(random_zenith_angle);
+        main_direction(2) = 0.5 * separation * cos(random_zenith_angle);
+        break;
+
+    }
     else
     {
         /*
