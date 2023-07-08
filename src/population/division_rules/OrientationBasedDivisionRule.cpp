@@ -4,6 +4,7 @@
 #include "DownwardsCellDivisionDirection.hpp"
 #include "HorizontalCellDivisionDirection.hpp"
 #include "FixedCellDivisionDirection.hpp"
+#include "PerturbedUpwardsCellDivisionDirection.hpp"
 #include "PerichondrialCellTissueType.hpp"
 
 
@@ -134,21 +135,18 @@ std::pair<c_vector<double, SPACE_DIM>, c_vector<double, SPACE_DIM>> OrientationB
         {
             max_zenith_angle = 0.25*M_PI;
         }
-        std::cout << max_zenith_angle << std::endl;
-        
+       
         double T = cos(max_zenith_angle);
-        std::cout << T << std::endl; 
         
         double u = RandomNumberGenerator::Instance()->ranf();
         double v = RandomNumberGenerator::Instance()->ranf();
         
         double random_azimuth_angle = 2 * M_PI * u;
-        double random_zenith_angle = std::acos(T + v * (1 - T) );
+        double random_zenith_angle = std::acos(T + v * (1 - T));
         
         main_direction(0) = 0.5 * separation * cos(random_azimuth_angle) * sin(random_zenith_angle);
         main_direction(1) = 0.5 * separation * sin(random_azimuth_angle) * sin(random_zenith_angle);
         main_direction(2) = 0.5 * separation * cos(random_zenith_angle);
-        break;
 
     }
     else
