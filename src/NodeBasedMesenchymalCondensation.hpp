@@ -30,6 +30,7 @@
 #include "ChondrocytesOnlyCellCycleModel.hpp"
 #include "UpwardsCellDivisionDirection.hpp"
 #include "DownwardsCellDivisionDirection.hpp"
+#include "PerturbedUpwardsCellDivisionDirection.hpp"
 #include "CellTissueTypesWriter.hpp"
 #include "CellDivisionDirectionsWriter.hpp"
 #include "OrientationBasedDivisionRule.hpp"
@@ -45,6 +46,7 @@ private:
 	unsigned mNumberOfNodesPerYDimension;
 
 	double mMaxCoordinatePerturbation;
+    double mMaxZenithAnglePerturbation;
 
 	double mDistanceBetweeenBoundaries;
 
@@ -89,7 +91,10 @@ public:
 	void UseRandomSeed();
 
 	double getMaxCoordinatePerturbation() const;
-	void setMaxCoordinatePerturbation(double maxCoordinatePerturbation);
+	void setMaxCoordinatePerturbation(double);
+    
+    double getMaxZenithAnglePerturbation() const;
+	void setMaxZenithAnglePerturbation(double);
 
 	unsigned getNumberOfNodesPerXDimension() const;
 	unsigned getNumberOfNodesPerYDimension() const;

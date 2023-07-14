@@ -209,6 +209,44 @@ public:
 		CellPtr p_cell = cell_population->rGetCells().front();
 		TS_ASSERT_EQUALS(static_cast<ChondrocytesOnlyCellCycleModel*>(p_cell->GetCellCycleModel())->GetPatchSizeLimit(), 4);
 	}
+	
+	void TestUsingPerturbedUpwardsDirection(){
+        EXIT_IF_PARALLEL;
+
+		// Construct a new mesenchymal condensation
+		NodeBasedMesenchymalCondensation* p_condensation =
+				new NodeBasedMesenchymalCondensation();
+
+		// set the sheet dimensions
+		p_condensation->SetDimensions(3, 4);
+        // set a perturbation for the upwards division angle
+        double perturbation = M_PI/8;
+        p_condensation->setMaxZenithAnglePerturbation(perturbation);
+        
+        // setup the cell population
+		if (!p_condensation->isCellPopulationSetup()) {
+			p_condensation->Setup();
+		}
+		
+		p_condensation->InitialiseRandomConfiguration(12); //all cells activated so that they should all be assigned a cell division direction
+
+		// get the cell population
+		boost::shared_ptr<NodeBasedCellPopulation<3> > cell_population =
+			p_condensation->GetCellPopulation();
+            
+            
+        CellPtr p_cell = cell_population->rGetCells().front();
+        CellPropertyCollection collection =
+            p_cell->rGetCellPropertyCollection();
+        CellPropertyCollection direction_collection =
+            collection.GetProperties<
+                PerturbedUpwardsCellDivisionDirection<3>>();
+
+        boost::shared_ptr<PerturbedUpwardsCellDivisionDirection<3>> p_direction = boost::static_pointer_cast<
+                    PerturbedUpwardsCellDivisionDirection<3>>(direction_collection.GetProperty());
+        TS_ASSERT_EQUALS(p_direction->getMaximumZenithAngle(), perturbation );
+        
+    }
 
 	/**
 	 * Minimal testing for the generation of the node coordinates on a cartesian lattice

@@ -8,7 +8,9 @@
 #include "NodeBasedMesenchymalCondensation.hpp"
 
 NodeBasedMesenchymalCondensation::NodeBasedMesenchymalCondensation() : mNumberOfNodesPerXDimension(3), mNumberOfNodesPerYDimension(3),
-													 mMaxCoordinatePerturbation(0), mDistanceBetweeenBoundaries(7.0),
+													 mMaxCoordinatePerturbation(0), 
+													 mMaxZenithAnglePerturbation(0.0),
+													 mDistanceBetweeenBoundaries(7.0),
 													 mSeed(0), mPatchSizeLimit(6),
 													 //mSynchronizeCellCycles(false),
 													 mDivisionDirections(true),
@@ -117,8 +119,14 @@ void NodeBasedMesenchymalCondensation::InitialiseRandomConfiguration(
 	}
 
 	MAKE_PTR(TransitCellProliferativeType, p_transit_type);
-	boost::shared_ptr<AbstractCellProperty> p_upwards(
+    boost::shared_ptr<AbstractCellProperty> p_upwards(
 		mpCellPopulation->GetCellPropertyRegistry()->Get<UpwardsCellDivisionDirection<3>>());
+    
+    boost::shared_ptr<PerturbedUpwardsCellDivisionDirection<3> > p_perturbed_upwards = boost::static_pointer_cast<
+                    PerturbedUpwardsCellDivisionDirection<3>>(mpCellPopulation->GetCellPropertyRegistry()->Get<PerturbedUpwardsCellDivisionDirection<3>>());
+    p_perturbed_upwards->setMaximumZenithAngle(mMaxZenithAnglePerturbation);
+    
+    
 	boost::shared_ptr<AbstractCellProperty> p_chondrocyte(
 		mpCellPopulation->GetCellPropertyRegistry()->Get<ChondrocyteCellTissueType>());
 
@@ -151,7 +159,14 @@ void NodeBasedMesenchymalCondensation::InitialiseRandomConfiguration(
 			cell->SetAncestor(p_cell_ancestor);
 
 			if(mDivisionDirections){
-				cell->AddCellProperty(p_upwards);
+                if(mMaxZenithAnglePerturbation > 0.0)
+                {
+                    cell->AddCellProperty(p_perturbed_upwards);
+                }
+                else
+                {
+                    cell->AddCellProperty(p_upwards);
+                }
 			}
 
 			// // set random birth times if required
@@ -177,6 +192,7 @@ void NodeBasedMesenchymalCondensation::InitialiseRandomConfiguration(
 	mpCellPopulation->AddCellWriter<CellDivisionDirectionsWriter>();
 	mpCellPopulation->AddCellWriter<CellTissueTypesWriter>();
 }
+
 
 void NodeBasedMesenchymalCondensation::SetDimensions(
 	unsigned numberOfCellsWide, unsigned numberOfCellsDeep)
@@ -308,6 +324,17 @@ void NodeBasedMesenchymalCondensation::setMaxCoordinatePerturbation(
 	double maxCoordinatePerturbation)
 {
 	mMaxCoordinatePerturbation = maxCoordinatePerturbation;
+}
+
+double NodeBasedMesenchymalCondensation::getMaxZenithAnglePerturbation() const
+{
+	return mMaxZenithAnglePerturbation;
+}
+
+void NodeBasedMesenchymalCondensation::setMaxZenithAnglePerturbation(
+	double maxZenithAnglePerturbation)
+{
+	mMaxZenithAnglePerturbation = maxZenithAnglePerturbation;
 }
 
 double NodeBasedMesenchymalCondensation::getDistanceBetweeenBoundaries() const

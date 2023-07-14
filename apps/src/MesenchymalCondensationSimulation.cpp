@@ -47,7 +47,7 @@
 void SetupSingletons(unsigned randomSeed);
 void DestroySingletons();
 void SetupAndRunMesenchymalCondensationSimulation(unsigned randomSeed, bool, bool,  bool, bool, unsigned,
-		unsigned, double, double, double, unsigned, double, double, double, double, double, double, double, std::string, std::string);
+		unsigned, double, double, double, unsigned, double, double, double, double, double, double, double, double, std::string, std::string);
 void SetForceFunction(OffLatticeSimulation<3>&, std::string, double, double, double, double, double, double);
 
 int main(int argc, char *argv[]) {
@@ -81,7 +81,9 @@ int main(int argc, char *argv[]) {
 			boost::program_options::value<unsigned>()->default_value(6),
 			"The size limit for clonal patches")("p",
 			boost::program_options::value<double>()->default_value(0.0),
-			"The maximum perturbation of the initial coordinates.")("g1t",
+			"The maximum perturbation of the initial coordinates.")("z", 
+            boost::program_options::value<double>()->default_value(0.0), 
+            "The maximum perturbation for the zenith angle if used." )("g1t",
 			boost::program_options::value<double>()->default_value(30.0),
 			"The transit cell G1 duration.")("ds",
 			boost::program_options::value<double>()->default_value(10.0),
@@ -141,6 +143,8 @@ int main(int argc, char *argv[]) {
 	double upper_boundary = variables_map["u"].as<double>();
 	double activation_percentage = variables_map["A"].as<double>();
 	double maximum_perturbation = variables_map["p"].as<double>();
+    double maximum_zenith_angle = variables_map["z"].as<double>();
+
 	unsigned patch_size_limit = variables_map["psl"].as<unsigned>();
 
 	double transit_cell_g1_duration = variables_map["g1t"].as<double>();
@@ -163,7 +167,7 @@ int main(int argc, char *argv[]) {
 	SetupAndRunMesenchymalCondensationSimulation(random_seed, random_division_directions, cont, use_offset,
 			symmetrical_boundary,
 			n_cells_wide, n_cells_deep, scaling, upper_boundary, activation_percentage, patch_size_limit,
-			maximum_perturbation, transit_cell_g1_duration, s_phase_duration, spring_stiffness, spring_stiffness_repulsion,
+			maximum_perturbation, maximum_zenith_angle, transit_cell_g1_duration, s_phase_duration, spring_stiffness, spring_stiffness_repulsion,
 			simulation_end_time, dt, force_function, output_directory);	
 
 	DestroySingletons();
@@ -229,7 +233,7 @@ void SetupAndRunMesenchymalCondensationSimulation(unsigned random_seed,
 		bool random_division_directions, bool cont, bool use_offset, bool symmetrical_boundary,
 		unsigned n_cells_wide, unsigned n_cells_deep, double scaling, double upper_boundary, 
 		double activation_percentage, unsigned patch_size_limit,
-		double maximum_perturbation, double transit_cell_g1_duration, double s_phase_duration,
+		double maximum_perturbation, double maximum_zenith_angle, double transit_cell_g1_duration, double s_phase_duration,
 		double spring_stiffness,
 		double spring_stiffness_repulsion,
 		double simulation_endtime, double dt,
@@ -254,6 +258,7 @@ void SetupAndRunMesenchymalCondensationSimulation(unsigned random_seed,
 	// set the sheet dimensions
 	p_condensation->SetDimensions(n_cells_wide, n_cells_deep);
 	p_condensation->setMaxCoordinatePerturbation(maximum_perturbation);
+    p_condensation->setMaxZenithAnglePerturbation(maximum_zenith_angle);
 	p_condensation->setDistanceBetweeenBoundaries(upper_boundary);
 	p_condensation->SetPatchSizeLimit(patch_size_limit);	
 	p_condensation->SetPhaseDurations(transit_cell_g1_duration, s_phase_duration);
@@ -376,6 +381,8 @@ void SetupAndRunMesenchymalCondensationSimulation(unsigned random_seed,
 	sheet_params_file << "Activation percentage : " << activation_percentage
 			<< "\n";
 	sheet_params_file << "Maximum perturbation : " << maximum_perturbation
+			<< "\n";
+    sheet_params_file << "Maximum zenith angle : " << maximum_zenith_angle
 			<< "\n";
 	sheet_params_file << "Distance between upper and lower boundary : " << upper_boundary
 			<< "\n";
