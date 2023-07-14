@@ -15,7 +15,7 @@ template<unsigned SPACE_DIM> PerturbedUpwardsCellDivisionDirection<SPACE_DIM>::P
 template<unsigned SPACE_DIM> void PerturbedUpwardsCellDivisionDirection<SPACE_DIM>::setMaximumZenithAngle(double theta_max) 
 {
     //theta_max should be between zero and pi. 
-    assert(theta_max > 0);
+    assert(theta_max >= 0.0);
     assert(theta_max < M_PI);
     mMaximumZenithAngle = theta_max;
 }
