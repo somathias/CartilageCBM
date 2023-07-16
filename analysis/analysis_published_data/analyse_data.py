@@ -2,6 +2,11 @@ import pandas as pd
 import os
 import numpy as np
 from matplotlib import pyplot as plt
+import seaborn as sns
+
+font = {'size'   : 10,
+        'sans-serif' : 'Arial'}
+plt.rc('font', **font)
 
 these_files = os.listdir(os.path.join(os.path.dirname(__file__),'csv_files'))
 these_files.sort()
@@ -19,6 +24,7 @@ rotated_columns = []
 for index, column in enumerate(column_data):
     x_values = column[:,0]
     y_values = column[:,1]
+    y_values*=-1
     x_values -= x_values[0]
     y_values -= y_values[0]
     slope, offset = np.polyfit(x_values,y_values,1)
@@ -37,15 +43,17 @@ for index, column in enumerate(column_data):
     reset_y_values*=scaling_factor
     rotated_coordinates*=scaling_factor
     rotated_columns.append(rotated_coordinates)
-    plt.figure()
+    plt.figure(figsize = (3.75,2.5))
     plt.scatter(x_values, reset_y_values, label = 'original')
     plt.scatter(rotated_x_values, rotated_y_values, label = 'rotated')
     plt.plot(x_values, slope*x_values)
-    plt.xlabel('X')
-    plt.ylabel('Y')
+    plt.xlabel('x-position')
+    plt.ylabel('y-position')
     plt.axis('equal')
     plt.legend()
+    plt.tight_layout()
     plt.savefig(os.path.join(os.path.dirname(__file__),'output','column_' + str(index+1) + '_visualised.jpeg'))
+    plt.savefig(os.path.join(os.path.dirname(__file__),'output','column_' + str(index+1) + '_visualised.pdf'))
 
 envelope_projection_areas = []
 column_lengths = []
@@ -59,8 +67,9 @@ for column in rotated_columns:
 envelope_projection_areas = np.array(envelope_projection_areas)
 column_lengths = np.array(column_lengths)
 print(envelope_projection_areas)
-print('the average projection area for small columns')
+print('the average projection area for small columns has the following properties')
 short_envelope_projection_areas = envelope_projection_areas[column_lengths<6]
+short_column_lengths = column_lengths[column_lengths<6]
 ea_mean = np.mean(short_envelope_projection_areas)
 ea_std = np.std(short_envelope_projection_areas)
 print('the mean is')
@@ -68,10 +77,15 @@ print(ea_mean)
 print('the std is')
 print(ea_std)
 print('the number of cells is')
-print(len(envelope_projection_areas))
+print(len(short_envelope_projection_areas))
 
-plt.figure()
-plt.scatter(column_lengths, envelope_projection_areas)
+plt.figure(figsize = (3.75, 2.5))
+# plt.scatter(short_column_lengths, short_envelope_projection_areas, s=2)
+sns.swarmplot(x = short_column_lengths, y = short_envelope_projection_areas, color = 'C0')
 plt.xlabel('column length')
 plt.ylabel('envelope projection area')
+# plt.xticks([4,5])
+# plt.xlim(3,6)
+plt.tight_layout()
 plt.savefig(os.path.join(os.path.dirname(__file__),'output','envelope_projection_areas.jpeg'))
+plt.savefig(os.path.join(os.path.dirname(__file__),'output','envelope_projection_areas.pdf'))
