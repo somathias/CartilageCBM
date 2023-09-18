@@ -14,6 +14,6 @@ inside the Chaste build folder should then enable generation of the relevant exe
     make CartilageSheetSimulation
     make MissingColumnSimulation
 
-The python scripts found in the `experiments` folders show how to run the simulations.
+The jupyter notebook files found in the `experiments` folders show how to run the simulations.
 
 The simulation data used to generate the result figures (~2GB) can be downloaded from figshare at [https://doi.org/10.6084/m9.figshare.21731804.v1](https://doi.org/10.6084/m9.figshare.21731804.v1). If unpacked and copied to `experiments/data`, the jupyter notebooks can be used to generate the figures found in the *Results* section of the article. The notebooks also list the exact commands used to generate the data including all parameter settings. 
